@@ -1,0 +1,74 @@
+services:
+
+  adminer:
+    image: adminer
+    container_name: hypertube_adminer
+    restart: on-failure
+    ports:
+      - 8080:8080
+    networks:
+      - hypertube
+    depends_on:
+      - database
+
+  front:
+    build: setup/frontend
+    image: hypertube_front
+    container_name: hypertube_front
+    restart: on-failure
+    volumes:
+      - ${PWD}/srcs/frontend:/var/www/html
+    expose:
+      - 3000
+    networks:
+      - hypertube
+    depends_on:
+      - back
+
+  back:
+    build: setup/backend
+    image: hypertube_back
+    container_name: hypertube_back
+    restart: on-failure
+    volumes:
+      - ${PWD}/srcs/backend:/var/www/html
+    expose:
+      - 8080
+    networks:
+      - hypertube
+    depends_on:
+      - database
+
+  database:
+    image: postgres
+    container_name: hypertube_database
+    environment:
+      - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+      - POSTGRES_DB=$POSTGRES_DB
+      - POSTGRES_USER=$POSTGRES_USER
+    # volumes:
+    #   - vol_database:/var/lib/postgresql/data
+    restart: on-failure
+    ports:
+      - 5432:5432
+    networks:
+      - hypertube
+
+  web:
+    image: nginx:alpine
+    container_name: hypertube_web
+    restart: always
+    volumes:
+      - ./setup/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - 8081:80
+    networks:
+      - hypertube
+    depends_on:
+      - back
+      - front
+
+networks:
+  hypertube:
+    driver: bridge
+
