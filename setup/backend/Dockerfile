@@ -1,6 +1,6 @@
 FROM node:20-bullseye-slim
 
-RUN apt update -y && apt upgrade -y && apt install git -y 
+RUN apt update -y && apt upgrade -y && apt install git gcc build-essential -y 
 
 COPY script.sh .
 

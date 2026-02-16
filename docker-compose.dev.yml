@@ -24,6 +24,8 @@ services:
       - hypertube
     depends_on:
       - back
+    env_file:
+      - .env.dev
 
   back:
     build: setup/backend
@@ -38,6 +40,8 @@ services:
       - hypertube
     depends_on:
       - database
+    env_file:
+      - .env.dev
 
   database:
     image: postgres
@@ -49,10 +53,10 @@ services:
     # volumes:
     #   - vol_database:/var/lib/postgresql/data
     restart: on-failure
-    ports:
-      - 5432:5432
     networks:
       - hypertube
+    env_file:
+      - .env.dev
 
   web:
     image: nginx:alpine
