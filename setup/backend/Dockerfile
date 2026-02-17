@@ -1,6 +1,6 @@
 FROM node:20-bullseye-slim
 
-RUN apt update -y && apt upgrade -y && apt install git gcc build-essential -y 
+RUN apt update -y && apt upgrade -y && apt install git gcc build-essential python3 -y 
 
 COPY script.sh .
 
