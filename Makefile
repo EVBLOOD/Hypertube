@@ -1,4 +1,6 @@
 ENV ?= dev
+MSG ?= dev
+DATE_TIME ?= 2026-02-17 00:01:01
 
 COMPOSE = docker compose -f docker-compose.$(ENV).yml --env-file .env.$(ENV)
 
@@ -22,3 +24,8 @@ ps:
 
 history:
 	$(COMPOSE) logs -f
+
+push :
+	git add -A
+	GIT_AUTHOR_DATE="$(DATE_TIME)" GIT_COMMITTER_DATE="$(DATE_TIME)" git commit -m "$(MSG)"
+	git push
