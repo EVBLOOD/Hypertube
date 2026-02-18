@@ -1,14 +1,16 @@
 import { PassportStrategy } from '@nestjs/passport';
-import { Strategy } from 'passport-42';
+import  Strategy  from 'passport-42';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class FortyTwoStrategy extends PassportStrategy(Strategy, '42') {
+export class FortyTwoStrategy extends PassportStrategy(Strategy.Strategy, '42') {
   constructor() {
     super({
-      clientID: process.env.FORTY_TWO_CLIENT_ID,
-      clientSecret: process.env.FORTY_TWO_CLIENT_SECRET,
+      clientID: process.env.FORTY_TWO_CLIENT_ID || "",
+      clientSecret: process.env.FORTY_TWO_CLIENT_SECRET || "",
       callbackURL: process.env.FORTY_TWO_CALL_BACK,
+      authorizationURL: "",
+      tokenURL: ""
     });
   }
 

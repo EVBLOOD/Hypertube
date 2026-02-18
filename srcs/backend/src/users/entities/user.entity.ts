@@ -42,6 +42,12 @@ export class User {
   @Column({ default: false })
   isOAuthUser: boolean;
 
+  @Column({ default: false })
+  isValidated: boolean;
+
+  @Column({ select: false })
+  emailToken?: string;
+
   @BeforeInsert()
   @BeforeUpdate()
   async hashPassword() {
