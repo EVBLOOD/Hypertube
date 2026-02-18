@@ -29,3 +29,6 @@ push :
 	git add -A
 	GIT_AUTHOR_DATE="$(DATE_TIME)" GIT_COMMITTER_DATE="$(DATE_TIME)" git commit -m "$(MSG)"
 	git push
+
+owner:
+	sudo find ~ -type d -user root -exec sudo chown -R ${USER}: {} +
