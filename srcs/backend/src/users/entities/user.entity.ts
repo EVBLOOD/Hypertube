@@ -45,7 +45,7 @@ export class User {
   @Column({ default: false })
   isValidated: boolean;
 
-  @Column({ select: false })
+  @Column({ select: false, nullable: true })
   emailToken?: string;
 
   @BeforeInsert()
@@ -53,6 +53,13 @@ export class User {
   async hashPassword() {
     if (this.password && !this.password.startsWith('$argon2')) {
       this.password = await argon2.hash(this.password);
+    }
+  }
+
+  @BeforeInsert()
+  async emailTokenToSend() {
+    if (this.password) {
+      this.emailToken = "await argon2.hash(this.password)";
     }
   }
 }

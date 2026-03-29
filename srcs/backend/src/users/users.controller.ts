@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, ParseIntPipe, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, ParseIntPipe, Param, Req } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 
@@ -11,7 +11,7 @@ export class UsersController {
   async register(@Body() createUserDto: CreateUserDto) {
     const user = await this.usersService.create(createUserDto);
     
-    const { password, ...result } = user;
+    const { password, emailToken, ...result } = user;
     return result;
   }
 
