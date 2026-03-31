@@ -72,6 +72,18 @@ services:
       - back
       - front
 
+  redis:
+    image: redis:latest
+    container_name: matcha_redis
+    command: redis-server --appendonly yes
+    restart: on-failure
+    # volumes:
+    #   - redis_data:/data 
+    # ports:
+    #   - 6379:6379
+    networks:
+      - hypertube
+
 networks:
   hypertube:
     driver: bridge
