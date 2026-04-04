@@ -1,0 +1,16 @@
+:root {
+  --primary-color: #FFD700;
+  --secondry-color: #1A1A1A;
+  --third-color: #E50914;
+  --neutral-color: #0B0B0B;
+  --headline-font: var(--font-space-grotesk), sans-serif;
+  --body-font: var(--font-manrope), sans-serif;
+  --label-font: var(--font-space-grotesk), sans-serif;
+  --font-color-white: #E5E2E1;
+}
+
+body {
+  font-family: var(--body-font);
+  background-color: var(--neutral-color);
+  color: var(--font-color-white);
+}
