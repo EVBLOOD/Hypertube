@@ -1,22 +1,30 @@
-import { Controller, Get, Post, Body, ParseIntPipe, Param, Req } from '@nestjs/common';
+import { Controller, Get, Patch, Body, Param, UseGuards, Req, ParseIntPipe } from '@nestjs/common';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { WhitelistGuard } from '../auth/guards/whitelist.guard';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
-
 
 @Controller('users')
+@UseGuards(JwtAuthGuard, WhitelistGuard)
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly userService: UsersService) {}
 
-  @Post('register')
-  async register(@Body() createUserDto: CreateUserDto) {
-    const user = await this.usersService.create(createUserDto);
-    
-    const { password, emailToken, ...result } = user;
-    return result;
+  @Get()
+  async getAllUsers() {
+    return this.userService.findAll();
   }
 
   @Get(':id')
-  async getUser(@Param('id', ParseIntPipe) id: number) {
-    return this.usersService.findById(id);
+  async getProfile(
+    @Param('id', ParseIntPipe) targetId: number, 
+    @Req() req
+  ) {
+    // Passes the requestor's ID to handle the privacy logic
+    return this.userService.findById(targetId, req.user.id);
+  }
+
+  @Patch('me')
+  async updateMe(@Req() req, @Body() dto: UpdateUserDto) {
+    return this.userService.update(req.user.id, dto);
   }
 }

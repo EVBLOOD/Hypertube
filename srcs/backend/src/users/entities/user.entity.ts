@@ -1,22 +1,17 @@
-import { 
-  Entity, 
-  PrimaryGeneratedColumn, 
-  Column, 
-  BeforeInsert, 
-  BeforeUpdate,
-  OneToMany 
-} from 'typeorm';
-import { IsEmail, IsNotEmpty, MinLength } from 'class-validator';
-import * as argon2 from 'argon2';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, BeforeInsert, BeforeUpdate } from 'typeorm';
+import { Comment } from 'src/comments/entities/comment.entity';
+import { UserMovieProgress } from 'src/movies/entities/user-movie-progress.entity';
 
-@Entity('users')
+import * as argon2 from 'argon2';
+import { IsEmail, IsNotEmpty } from 'class-validator';
+
+import { v4 as uuidv4 } from 'uuid';
+
+
+@Entity()
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
-
-  @Column({ unique: true })
-  @IsEmail({}, { message: 'Invalid email format' })
-  email: string;
 
   @Column({ unique: true })
   @IsNotEmpty()
@@ -24,6 +19,10 @@ export class User {
 
   @Column({ select: false })
   password?: string;
+
+  @Column({ unique: true })
+  @IsEmail({}, { message: 'Invalid email format' })
+  email: string;
 
   @Column()
   @IsNotEmpty()
@@ -34,19 +33,31 @@ export class User {
   lastName: string;
 
   @Column({ nullable: true })
-  avatarUrl: string;
+  profilePicture: string;
+
+  @Column({ default: false })
+  isVerified: boolean;
+
+  @Column({ nullable: true, select: false })
+  emailVerificationToken: string;
+
+  @Column({ nullable: true, select: false })
+  passwordResetToken: string;
 
   @Column({ default: 'en' })
-  language: string;
+  preferredLanguage: string;
 
-  @Column({ default: false })
-  isOAuthUser: boolean;
+  @Column({ nullable: true })
+  fortyTwoId: string;
 
-  @Column({ default: false })
-  isValidated: boolean;
+  @Column({ nullable: true })
+  externalStrategyId: string;
 
-  @Column({ select: false, nullable: true })
-  emailToken?: string;
+  @OneToMany(() => Comment, (comment) => comment.user)
+  comments: Comment[];
+
+  @OneToMany(() => UserMovieProgress, (progress) => progress.user)
+  watchHistory: UserMovieProgress[];
 
   @BeforeInsert()
   @BeforeUpdate()
@@ -55,11 +66,15 @@ export class User {
       this.password = await argon2.hash(this.password);
     }
   }
+  
+  // @BeforeInsert()
+  // async emailVerificationTokenToSend() {
+  //   if (this.password) {
+  //     const verificationToken = uuidv4();
+  //     this.emailVerificationToken = verificationToken;
+  //     // I'll need this here and I'm not sure if best practice so for now I'll just use the service
+  //     // await this.mailService.sendVerificationEmail(user, verificationToken);
 
-  @BeforeInsert()
-  async emailTokenToSend() {
-    if (this.password) {
-      this.emailToken = "await argon2.hash(this.password)";
-    }
-  }
+  //   }
+  // }
 }
