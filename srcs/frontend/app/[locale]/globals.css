@@ -7,6 +7,11 @@
   --body-font: var(--font-manrope), sans-serif;
   --label-font: var(--font-space-grotesk), sans-serif;
   --font-color-white: #E5E2E1;
+
+  --popup-background: var(--secondry-color);
+  --popup-background-second: #3A3939;
+
+  font-family: var(--body-font);
 }
 
 body {

@@ -32,7 +32,11 @@ export default async function RootLayout({
   const { locale } = await params;
   return (
     <html lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'}>
-      <body>
+      <body className={`
+          ${manrope.variable} 
+          ${spaceGrotesk.variable} 
+          antialiased
+        `}>
         {children}
       </body>
     </html>
