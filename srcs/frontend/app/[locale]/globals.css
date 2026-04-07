@@ -15,6 +15,7 @@
 }
 
 body {
+  margin: 0px;
   font-family: var(--body-font);
   background-color: var(--neutral-color);
   color: var(--font-color-white);

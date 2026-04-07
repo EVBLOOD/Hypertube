@@ -9,7 +9,7 @@
 	font: inherit;
 	cursor: pointer;
 	outline: inherit;
-  /* background-color: var(--popup-background-second); */
-  padding: 16px 24px 16px 24px;
+  padding: 5% 24px 5% 24px;
   width: 80%;
+  text-align: center;
 }

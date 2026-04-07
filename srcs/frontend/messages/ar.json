@@ -1,5 +1,32 @@
 {
     "Library": {
         "name": "مكتبة"
-    }
+    },
+    "Login": {
+    "title": "هل أنت مستعد للبث؟",
+    "description": "استكشف أضخم خزنة عالمية للمحتوى السينمائي فائق الدقة. نقرة واحدة تفصلك عن الإثارة.",
+    "scenes": [
+        {
+            "number": "المشهد: 01",
+            "name": "GLOBAL_AUTH"
+        },
+        {
+            "number": "لقطة: 04",
+            "name": "TORRENT_CORE"
+        }
+    ],
+    "integration": "التكامل مع مزودي خدمة آمنين",
+    "integrations": [
+        "المتابعة عبر 42 NETWORK",
+        "المتابعة عبر 42 NETWORK"
+    ],
+    "second_title": "التعريف بالهوية",
+    "second_discreption": "يرجى تقديم بيانات الاعتماد لولوج الخزنة.",
+    "label_address": "البريد الإلكتروني",
+    "holder_address": "USER@DOMAIN.COM",
+    "label_pass": "رمز المرور",
+    "forgot_pass": "استعادة المفتاح المفقود",
+    "no_account": "لا تملك مفتاحاً بعد؟",
+    "create_account": "سجل هنا"
+}
 }

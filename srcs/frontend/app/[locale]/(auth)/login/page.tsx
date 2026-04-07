@@ -5,47 +5,52 @@ import RecordComponent from '@/app/components/ui/recordComponent';
 import SceneCustom from '@/app/components/ui/sceneCustom';
 import ButtonCustom from '@/app/components/ui/buttonCustom';
 
-export default function Login() {
+import { getTranslations } from 'next-intl/server';
+
+export default async function Login() {
+  const Login = await getTranslations('Login')
   return (
     <div className={styles.card}>
       <div className={styles.halfCard}>
         <RecordComponent />
-        <TitleCustom title='READY TO STREAM?'/>
+        <TitleCustom title={Login('title')}/>
         <span>
-          Access the world's most comprehensive vault of cinematic high-definition content. One click to action.
+          {Login('description')}
         </span>
         <div>
-          <SceneCustom sceneNumber='SCENE: 01' sceneName='GLOBAL_AUTH'/>
-          <SceneCustom sceneNumber='TAKE: 04' sceneName='TORRENT_CORE'/>
+          {
+          Login.raw('scenes').map((scene: {number: string, name: string}, index: number) =>
+            <SceneCustom key={index} sceneNumber={scene.number} sceneName={scene.name}/>)
+          }
         </div>
         <div className={styles.buttonSpace}>
-          <div>Integrate with secure providers</div>
-          <ButtonCustom textButton='CONTINUE WITH 42 NETWORK' buttonImage='/costumIcons/42icon.svg'></ButtonCustom>
-          <ButtonCustom textButton='CONTINUE WITH 42 NETWORK' buttonImage='/costumIcons/42icon.svg'></ButtonCustom>
+          <div>{Login('integration')}</div>
+          <ButtonCustom textButton={Login.raw('integrations')[0]} buttonImage='/costumIcons/42icon.svg'></ButtonCustom>
+          <ButtonCustom textButton={Login.raw('integrations')[1]} buttonImage='/costumIcons/42icon.svg'></ButtonCustom>
         </div>
       </div>
       <div className={`${styles.halfCard} ${styles.secondHalf}`}>
         <div>
           <h1>
-            IDENTIFICATION
+            {Login('second_title')}
           </h1>
           <div>
-            Please provide credentials to enter the vault.
+            {Login('second_discreption')}
           </div>
         </div>
 
         <div className={styles.loginInfos}>
-          <InputCustom lableName='EMAIL_ADDRESS' placeHolder='USER@DOMAIN.COM'/>
-          <InputCustom lableName='PASS_CODE' placeHolder='••••••••••' typeInput='password' />
+          <InputCustom lableName={Login('label_address')} placeHolder={Login('label_address')}/>
+          <InputCustom lableName={Login('label_pass')} placeHolder='••••••••••' typeInput='password' />
           <div className={styles.recoverPassword}>
-            <p>Recover_Lost_Key?</p>
+            <p>{Login('forgot_pass')}</p>
           </div>
         </div>
         <div>
           <ButtonCustom textButton='AUTHORIZE_ACCESS' buttonImage={undefined} color="primary"/>
           <div>
-            NO KEY YET?
-            <span>ENROLL_HERE</span>
+            {Login('no_account')}
+            <span>{Login('create_account')}</span>
           </div>
         </div>
       </div>

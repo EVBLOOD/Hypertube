@@ -1,5 +1,32 @@
 {
     "Library": {
         "name": "Bibliothèque"
+    },
+    "Login": {
+    "title": "PRÊT POUR STREAMING?",
+    "description": "Accédez au coffre-fort cinématographique le plus complet au monde en haute définition. Un clic suffit.",
+    "scenes": [
+        {
+            "number": "SCÈNE : 01",
+            "name": "GLOBAL_AUTH"
+        },
+        {
+            "number": "PRISE : 04",
+            "name": "TORRENT_CORE"
+        }
+    ],
+    "integration": "Intégration avec des fournisseurs sécurisés",
+    "integrations": [
+        "CONTINUER AVEC 42 NETWORK",
+        "CONTINUER AVEC 42 NETWORK"
+    ],
+    "second_title": "IDENTIFICATION",
+    "second_discreption": "Veuillez fournir vos identifiants pour entrer dans le coffre.",
+    "label_address": "ADRESSE E-MAIL",
+    "holder_address": "USER@DOMAIN.COM",
+    "label_pass": "CODE_D_ACCÈS",
+    "forgot_pass": "Récupérer_Clé_Perdue?",
+    "no_account": "PAS ENCORE DE CLÉ ?",
+    "create_account": "S'INSCRIRE ICI"
     }
 }

@@ -1,0 +1,32 @@
+.headerWraper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--popup-background);
+    text-transform: uppercase;
+    padding: 0px 32px 0px 32px;
+}
+
+.optionsWraper {
+    display: flex;
+    gap: 40px;
+    /* justify-content: space-between; */
+}
+
+.actionsWraper {
+    display: flex;
+    gap: 20px;
+}
+
+
+.logo {
+    color: var(--primary-color);
+    letter-spacing: 4px;
+}
+
+.optionSelection {
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}

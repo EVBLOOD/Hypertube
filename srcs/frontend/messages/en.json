@@ -1,5 +1,40 @@
 {
     "Library": {
         "name": "Library"
+    },
+    "Login": {
+        "title": "READY TO STREAM?",
+        "description": "Access the world's most comprehensive vault of cinematic high-definition content. One click to action.",
+        "scenes": [
+            {
+                "number": "SCENE: 01",
+                "name": "GLOBAL_AUTH"
+            },
+            {
+                "number": "TAKE: 04",
+                "name": "TORRENT_CORE"
+            }
+        ],
+        "integration": "Integrate with secure providers",
+        "integrations": [
+            "CONTINUE WITH 42 NETWORK",
+            "CONTINUE WITH 42 NETWORK"
+        ],
+        "second_title": "IDENTIFICATION",
+        "second_discreption": "Please provide credentials to enter the vault.",
+        "label_address": "EMAIL_ADDRESS",
+        "holder_address": "USER@DOMAIN.COM",
+        "label_pass": "PASS_CODE",
+        "forgot_pass": "Recover_Lost_Key",
+        "no_account": "NO KEY YET?",
+        "create_account": "ENROLL_HERE"
+    },
+    "Header": {
+        "library": "Library",
+        "trending": "Trending",
+        "watchlist": "Watchlist",
+        "my_vault": "My Vault",
+        "sign_in": "SIGN IN",
+        "sign_out": "SIGN OUT"
     }
 }

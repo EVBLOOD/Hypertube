@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-
-
+import Header from "../components/layout/header";
 import { Space_Grotesk, Manrope } from 'next/font/google';
 
 const spaceGrotesk = Space_Grotesk({
@@ -35,9 +34,14 @@ export default async function RootLayout({
       <body className={`
           ${manrope.variable} 
           ${spaceGrotesk.variable} 
+          ${spaceGrotesk.className} 
           antialiased
         `}>
+          <Header />
         {children}
+        <div>
+
+        </div>
       </body>
     </html>
   );

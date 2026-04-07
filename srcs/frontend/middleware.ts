@@ -8,21 +8,14 @@ const i18nMiddleware = createMiddleware({
 })
 
 
-
-// export default createMiddleware({
-//     locales: ['en', 'ar', 'fr'],
-//     defaultLocale: 'en',
-//     localePrefix: 'always'
-// })
-
 export default function middleware(req: NextRequest) {
-    console.log(req.nextUrl)
-    console.log(req.nextUrl.toString())
+
     const pathname_direction = req.nextUrl.toString()
 
     const token = req.cookies.get('token')?.value;
 
-    const isProtectedRoute = pathname_direction.includes('/library') || pathname_direction.includes('/profile');
+    // const isProtectedRoute = pathname_direction.includes('/library') || pathname_direction.includes('/profile');
+    const isProtectedRoute = pathname_direction.includes('/profile');
     const isAuthPage = pathname_direction.includes('/login') || pathname_direction.includes('/register');
 
     if (isProtectedRoute && !token) {
