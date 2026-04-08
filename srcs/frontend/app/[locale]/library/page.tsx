@@ -9,7 +9,6 @@ export default async function Library() {
     <div>
       <HeroSection />
       <TrandingSection />
-      Hello World this is {t('name')}
     </div>
   );
 }

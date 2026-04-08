@@ -7,7 +7,6 @@ const i18nMiddleware = createMiddleware({
     localePrefix: 'always'
 })
 
-
 export default function middleware(req: NextRequest) {
 
     const pathname_direction = req.nextUrl.toString()

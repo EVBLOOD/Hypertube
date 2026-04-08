@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server'
 import styles from './header.module.css'
 import ButtonCustom from '../ui/buttonCustom'
+import Link from 'next/link'
 
 
 export default async function Header() {
@@ -9,14 +10,14 @@ export default async function Header() {
         <div className={styles.headerWraper}>
           <h2 className={styles.logo} >HYPERTUBE</h2>
           <div className={styles.optionsWraper}>
-            <div className={styles.optionSelection}>{header('library')}</div>
-            <div>{header('trending')}</div>
-            <div>{header('watchlist')}</div>
-            <div>{header('my_vault')}</div>
+            <Link href='/library' className={`${styles.optionSelection} ${styles.optionNotSelection}`}>{header('library')}</Link>
+            <Link href='/library' className={styles.optionNotSelection}>{header('trending')}</Link>
+            <Link href='/library' className={styles.optionNotSelection}>{header('watchlist')}</Link>
+            <Link href='/library' className={styles.optionNotSelection}>{header('my_vault')}</Link>
           </div>
           <div className={styles.actionsWraper}>
             <img src="/costumIcons/icon.svg" alt="search" />
-            <ButtonCustom hieght="36px" buttonImage={undefined} textButton={header('sign_in')} color='var(--primary-color)'/>
+            <ButtonCustom href='/login' style={{width: '90px'}} buttonImage={undefined} textButton={header('sign_in')} color='var(--primary-color)'/>
             {/* <ButtonCustom buttonImage={undefined} textButton={header('sign_out')} color='var(--primary-color)' /> */}
           </div>
         </div>

@@ -12,7 +12,6 @@ export default async function Login() {
   const Login = await getTranslations('Login')
   return (
     <Modal>
-
       <div className={styles.card}>
         <div className={styles.halfCard}>
           <RecordComponent />

@@ -2,6 +2,7 @@
   margin-right: 10px;
 }
 .button {
+	text-decoration: none;
 	background: none;
 	color: inherit;
 	border: none;
