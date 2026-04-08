@@ -1,6 +1,9 @@
 .title {
   font-size: 72px;
   margin: 0;
+  text-transform: uppercase;
+  margin-bottom: 0px;
+  margin-top: 0px;
 }
 .titleDefColor {
   color: var(--primary-color);

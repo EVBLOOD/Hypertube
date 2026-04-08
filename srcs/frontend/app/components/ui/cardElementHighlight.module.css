@@ -1,0 +1,23 @@
+.cardPrimeTitle {
+    padding: 1%;
+    width: 160px;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.mainCard {
+    background-image: url('/hero.png');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 5%;
+}
+
+.infosCard {
+    display: flex;
+    gap: 15px;
+    color: #D0C6AB;
+}

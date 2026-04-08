@@ -1,4 +1,5 @@
 import ButtonCustom from '../ui/buttonCustom'
+import DescriptionComponent from '../ui/descriptionComponent'
 import RecordComponent from '../ui/recordComponent'
 import TitleCustom from '../ui/titleCustom'
 import styles from './heroSection.module.css'
@@ -7,10 +8,13 @@ export default async function HeroSection() {
     return (
         <div className={styles.heroSection}>
                 <RecordComponent />
-                <TitleCustom title='CHINATOWN NOIR REVIVAL' />
-                <p className={styles.heroSectionDescription}>
-                    Access the most secure, peer-to-peer technical vault for cinematic masterpieces. Uncompressed frames. Professional metadata. The divector's intent, preserved.
-                </p>
+                <div>
+                    <TitleCustom title='CHINATOWN NOIR REVIVAL' nb_color={2}/>
+                    <DescriptionComponent
+                        className={styles.heroSectionDescription}
+                        text="Access the most secure, peer-to-peer technical vault for cinematic masterpieces. Uncompressed frames. Professional metadata. The divector's intent, preserved."
+                    />
+                </div>
                 <div className={styles.heroSectionActions}>
                     <ButtonCustom textButton='WATCH NOW' buttonImage='/costumIcons/play.svg' color='primary'/>
                     <ButtonCustom textButton='VIEW DETAILS' buttonImage={undefined} />

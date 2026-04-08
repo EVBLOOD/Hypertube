@@ -1,5 +1,6 @@
 
 import HeroSection from "@/app/components/layout/heroSection";
+import TrandingSection from "@/app/components/layout/trandingSection";
 import { getTranslations } from "next-intl/server";
 
 export default async function Library() {
@@ -7,6 +8,7 @@ export default async function Library() {
   return (
     <div>
       <HeroSection />
+      <TrandingSection />
       Hello World this is {t('name')}
     </div>
   );

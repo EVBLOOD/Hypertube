@@ -9,3 +9,7 @@
   align-items: center;
   gap: 5px;
 }
+
+.recordTitle h4 {
+  margin: 0;
+}

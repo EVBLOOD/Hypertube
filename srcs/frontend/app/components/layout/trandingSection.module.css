@@ -1,0 +1,64 @@
+.trandingSectionParent {
+    height: 90vh;
+    padding: 64px 96px 64px 96px;
+}
+
+.tradingHeader {
+    text-transform: uppercase;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
+
+.tradingViewMore {
+    color: var(--primary-color);
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.subTitleTranding {
+    color: #D0C6AB;
+}
+
+.trandingSection {
+    display: grid;
+    grid-template-areas:
+        "mainTrand subtrand subtrand"
+        "mainTrand subcollection";
+    grid-template-columns: 4fr 2fr 2fr;
+    gap: 10px;
+    height: 80%;
+}
+
+.mainTrand {
+    grid-row: span 8;
+}
+
+
+.subtrand {
+    grid-row: span 6;
+
+}
+
+.subcollection {
+    grid-row: span 2;
+    grid-column: span 2;
+}
+
+.traningDescriptionElement {
+    margin-top: 3px;
+}
+
+.smallerTitle {
+    font-size:x-large;
+}
+
+.smallTitle {
+    font-size:xx-large;
+}
+
+.collectionElement {
+    justify-content: center;
+}
