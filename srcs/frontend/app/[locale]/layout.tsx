@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Header from "../components/layout/header";
 import { Space_Grotesk, Manrope } from 'next/font/google';
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages } from "next-intl/server";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -20,7 +22,6 @@ export const metadata: Metadata = {
 };
 
 
-// { children, params: { locale } }
 export default async function RootLayout({
   children,
   modal,
@@ -31,6 +32,7 @@ export default async function RootLayout({
   params: Promise<{ locale: string }>
 }>) {
   const { locale } = await params;
+  const messages = await getMessages()
   return (
     <html lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'}>
       <body className={`
@@ -39,12 +41,11 @@ export default async function RootLayout({
           ${spaceGrotesk.className} 
           antialiased
         `}>
-          <Header />
-        {children}
-        {modal}
-        <div>
-
-        </div>
+          <NextIntlClientProvider messages={messages}>
+            <Header />
+            {children}
+            {modal}
+          </NextIntlClientProvider>
       </body>
     </html>
   );

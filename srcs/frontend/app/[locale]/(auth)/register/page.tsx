@@ -1,8 +1,7 @@
+'use client';
+
+import { redirect } from "next/navigation";
 
 export default function Register() {
-  return (
-    <div>
-      Hello World this is Register
-    </div>
-  );
+  redirect('/')
 }

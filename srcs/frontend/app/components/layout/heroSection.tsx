@@ -1,10 +1,12 @@
+'use client';
+
 import ButtonCustom from '../ui/buttonCustom'
 import DescriptionComponent from '../ui/descriptionComponent'
 import RecordComponent from '../ui/recordComponent'
 import TitleCustom from '../ui/titleCustom'
 import styles from './heroSection.module.css'
 
-export default async function HeroSection() {
+export default function HeroSection() {
     return (
         <div className={styles.heroSection}>
                 <RecordComponent />

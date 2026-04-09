@@ -29,6 +29,31 @@
         "no_account": "NO KEY YET?",
         "create_account": "ENROLL_HERE"
     },
+    "Register": {
+        "title": "SCENE 02: ONBOARDING - CREATE ACCOUNT",
+        "scenes": [
+            {
+                "number": "SCENE: 01",
+                "name": "GLOBAL_AUTH"
+            },
+            {
+                "number": "TAKE: 04",
+                "name": "TORRENT_CORE"
+            }
+        ],
+        "description": "Access the world's most comprehensive vault of cinematic high-definition content. Create account to clap action.",
+        "label_first_name": "First Name",
+        "holder_first_name": "GIVEN_NAME",
+        "label_last_name": "Last Name",
+        "holder_last_name": "SURNAME",
+        "label_user_name": "UserName",
+        "holder_user_name": "UNIQUE_NAME",
+        "label_address": "EMAIL_ADDRESS",
+        "holder_address": "USER@DOMAIN.COM",
+        "label_pass": "PASS_CODE",
+        "ye_account": "ALREADY REGISTERED?",
+        "access_account": "ACCESS VAULT"
+    },
     "Header": {
         "library": "Library",
         "trending": "Trending",

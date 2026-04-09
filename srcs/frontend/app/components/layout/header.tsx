@@ -1,11 +1,13 @@
-import { getTranslations } from 'next-intl/server'
+'use client';
+
 import styles from './header.module.css'
 import ButtonCustom from '../ui/buttonCustom'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl';
 
 
-export default async function Header() {
-    const header = await getTranslations('Header')
+export default function Header() {
+    const header =  useTranslations('Header')
     return (
         <div className={styles.headerWraper}>
           <h2 className={styles.logo} >HYPERTUBE</h2>

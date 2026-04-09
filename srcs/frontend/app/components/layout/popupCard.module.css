@@ -1,0 +1,17 @@
+.card {
+  display: flex;
+}
+
+.halfCard {
+  padding: 50px;
+  display: flex;
+  width: 50%;
+  flex-direction: column;
+  gap: 30px;
+  background-color: var(--popup-background)
+}
+
+.secondHalf {
+  /* padding: 50px 0px 50px 50px; */
+  background-color: var(--popup-background-second);
+}

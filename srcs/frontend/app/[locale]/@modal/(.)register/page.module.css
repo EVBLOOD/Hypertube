@@ -1,0 +1,54 @@
+.buttonSpace {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+
+.registerInfos {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.registerFullName {
+  display: flex;
+  /* justify-content: space-between; */
+  gap: 12px;
+}
+
+.passwordStringth {
+  display: flex;
+  flex-direction: row;
+  margin-top: -10px;
+  gap: 10px;
+  color: color-mix(in srgb, var(--primary-color), transparent 70%);
+}
+
+.passwordStringth div {
+  width: 25%;
+  background-color: var(--primary-color);
+  height: 4px;
+  border-radius: 50px;
+  margin-bottom: 0;
+}
+
+.passwordStringthContainer p {
+  color: var(--primary-color);
+}
+
+.titleRegister {
+  font-size: xx-large;
+}
+
+.extraQs {
+  margin-top: 2px;
+  display: flex;
+  gap: 13px;
+  justify-content: center;
+  color: #D0C6AB;
+
+}
+.extraQs a {
+  color: var(--font-color-white);
+}
