@@ -11,9 +11,28 @@ import Modal from '@/app/components/layout/modal';
 import PopupCard from '@/app/components/layout/popupCard';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import { useRef } from 'react';
+import AuthService from '@/lib/services/AuthService';
 
 export default function Login() {
   const Login =  useTranslations('Login')
+
+  const emailRef = useRef<HTMLInputElement>(null)
+  const passwordRef = useRef<HTMLInputElement>(null)
+
+  async function handelLogin() {
+    const email = emailRef.current?.value;
+    const password = passwordRef.current?.value;
+
+    if (!email || ! password) return
+    try {
+      const result = await AuthService.login({username: email, password})
+      console.log(result)
+    } catch(err){
+      console.error(err)
+    }
+  }
+
   return (
     <Modal>
       <PopupCard
@@ -49,14 +68,14 @@ export default function Login() {
           </div>
 
           <div className={styles.loginInfos}>
-            <InputCustom lableName={Login('label_address')} placeHolder={Login('label_address')}/>
-            <InputCustom lableName={Login('label_pass')} placeHolder='••••••••••' typeInput='password' />
+            <InputCustom ref={emailRef} lableName={Login('label_address')} placeHolder={Login('label_address')}/>
+            <InputCustom ref={passwordRef} lableName={Login('label_pass')} placeHolder='••••••••••' typeInput='password' />
             <div className={styles.recoverPassword}>
               <p>{Login('forgot_pass')}</p>
             </div>
           </div>
           <div>
-            <ButtonCustom textButton='AUTHORIZE_ACCESS' buttonImage={undefined} color="primary"/>
+            <ButtonCustom onClick={handelLogin} textButton='AUTHORIZE_ACCESS' buttonImage={undefined} color="primary"/>
             <div className={styles.extraQs}>
               {Login('no_account')}
               <Link href='/register'>{Login('create_account')}</Link>
