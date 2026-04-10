@@ -6,10 +6,13 @@ export default {
         return await api.post('/auth/login', loginData)
     },
     async logout() {
-        await api.post('/auth/logout')
+        return await api.post('/auth/logout')
 
     },
     async register(userDate: Register) {
-        await api.post('/auth/register', userDate)
+        return await api.post('/auth/register', userDate)
+    },
+    async whois() {
+        return await api.get('/auth/whois')
     }
 }

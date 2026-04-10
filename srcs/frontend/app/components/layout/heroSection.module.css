@@ -1,6 +1,5 @@
 .heroSection {
-    height: 80vh;
-    /* background-image: url("/hero.png"); */
+    height: 90vh;
     background-image: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 90%),  url('/hero.png');
     background-size: cover;
     background-position: center;
@@ -11,7 +10,6 @@
     padding: 64px 96px 64px 96px;
     position: relative;
     gap: 15px;
-    /* z-index: -99; */
 }
 
 .heroSectionActions {

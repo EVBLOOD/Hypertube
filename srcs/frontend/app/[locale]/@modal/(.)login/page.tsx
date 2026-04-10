@@ -13,12 +13,14 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useRef } from 'react';
 import AuthService from '@/lib/services/AuthService';
+import { useUserStore } from '@/stores/user';
 
 export default function Login() {
-  const Login =  useTranslations('Login')
+  const Login =  useTranslations('Login');
 
-  const emailRef = useRef<HTMLInputElement>(null)
-  const passwordRef = useRef<HTMLInputElement>(null)
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+
 
   async function handelLogin() {
     const email = emailRef.current?.value;
@@ -26,8 +28,9 @@ export default function Login() {
 
     if (!email || ! password) return
     try {
-      const result = await AuthService.login({username: email, password})
-      console.log(result)
+      const result = (await AuthService.login({username: email, password}))?.data
+      const user = result.user
+      useUserStore.getState().userLogged({username: user.username, language: user.preferredLanguage, avatar: user.profilePicture})
     } catch(err){
       console.error(err)
     }

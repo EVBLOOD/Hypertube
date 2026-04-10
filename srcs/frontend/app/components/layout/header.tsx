@@ -4,10 +4,14 @@ import styles from './header.module.css'
 import ButtonCustom from '../ui/buttonCustom'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl';
+import { useUserStore } from '@/stores/user';
 
 
 export default function Header() {
     const header =  useTranslations('Header')
+    // const user = useUserStore.getState().user
+    const user = useUserStore((state) => state.user);
+
     return (
         <div className={styles.headerWraper}>
           <h2 className={styles.logo} >HYPERTUBE</h2>
@@ -19,8 +23,8 @@ export default function Header() {
           </div>
           <div className={styles.actionsWraper}>
             <img src="/costumIcons/icon.svg" alt="search" />
-            <ButtonCustom href='/login' style={{width: '90px'}} buttonImage={undefined} textButton={header('sign_in')} color='var(--primary-color)'/>
-            {/* <ButtonCustom buttonImage={undefined} textButton={header('sign_out')} color='var(--primary-color)' /> */}
+            {!user ? <ButtonCustom href='/login' style={{width: '90px'}} buttonImage={undefined} textButton={header('sign_in')} color='var(--primary-color)'/> :
+            <ButtonCustom href='/login' style={{width: '90px'}} buttonImage={undefined} textButton={header('sign_out')} color='var(--primary-color)'/>}
           </div>
         </div>
     )
