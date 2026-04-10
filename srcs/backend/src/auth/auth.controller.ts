@@ -35,8 +35,9 @@ export class AuthController {
     return this.authService.verifyEmail(token);
   }
 
-  @Get('whois')
+  // ss
   @UseGuards(JwtAuthGuard, WhitelistGuard)
+  @Get('whois')
   async whois(@Request() req) {
     console.log(req.user)
     return { user: req.user };
