@@ -1,0 +1,36 @@
+.browseContent {
+    display: flex;
+    margin-top: 70px;
+}
+
+.mainBrowseContent {
+    width: 75%;
+    margin: 32px;
+}
+
+.mainBrowseContentHead {
+    padding-bottom: 32px;
+    display: flex;
+    justify-content: space-between;
+    border-color: #1C1B1B;
+    border-width: 0px 0px 1px 0px;
+    border-style: solid;
+
+}
+
+.infosSearch {
+    display: flex;
+    gap: 15px;
+    background-color: var(--popup-background);
+    padding:  8px 16px 8px 16px;
+}
+
+.infosSearch p{
+margin: 0;
+}
+
+.wrapperInfoSearch {
+    display: flex;
+    align-items: flex-end;
+}
+

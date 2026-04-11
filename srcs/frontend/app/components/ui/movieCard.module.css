@@ -1,0 +1,45 @@
+.cardImage {
+    width: 160px;
+    height: 240px;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.seenWrapper {
+    
+    display: flex;
+    width: 100%;
+    justify-content: flex-end;
+}
+.wasSeen {
+    /* font-size: 9; */
+
+    font-weight: bold;
+    width: fit-content;
+    height: fit-content;
+    /* justify-self:  flex-end; */
+}
+
+.infosWraper {
+    display: flex;
+    gap: 5px;
+}
+
+.infosWraper {
+    display: flex;
+    gap: 5px;
+}
+
+.infoStyle {
+    font-size: 9;
+    padding: 4px;
+    width: fit-content;
+    height: fit-content;
+    font-weight: lighter;
+
+}
