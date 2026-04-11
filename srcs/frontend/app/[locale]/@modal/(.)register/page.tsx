@@ -37,7 +37,6 @@ export default function Register() {
         } catch (err) {
             console.debug(err)
         }
-
     }
     return (
         <Modal>

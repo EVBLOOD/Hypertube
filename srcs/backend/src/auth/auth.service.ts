@@ -44,6 +44,10 @@ export class AuthService {
     return { access_token: token };
   }
 
+  async logout(user: User, token: string) {
+    await this.redisService.del(`session:${user.id}`)
+    return { access_token: token };
+  }
   async validateUser(username: string, pass: string): Promise<any> {
     const user = await this.userRepo.findOne({where: [{username: username}, {email: username}], select: ['email', 'username', 'password', 'preferredLanguage', 'id', 'profilePicture']})
     if (user && await verify(user?.password || '', pass)) {

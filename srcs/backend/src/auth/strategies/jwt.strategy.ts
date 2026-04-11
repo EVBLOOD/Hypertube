@@ -11,7 +11,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       jwtFromRequest: ExtractJwt.fromExtractors(
         [
           (request: Request) => {
-            console.log(request)
             return request?.cookies?.AUTH_TOKEN
           }
         ]
@@ -22,8 +21,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-
-    console.log(payload)
     const user = await this.usersService.findById(payload.sub, payload.sub);
     if (!user) {
       throw new UnauthorizedException();

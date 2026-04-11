@@ -35,11 +35,24 @@ export class AuthController {
     return this.authService.verifyEmail(token);
   }
 
-  // ss
+
   @UseGuards(JwtAuthGuard, WhitelistGuard)
   @Get('whois')
   async whois(@Request() req) {
-    console.log(req.user)
     return { user: req.user };
+  }
+
+  @UseGuards(JwtAuthGuard, WhitelistGuard)
+  @Post('/logout')
+  logout(@Request() req, @Res({ passthrough: true }) res: Response) {
+    this.authService.logout(req.user, req.cookies?.AUTH_TOKEN)
+    res.clearCookie('AUTH_TOKEN', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+    })
+    // res.clearCooki
+    return { message: 'Logged out successfully' };
   }
 }

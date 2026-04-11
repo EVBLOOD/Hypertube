@@ -6,14 +6,15 @@ import { ReactNode, useEffect, useState } from "react";
 
 export default function AuthProvider({children}: {children: ReactNode}) {
     const [isReady, setIsReady] = useState(false);
-    const {user, userLogged} = useUserStore();
+    const {user, userLogged, reset} = useUserStore();
 
     const initAuth = async () => {
         if (!user) {
             try {
-                const user = (await AuthService.whois()).data
+                const user = (await AuthService.whois()).data?.user
                 userLogged({username: user.username, language: user.preferredLanguage, avatar: user.profilePicture})
             } catch(err) {
+                reset()
                 console.log(err)
             } finally {
                 setIsReady(true)
