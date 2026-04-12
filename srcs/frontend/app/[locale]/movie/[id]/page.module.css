@@ -1,0 +1,34 @@
+.productionLogCard {
+    padding: 32px;
+    width: 20%;
+    background-color: var(--popup-background-second);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.productionLogTitleDeco {
+    width: 48px;
+    background-color: var(--primary-color);
+    height: 4px;
+}
+
+.productionLogTitle {
+    font-size: xx-large;
+}
+
+.productionWraper {
+    padding-top: 80px;
+    margin-bottom: 40px;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.productionLogElements {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+}

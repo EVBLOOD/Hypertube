@@ -1,0 +1,89 @@
+
+.heroSectionWrap {
+    
+    background-image: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 90%),  url('/hero.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.heroSection {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 64px 96px 64px 96px;
+
+}
+.heroSectionTitle {
+    height: 85vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    position: relative;
+    gap: 15px;
+}
+
+.heroSectionActions {
+    display: flex;
+    font-size: medium;
+    gap: 15px;
+}
+
+.heroSectionDescription {
+    width: 50%;
+}
+
+.heroSectionInfos {
+    width: 30%;
+    border-style: solid;
+    border-width: 0px 0px 0px 2px;
+    border-color: var(--primary-color);
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    background-color: var(--popup-background);
+    padding: 32px
+}
+
+.heroSectionInfos div p:nth-of-type(1) {
+    color: #D0C6AB;
+}
+
+.heroSectionInfos div p:nth-of-type(2) {
+    font-weight: bold;
+}
+
+
+
+
+.MovieHeroInfos {
+    display: flex;
+    gap: 10px;
+}
+
+.MovieHeroInfosItems  {
+    width: fit-content;
+    padding: 2px 6px;
+}
+
+.topTitleElement {
+    display: flex;
+    gap: 10px;
+}
+
+.reactOnMovie {
+    border-style: solid;
+    border-width: 1px 0px 0px 0px;
+    padding-top: 10px;
+    border-color: color-mix(in srgb, #999077, transparent 80%) ;
+    display: flex;
+    justify-content: space-between;
+}
+
+.reactOnMovie div {
+    display: flex;
+    gap: 10px;
+
+    
+}
+
