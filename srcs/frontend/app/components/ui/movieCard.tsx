@@ -1,3 +1,5 @@
+'use client';
+
 import ButtonCustom from './buttonCustom'
 import DescriptionComponent from './descriptionComponent'
 import styles from './movieCard.module.css'

@@ -1,3 +1,5 @@
+'use client';
+
 import styles from './sceneCustom.module.css'
 
 export default function SceneCustom({ sceneNumber, sceneName }: { sceneNumber: string, sceneName: string }) {

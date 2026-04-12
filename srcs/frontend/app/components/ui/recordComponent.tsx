@@ -1,3 +1,5 @@
+'use client';
+
 import styles from './recordComponent.module.css'
 
 export default function RecordComponent() {

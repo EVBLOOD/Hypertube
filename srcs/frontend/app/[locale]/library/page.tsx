@@ -9,7 +9,7 @@ import MovieCard from "@/app/components/ui/movieCard";
 
 export default function Library() {
   return (
-    <div className={styles.browseContent}>
+    <div className={`container ${styles.browseContent}`}>
       <Filter/>
       <div className={styles.mainBrowseContent}>
         <div className={styles.mainBrowseContentHead}>
@@ -24,7 +24,18 @@ export default function Library() {
             </div>
           </div>
         </div>
-        <div>
+        <div className={styles.moviesList}>
+          <MovieCard></MovieCard>
+          <MovieCard></MovieCard>
+          <MovieCard></MovieCard>
+          <MovieCard></MovieCard>
+          <MovieCard></MovieCard>
+          <MovieCard></MovieCard>
+          <MovieCard></MovieCard>
+          <MovieCard></MovieCard>
+          <MovieCard></MovieCard>
+          <MovieCard></MovieCard>
+          <MovieCard></MovieCard>
           <MovieCard></MovieCard>
         </div>
       </div>

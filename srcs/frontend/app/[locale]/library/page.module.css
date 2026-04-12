@@ -34,3 +34,11 @@ margin: 0;
     align-items: flex-end;
 }
 
+.moviesList {
+    margin-top: 48px;
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}

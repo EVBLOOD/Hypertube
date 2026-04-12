@@ -1,3 +1,5 @@
+'use client';
+
 import ButtonCustom from './buttonCustom'
 import styles from './cardElementHighlight.module.css'
 import DescriptionComponent from './descriptionComponent'

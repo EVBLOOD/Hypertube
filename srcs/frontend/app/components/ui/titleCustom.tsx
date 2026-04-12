@@ -1,3 +1,5 @@
+'use client';
+
 import styles from './titleCustom.module.css'
 
 export default function TitleCustom({title, nb_color = 1, className}: {title: string, nb_color?: number, className?: string}) {

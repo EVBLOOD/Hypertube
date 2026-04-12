@@ -1,15 +1,23 @@
-.headerWraper {
-    position: fixed;
-    top: 0;
-    width: 100%;
-    z-index: 1000;
-
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
+.headerWraperCantainer {
     background-color: var(--popup-background);
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+    /* padding:0px 96px 0px 96px; */
+    
+}
+
+
+.headerWraper {
+    /* width: 100%; */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     text-transform: uppercase;
 }
+
+
 
 .optionsWraper {
     display: flex;

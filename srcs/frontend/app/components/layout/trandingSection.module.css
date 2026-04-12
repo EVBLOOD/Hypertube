@@ -1,6 +1,8 @@
 .trandingSectionParent {
     height: 90vh;
     padding: 64px 96px 64px 96px;
+    /* max-width: 1390px; */
+
 }
 
 .tradingHeader {

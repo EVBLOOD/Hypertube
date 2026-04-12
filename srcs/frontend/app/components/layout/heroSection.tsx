@@ -8,7 +8,8 @@ import styles from './heroSection.module.css'
 
 export default function HeroSection() {
     return (
-        <div className={styles.heroSection}>
+        <div className={styles.heroSectionWrap}>
+            <div className={`container ${styles.heroSection}`}>
                 <RecordComponent />
                 <div>
                     <TitleCustom title='CHINATOWN NOIR REVIVAL' nb_color={2}/>
@@ -38,6 +39,7 @@ export default function HeroSection() {
                         <p>85 MBPS</p>
                     </div>
                 </div>
+            </div>
                 
         </div>
     )

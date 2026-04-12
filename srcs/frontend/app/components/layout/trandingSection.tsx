@@ -1,3 +1,5 @@
+'use client';
+
 import ButtonCustom from '../ui/buttonCustom'
 import CardElementHighlight from '../ui/cardElementHighlight'
 import DescriptionComponent from '../ui/descriptionComponent'
@@ -6,7 +8,7 @@ import styles from './trandingSection.module.css'
 
 export default function TrandingSection() {
     return (
-        <div className={styles.trandingSectionParent}>
+        <div className={`container ${styles.trandingSectionParent}`}>
             <div className={styles.tradingHeader}>
                 <div>
                     <h1 style={{ marginBottom: 0 }}>
