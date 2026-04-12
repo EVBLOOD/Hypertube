@@ -1,5 +1,11 @@
-.cardImage {
+.bodyCard {
     width: 160px;
+    
+}
+
+
+.cardImage {
+    /* width: 160px; */
     height: 240px;
     background-repeat: no-repeat;
     background-position: center;
@@ -15,6 +21,12 @@
     display: flex;
     width: 100%;
     justify-content: flex-end;
+    font-size: 9;
+
+}
+.seenWrapper img {
+height: 9px;
+
 }
 .wasSeen {
     /* font-size: 9; */
@@ -40,6 +52,21 @@
     padding: 4px;
     width: fit-content;
     height: fit-content;
-    font-weight: lighter;
+    font-weight: light;
 
+}
+
+.titleRatingWraper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+}
+
+.movieTitle {
+    font-size:medium;
+}
+
+.titleRatingWraper span {
+    color: var(--primary-color);
 }

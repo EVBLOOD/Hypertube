@@ -1,10 +1,11 @@
 import ButtonCustom from './buttonCustom'
+import DescriptionComponent from './descriptionComponent'
 import styles from './movieCard.module.css'
 import TitleCustom from './titleCustom'
 
 export default function MovieCard() {
     return (
-        <div>
+        <div className={styles.bodyCard}>
             <div style={{backgroundImage: "url('/hero.png')"}} className={styles.cardImage}>
                 <div className={styles.seenWrapper}>
                     <ButtonCustom textButton='SEEN' buttonImage='/costumIcons/play.svg' color='primary' className={styles.wasSeen}/>
@@ -14,7 +15,11 @@ export default function MovieCard() {
                     <ButtonCustom className={styles.infoStyle} textButton='5.1 SURROUND' buttonImage={undefined}/>
                 </div>
             </div>
-            {/* <TitleCustom title='CHINATOWN REVISITED'></TitleCustom> */}
+            <div className={styles.titleRatingWraper}>
+                <TitleCustom className={styles.movieTitle} title='CHINATOWN REVISITED' nb_color={-2}></TitleCustom>
+                <span>8.4</span>
+            </div>
+            <DescriptionComponent text='2023 • NEON NOIR'></DescriptionComponent>
         </div>
     )
 }
