@@ -1,11 +1,11 @@
-.productionLogCard {
+/* .productionLogCard {
     padding: 32px;
     width: 20%;
     background-color: var(--popup-background-second);
     display: flex;
     flex-direction: column;
     gap: 10px;
-}
+} */
 
 .productionLogTitleDeco {
     width: 48px;
@@ -31,4 +31,43 @@
     justify-content: center;
     align-items: center;
     gap: 5px;
+}
+
+
+.commentInfosFilter {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+}
+
+.commentInfosFilter span {
+    font-weight: lighter;
+    font-size: small;
+}
+
+.commentInfos {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.commentSectionTitle {
+    padding-top: 80px;
+    font-size: xx-large;
+}
+
+.commentSelectedFilter {
+    color: var(--primary-color);
+    border-style: solid;
+    border-color: var(--primary-color);
+    border-width: 0px 0px 1px 0px;
+}
+
+.viewCommentSection {
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+
+    gap: 40px;
 }

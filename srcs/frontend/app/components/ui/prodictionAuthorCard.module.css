@@ -1,0 +1,9 @@
+.productionLogCard {
+    padding: 32px;
+    width: 20%;
+    background-color: var(--popup-background-second);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+

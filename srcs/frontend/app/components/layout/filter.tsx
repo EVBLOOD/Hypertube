@@ -1,47 +1,69 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import DescriptionComponent from '../ui/descriptionComponent';
 import styles from './filter.module.css'
+import { useState } from 'react';
+import genreMessages from '@/messages/en.json';
 
-export default function Filter() {
+export default function Filter({ onChange }: { onChange: Function }) {
+    const Library = useTranslations('Library')
+    const geners = useTranslations('Genres');
+    const genreKeys = Object.keys(genreMessages.Genres)
+
+
+    const [gender, setGender] = useState('all')
+    const [minYear, setMinYear] = useState(2017)
+    const [maxYear, setMaxYear] = useState(2026)
+    const [rating, setRating] = useState(8)
+    const [sortBy, setSortBy] = useState('alpha')
+
+    const sendToSearch = () => {
+        onChange(gender, minYear, maxYear, rating, sortBy)
+    };
+
+    const sortOptions = [
+        { id: 'views', label: 'filter_sort_views_count' },
+        { id: 'date', label: 'filter_sort_add_date' },
+        { id: 'alpha', label: 'filter_sort_alphabit' }
+    ];
+
     return (
         <div className={styles.filterWraper}>
-            <DescriptionComponent text="ARCHIVE FILTERS" />
+            <DescriptionComponent text={Library('filter_title')} />
             <div className={styles.inputHorisantal}>
-                <label htmlFor='genderId'>GENRE</label>
-                <select name="" defaultValue="" id="genderId" required>
-                    <option value="" disabled hidden>ALL GENRES</option>
-                    <option value="2">option</option>
-                    <option value="3">option</option>
+                <label htmlFor='genderId'>{Library('filter_genre')}</label>
+                <select name="" defaultValue={gender} id="genderId" required onChange={(e) => { setGender(e.target.value); sendToSearch() }}>
+                    <option value="all">{Library('filter_allgenre')}</option>
+                    {genreKeys.map((key) =>  <option key={key} value={key}>{geners(key)}</option> )}
                 </select>
             </div>
             <div className={styles.inputHorisantal}>
-                <label htmlFor='genderId'>PRODUCTION YEAR</label>
+                <label htmlFor='genderId'>{Library('filter_production_year')}</label>
                 <div className={styles.prodYear}>
-                    <input type="number" value={2017} />
-                    <input type="number" value={2026} />
+                    <input onChange={(e) => { setMinYear(parseInt(e.target.value)); sendToSearch() }} type="number" value={minYear} />
+                    <input onChange={(e) => { setMaxYear(parseInt(e.target.value)); sendToSearch() }} type="number" value={maxYear} />
                 </div>
             </div>
             <div className={styles.inputHorisantal}>
-                <label htmlFor='genderId'>MINIMUM RATING (IMDb)</label>
-                <input type="range" min={0} max={10} />
+                <label htmlFor='genderId'>{Library('filter_rating')}</label>
+                <input onChange={(e) => { setRating(parseInt(e.target.value)); sendToSearch() }} type="range" min={0} max={10} />
                 <div>
                     <span>0.0</span>
-                    <span>10.0</span>
+                    {/* <span style={{textDecoration: 'underline'}}>{rating}</span>
+                    <span>10.0</span> */}
+                    <span>{rating}.0</span>
                 </div>
             </div>
             <div className={styles.inputHorisantal}>
-                <label htmlFor='genderId'>SORT BY</label>
+                <label htmlFor='genderId'>{Library('filter_sortby')}</label>
                 <ul>
-                    <li className={styles.noneSelectedSort + ' ' + styles.selectedSort}>
-                        SEEDS/PEER COUNT
-                    </li>
-                    <li className={styles.noneSelectedSort}>
-                        DATE ADDED
-                    </li>
-                    <li className={styles.noneSelectedSort}>
-                        ALPHABETICAL
-                    </li>
+                    {
+                        sortOptions.map((elem) => 
+                        <li onClick={() => {setSortBy(elem.id); sendToSearch()}} key={elem.id} className={styles.noneSelectedSort + " " + (sortBy === elem.id ? styles.selectedSort : '')}>
+                            {Library(elem.label)}
+                        </li>)
+                    }
                 </ul>
             </div>
         </div>

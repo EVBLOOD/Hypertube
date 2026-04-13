@@ -1,0 +1,39 @@
+.commentPublishing {
+    display: flex;
+    /* justify-content: space-between; */
+    gap: 15px;
+}
+
+.commentPublishing div {
+    width: 100%;
+}
+
+.commentPublishingAvatar {
+    height: 48px;
+    width: 48px;
+}
+
+.commentAndButton {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-end;
+}
+
+.textCommentErea {
+    width: -webkit-fill-available;
+    padding: 9px;
+    resize: none;
+    max-height: 30px;
+    background-color: transparent;
+    border-color: color-mix(in srgb, #1C1B1B, transparent 0%);
+    color: var(--font-color-white);
+}
+
+.buttonPublish {
+    height: fit-content;
+    width: fit-content;
+    padding: 20px;
+    display: flex;
+    justify-self: flex-end;
+}

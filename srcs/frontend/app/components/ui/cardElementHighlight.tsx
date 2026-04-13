@@ -1,13 +1,16 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import ButtonCustom from './buttonCustom'
 import styles from './cardElementHighlight.module.css'
 import DescriptionComponent from './descriptionComponent'
 import TitleCustom from './titleCustom'
 
 export default function CardElementHighlight({className, yeExtra = true, yeIfos = true, classNameTitle}: {className?: string, yeExtra?: boolean, yeIfos?: boolean, classNameTitle?: string}) {
+    const Home = useTranslations('Home')
+
     return (<div  className={`${styles.mainCard} ${className ? className : ''}`}>
-        {yeExtra ? <ButtonCustom textButton='PREMIUM VAULT' buttonImage={undefined} color={yeIfos ? 'primary' : ''} className={styles.cardPrimeTitle} style={!yeIfos ? {backgroundColor: 'transparent', color: 'var(--primary-color)', padding: 0, fontWeight: 'lighter', letterSpacing: '3px'}: {}} /> : ''}
+        {yeExtra ? <ButtonCustom textButton={Home('volt_type')} buttonImage={undefined} color={yeIfos ? 'primary' : ''} className={styles.cardPrimeTitle} style={!yeIfos ? {backgroundColor: 'transparent', color: 'var(--primary-color)', padding: 0, fontWeight: 'lighter', letterSpacing: '3px'}: {}} /> : ''}
         <div>
             <TitleCustom className={classNameTitle} title='The Last Frame '/>
             {
@@ -21,7 +24,7 @@ export default function CardElementHighlight({className, yeExtra = true, yeIfos 
             yeExtra && yeIfos ? 
                 <div className={styles.infosCard}>
                     <p>IMDb 8.9</p>
-                    <p>156 MIN</p>
+                    <p>156 {Home('minutes')}</p>
                 </div>
             : ''
         }

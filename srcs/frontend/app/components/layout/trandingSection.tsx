@@ -1,18 +1,17 @@
 'use client';
 
-import ButtonCustom from '../ui/buttonCustom'
+import { useTranslations } from 'use-intl';
 import CardElementHighlight from '../ui/cardElementHighlight'
-import DescriptionComponent from '../ui/descriptionComponent'
-import TitleCustom from '../ui/titleCustom'
 import styles from './trandingSection.module.css'
 
 export default function TrandingSection() {
+    const Home = useTranslations('Home');
     return (
         <div className={`container ${styles.trandingSectionParent}`}>
             <div className={styles.tradingHeader}>
                 <div>
                     <h1 style={{ marginBottom: 0 }}>
-                        Tranding
+                        {Home('tranding')}
                     </h1>
                     <span className={styles.subTitleTranding}>
                         Curated Technical Selection

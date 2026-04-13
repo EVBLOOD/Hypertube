@@ -14,8 +14,8 @@ export class MoviesService {
   ) {}
 
   async getLibrary(filters: FilterMovieDto, userId: number) {
-    // 1. Fetch from YTS/TMDb (External Source 1)
-    const { data } = await axios.get('https://yts.mx/api/v2/list_movies.json', {
+
+    const { data } = await axios.get('https://yts.bz/api/v2/list_movies.json', {
       params: {
         query_term: filters.query,
         genre: filters.genre,

@@ -1,16 +1,18 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import ButtonCustom from './buttonCustom'
 import DescriptionComponent from './descriptionComponent'
 import styles from './movieCard.module.css'
 import TitleCustom from './titleCustom'
 
 export default function MovieCard() {
+    const Library = useTranslations('Library')
     return (
         <div className={styles.bodyCard}>
             <div style={{backgroundImage: "url('/hero.png')"}} className={styles.cardImage}>
                 <div className={styles.seenWrapper}>
-                    <ButtonCustom textButton='SEEN' buttonImage='/costumIcons/play.svg' color='primary' className={styles.wasSeen}/>
+                    <ButtonCustom textButton={Library('seen')} buttonImage='/costumIcons/play.svg' color='primary' className={styles.wasSeen}/>
                 </div>
                 <div  className={styles.infosWraper}>
                     <ButtonCustom className={styles.infoStyle} textButton='1080P' buttonImage={undefined}/>

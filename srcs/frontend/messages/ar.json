@@ -1,32 +1,117 @@
 {
     "Library": {
-        "name": "مكتبة"
+        "name": "المكتبة",
+        "filter_title": "مرشحات الأرشيف",
+        "filter_genre": "النوع",
+        "filter_allgenre": "جميع الأنواع",
+        "filter_production_year": "سنة الإنتاج",
+        "filter_rating": "الحد الأدنى للتقييم (IMDb)",
+        "filter_sortby": "فرز حسب",
+        "filter_sort_views_count": "عدد المصادر/النظراء",
+        "filter_sort_add_date": "تاريخ الإضافة",
+        "filter_sort_alphabit": "أبجدياً",
+        "title": "كواليس",
+        "sub_title": "الأصول المفهرسة // المستودع العالمي",
+        "resolution": "الدقة",
+        "seen": "تمت المشاهدة"
+    },
+    "Genres": {
+        "action": "أكشن",
+        "adventure": "مغامرة",
+        "animation": "رسوم متحركة",
+        "biography": "سيرة ذاتية",
+        "comedy": "كوميدي",
+        "crime": "جريمة",
+        "documentary": "وثائقي",
+        "drama": "دراما",
+        "family": "عائلي",
+        "fantasy": "خيال",
+        "film-noir": "فيلم نوار",
+        "history": "تاريخ",
+        "horror": "رعب",
+        "music": "موسيقى",
+        "musical": "استعراضي",
+        "mystery": "غموض",
+        "romance": "رومانسي",
+        "sci-fi": "خيال علمي",
+        "sport": "رياضة",
+        "thriller": "تشويق",
+        "war": "حرب",
+        "western": "وسترن"
+    },
+    "Home": {
+        "name": "الرئيسية",
+        "rec": "الكلاكيت مفتوح",
+        "hero_discription": "ادخل إلى الخزنة التقنية الأكثر أماناً (P2P) للروائع السينمائية. إطارات غير مضغوطة. بيانات وصفية احترافية. الحفاظ على رؤية المخرج.",
+        "watch_now": "شاهد الآن",
+        "view_more": "عرض التفاصيل",
+        "resolution": "الدقة",
+        "codec": "الترميز",
+        "bitrate": "معدل البت",
+        "tranding": "الشائع",
+        "selection": "مختارات تقنية منسقة",
+        "see_all": "عرض كافة الإدخالات",
+        "minutes": "دقيقة",
+        "volt_type": "الخزنة المميزة"
     },
     "Login": {
-    "title": "هل أنت مستعد للبث؟",
-    "description": "استكشف أضخم خزنة عالمية للمحتوى السينمائي فائق الدقة. نقرة واحدة تفصلك عن الإثارة.",
-    "scenes": [
-        {
-            "number": "المشهد: 01",
-            "name": "GLOBAL_AUTH"
-        },
-        {
-            "number": "لقطة: 04",
-            "name": "TORRENT_CORE"
-        }
-    ],
-    "integration": "التكامل مع مزودي خدمة آمنين",
-    "integrations": [
-        "المتابعة عبر 42 NETWORK",
-        "المتابعة عبر 42 NETWORK"
-    ],
-    "second_title": "التعريف بالهوية",
-    "second_discreption": "يرجى تقديم بيانات الاعتماد لولوج الخزنة.",
-    "label_address": "البريد الإلكتروني",
-    "holder_address": "USER@DOMAIN.COM",
-    "label_pass": "رمز المرور",
-    "forgot_pass": "استعادة المفتاح المفقود",
-    "no_account": "لا تملك مفتاحاً بعد؟",
-    "create_account": "سجل هنا"
-}
+        "title": "جاهز للبث؟",
+        "description": "ادخل إلى الخزنة الأكثر شمولاً في العالم للمحتوى السينمائي عالي الدقة. نقرة واحدة لبدء العمل.",
+        "scenes": [
+            {
+                "number": "المشهد: 01",
+                "name": "التوثيق_العالمي"
+            },
+            {
+                "number": "لقطة: 04",
+                "name": "نواة_التورنت"
+            }
+        ],
+        "integration": "التكامل مع مزودين آمنين",
+        "integrations": [
+            "المتابعة عبر شبكة 42",
+            "المتابعة عبر شبكة 42"
+        ],
+        "second_title": "التعريف",
+        "second_discreption": "يرجى تقديم بيانات الاعتماد لدخول الخزنة.",
+        "label_address": "البريد_الإلكتروني",
+        "holder_address": "USER@DOMAIN.COM",
+        "label_pass": "رمز_المرور",
+        "forgot_pass": "استعادة_المفتاح_المفقود",
+        "no_account": "ليس لديك مفتاح بعد؟",
+        "create_account": "التسجيل_هنا"
+    },
+    "Register": {
+        "title": "المشهد 02: الانضمام - إنشاء حساب",
+        "scenes": [
+            {
+                "number": "المشهد: 01",
+                "name": "التوثيق_العالمي"
+            },
+            {
+                "number": "لقطة: 04",
+                "name": "نواة_التورنت"
+            }
+        ],
+        "description": "ادخل إلى الخزنة الأكثر شمولاً في العالم للمحتوى السينمائي عالي الدقة. أنشئ حساباً لبدء التصوير.",
+        "label_first_name": "الاسم الأول",
+        "holder_first_name": "الاسم_المعطى",
+        "label_last_name": "اسم العائلة",
+        "holder_last_name": "الكنية",
+        "label_user_name": "اسم المستخدم",
+        "holder_user_name": "اسم_فريد",
+        "label_address": "البريد_الإلكتروني",
+        "holder_address": "USER@DOMAIN.COM",
+        "label_pass": "رمز_المرور",
+        "ye_account": "مسجل بالفعل؟",
+        "access_account": "دخول الخزنة"
+    },
+    "Header": {
+        "library": "المكتبة",
+        "trending": "الشائع",
+        "watchlist": "قائمة المشاهدة",
+        "my_vault": "خزنـتي",
+        "sign_in": "تسجيل الدخول",
+        "sign_out": "تسجيل الخروج"
+    }
 }

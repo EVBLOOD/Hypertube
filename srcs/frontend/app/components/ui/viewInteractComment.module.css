@@ -1,0 +1,39 @@
+.commentViewing {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 15px;   
+}
+
+
+.commentViewingAvatar {
+    height: 48px;
+    width: 48px;
+}
+
+.commentorInfos {
+    display: flex;
+    gap: 10px;
+}
+
+.commentorInfos h4 {
+    margin: 0;
+}
+.commentorInfos p {
+    margin: 0;
+}
+
+.textCommentView {
+
+}
+
+.commentIntersction {
+    display: flex;
+    gap: 10px;
+}
+
+.commentIntersction button {
+    width: fit-content;
+    height: fit-content;
+    padding: 0;
+}

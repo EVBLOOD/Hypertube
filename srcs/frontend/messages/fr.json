@@ -1,32 +1,117 @@
 {
     "Library": {
-        "name": "Bibliothèque"
+        "name": "Bibliothèque",
+        "filter_title": "FILTRES D'ARCHIVE",
+        "filter_genre": "GENRE",
+        "filter_allgenre": "TOUS LES GENRES",
+        "filter_production_year": "ANNÉE DE PRODUCTION",
+        "filter_rating": "NOTE MINIMALE (IMDb)",
+        "filter_sortby": "TRIER PAR",
+        "filter_sort_views_count": "SOURCES/PAIRS (SEEDS)",
+        "filter_sort_add_date": "DATE D'AJOUT",
+        "filter_sort_alphabit": "ALPHABÉTIQUE",
+        "title": "LE BACKLOT",
+        "sub_title": "ACTIFS INDEXÉS // RÉPERTOIRE GLOBAL",
+        "resolution": "RÉSOLUTION",
+        "seen": "VU"
+    },
+    "Genres": {
+        "action": "Action",
+        "adventure": "Aventure",
+        "animation": "Animation",
+        "biography": "Biographie",
+        "comedy": "Comédie",
+        "crime": "Crime",
+        "documentary": "Documentaire",
+        "drama": "Drame",
+        "family": "Famille",
+        "fantasy": "Fantaisie",
+        "film-noir": "Film Noir",
+        "history": "Histoire",
+        "horror": "Horreur",
+        "music": "Musique",
+        "musical": "Comédie Musicale",
+        "mystery": "Mystère",
+        "romance": "Romance",
+        "sci-fi": "Science-Fiction",
+        "sport": "Sport",
+        "thriller": "Thriller",
+        "war": "Guerre",
+        "western": "Western"
+    },
+    "Home": {
+        "name": "Accueil",
+        "rec": "CLAPPER_OPEN",
+        "hero_discription": "Accédez au coffre-fort technique peer-to-peer le plus sécurisé pour les chefs-d'œuvre cinématographiques. Images non compressées. Métadonnées professionnelles. L'intention du réalisateur, préservée.",
+        "watch_now": "REGARDER MAINTENANT",
+        "view_more": "VOIR DÉTAILS",
+        "resolution": "RÉSOLUTION",
+        "codec": "CODEC",
+        "bitrate": "DÉBIT",
+        "tranding": "Tendances",
+        "selection": "Sélection Technique Commissariée",
+        "see_all": "VOIR TOUTES LES ENTRÉES",
+        "minutes": "MIN",
+        "volt_type": "COFFRE PREMIUM"
     },
     "Login": {
-    "title": "PRÊT POUR STREAMING?",
-    "description": "Accédez au coffre-fort cinématographique le plus complet au monde en haute définition. Un clic suffit.",
-    "scenes": [
-        {
-            "number": "SCÈNE : 01",
-            "name": "GLOBAL_AUTH"
-        },
-        {
-            "number": "PRISE : 04",
-            "name": "TORRENT_CORE"
-        }
-    ],
-    "integration": "Intégration avec des fournisseurs sécurisés",
-    "integrations": [
-        "CONTINUER AVEC 42 NETWORK",
-        "CONTINUER AVEC 42 NETWORK"
-    ],
-    "second_title": "IDENTIFICATION",
-    "second_discreption": "Veuillez fournir vos identifiants pour entrer dans le coffre.",
-    "label_address": "ADRESSE E-MAIL",
-    "holder_address": "USER@DOMAIN.COM",
-    "label_pass": "CODE_D_ACCÈS",
-    "forgot_pass": "Récupérer_Clé_Perdue?",
-    "no_account": "PAS ENCORE DE CLÉ ?",
-    "create_account": "S'INSCRIRE ICI"
+        "title": "PRÊT POUR LE STREAMING ?",
+        "description": "Accédez au coffre-fort le plus complet au monde pour le contenu cinématographique haute définition. Un clic pour l'action.",
+        "scenes": [
+            {
+                "number": "SCÈNE : 01",
+                "name": "AUTH_GLOBALE"
+            },
+            {
+                "number": "PRISE : 04",
+                "name": "COEUR_TORRENT"
+            }
+        ],
+        "integration": "Intégration avec fournisseurs sécurisés",
+        "integrations": [
+            "CONTINUER AVEC 42 NETWORK",
+            "CONTINUER AVEC 42 NETWORK"
+        ],
+        "second_title": "IDENTIFICATION",
+        "second_discreption": "Veuillez fournir vos identifiants pour entrer dans le coffre.",
+        "label_address": "ADRESSE_EMAIL",
+        "holder_address": "USER@DOMAIN.COM",
+        "label_pass": "CODE_ACCÈS",
+        "forgot_pass": "Récupérer_Clé_Perdue",
+        "no_account": "PAS ENCORE DE CLÉ ?",
+        "create_account": "S'INSCRIRE_ICI"
+    },
+    "Register": {
+        "title": "SCÈNE 02 : INTÉGRATION - CRÉER COMPTE",
+        "scenes": [
+            {
+                "number": "SCÈNE : 01",
+                "name": "AUTH_GLOBALE"
+            },
+            {
+                "number": "PRISE : 04",
+                "name": "COEUR_TORRENT"
+            }
+        ],
+        "description": "Accédez au coffre-fort le plus complet au monde pour le contenu cinématographique haute définition. Créez un compte pour lancer l'action.",
+        "label_first_name": "Prénom",
+        "holder_first_name": "PRÉNOM_USUEL",
+        "label_last_name": "Nom",
+        "holder_last_name": "NOM_FAMILLE",
+        "label_user_name": "Nom d'utilisateur",
+        "holder_user_name": "NOM_UNIQUE",
+        "label_address": "ADRESSE_EMAIL",
+        "holder_address": "USER@DOMAIN.COM",
+        "label_pass": "CODE_ACCÈS",
+        "ye_account": "DÉJÀ INSCRIT ?",
+        "access_account": "ACCÉDER AU COFFRE"
+    },
+    "Header": {
+        "library": "Bibliothèque",
+        "trending": "Tendances",
+        "watchlist": "Ma Liste",
+        "my_vault": "Mon Coffre",
+        "sign_in": "CONNEXION",
+        "sign_out": "DÉCONNEXION"
     }
 }
