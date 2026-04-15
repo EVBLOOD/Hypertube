@@ -11,7 +11,7 @@ export class MoviesController {
 
   @Get()
   async findAll(@Query() filters: FilterMovieDto, @Req() req) {
-    return this.moviesService.getLibrary(filters, req.user.id);
+    return this.moviesService.getLibrary(filters, 1);
   }
 
   @Get(':imdbId')

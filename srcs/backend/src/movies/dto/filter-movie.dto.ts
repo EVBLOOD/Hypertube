@@ -23,6 +23,12 @@ export class FilterMovieDto {
   page?: number = 1;
 
   @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  limit?: number = 20;
+
+
+  @IsOptional()
   @IsString()
   sortBy?: string = 'title'; // title, year, rating
 }

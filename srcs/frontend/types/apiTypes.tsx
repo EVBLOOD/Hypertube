@@ -17,3 +17,16 @@ export interface Register {
   firstName: string;
   lastName: string;
 }
+
+
+export interface MovieType {
+    id: string,
+    title: string,
+    year: number,
+    rating: number,
+    isWatched: boolean,
+    genres: string[] | string,
+    quality: string, //1080P
+    standard_audio_format: string, // '5.1 SURROUND'
+    poster: string
+}

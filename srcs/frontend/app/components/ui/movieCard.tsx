@@ -5,25 +5,29 @@ import ButtonCustom from './buttonCustom'
 import DescriptionComponent from './descriptionComponent'
 import styles from './movieCard.module.css'
 import TitleCustom from './titleCustom'
+import { MovieType } from '@/types/apiTypes';
 
-export default function MovieCard() {
+// https://m.media-amazon.com/images/M/MV5BYjdiOTFlNzMtYTE0MC00ZWIyLTlkOWMtN2FlOGJjZmYyNjE2XkEyXkFqcGc@._V1_SX300.jpg
+
+export default function MovieCard({ movie }: { movie: MovieType }) {
     const Library = useTranslations('Library')
     return (
-        <div className={styles.bodyCard}>
-            <div style={{backgroundImage: "url('/hero.png')"}} className={styles.cardImage}>
+        <div key={movie.id} className={styles.bodyCard}>
+            <div style={{ backgroundImage: `url(${movie.poster})` }} className={styles.cardImage}>
                 <div className={styles.seenWrapper}>
-                    <ButtonCustom textButton={Library('seen')} buttonImage='/costumIcons/play.svg' color='primary' className={styles.wasSeen}/>
+                    {movie.isWatched ? <ButtonCustom textButton={Library('seen')} buttonImage='/costumIcons/play.svg' color='primary' className={styles.wasSeen} /> : ''}
                 </div>
-                <div  className={styles.infosWraper}>
-                    <ButtonCustom className={styles.infoStyle} textButton='1080P' buttonImage={undefined}/>
-                    <ButtonCustom className={styles.infoStyle} textButton='5.1 SURROUND' buttonImage={undefined}/>
+
+                <div className={styles.infosWraper}>
+                    <ButtonCustom className={styles.infoStyle} textButton={movie.quality} buttonImage={undefined} />
+                    <ButtonCustom className={styles.infoStyle} textButton={movie.standard_audio_format} buttonImage={undefined} />
                 </div>
             </div>
             <div className={styles.titleRatingWraper}>
-                <TitleCustom className={styles.movieTitle} title='CHINATOWN REVISITED' nb_color={-2}></TitleCustom>
-                <span>8.4</span>
+                <TitleCustom className={styles.movieTitle} title={movie.title} nb_color={-movie.title.length}></TitleCustom>
+                <span>{movie.rating}</span>
             </div>
-            <DescriptionComponent text='2023 • NEON NOIR'></DescriptionComponent>
+            <DescriptionComponent text={`${movie.year} ${movie.genres}`}></DescriptionComponent>
         </div>
     )
 }

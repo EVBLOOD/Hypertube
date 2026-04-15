@@ -5,6 +5,7 @@ import { Space_Grotesk, Manrope } from 'next/font/google';
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import AuthProvider from "../components/providers/authProvider";
+import UseQueryProvider from "../components/providers/useQueryProvider";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -42,13 +43,15 @@ export default async function RootLayout({
           ${spaceGrotesk.className} 
           antialiased
         `}>
-          <NextIntlClientProvider messages={messages}>
+        <NextIntlClientProvider messages={messages}>
+          <UseQueryProvider>
             <AuthProvider>
               <Header />
               {children}
               {modal}
             </AuthProvider>
-          </NextIntlClientProvider>
+          </UseQueryProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

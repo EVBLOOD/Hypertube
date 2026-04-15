@@ -35,4 +35,17 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   async del(key: string) {
     await this.client.del(key);
   }
+
+  async len(key: string) {
+    return await this.client.lLen(key)
+  }
+
+  async pushMovies(key: string, ...value: string[]) {
+    await this.client.rPush(key, value);
+    await this.client.expire(key, 6000);
+  }
+
+  async getMovies(key: string, limit: number) {
+    return await this.client.lPopCount(key, limit)
+  }
 }
