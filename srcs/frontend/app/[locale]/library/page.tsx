@@ -12,6 +12,7 @@ import { MovieType } from "@/types/apiTypes";
 import MovieService from "@/lib/services/MovieService";
 import { useSuggestionsList } from "@/lib/dataHooks/moviesSuggestionsList";
 import { useInView } from "react-intersection-observer";
+import useDebounce from "@/lib/dataHooks/useDebounce";
 
 export default function Library() {
   const Library = useTranslations('Library')
@@ -24,7 +25,9 @@ export default function Library() {
   const [maxYear, setMaxYear] = useState(2026)
   const [rating, setRating] = useState(8)
   const [sortBy, setSortBy] = useState('')
-
+  
+  const activeFilters = { genre: gender, minYear, maxYear, minRating: rating, sortBy };
+  
   function OnChange(gender: string, minYear: number, maxYear: number, rating: number, sortBy: string) {
     setGender(gender)
     setMinYear(minYear)
@@ -33,8 +36,10 @@ export default function Library() {
     setSortBy(sortBy)
   }
 
+  const debouncedSearch = useDebounce(activeFilters, 500);
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useSuggestionsList();
+
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useSuggestionsList(debouncedSearch);
 
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {

@@ -17,6 +17,20 @@ export class FilterMovieDto {
   @Max(10)
   minRating?: number;
 
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1888)
+  minYear?: number;
+
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1889)
+  maxYear?: number;
+
   @IsOptional()
   @Type(() => Number)
   @IsInt()

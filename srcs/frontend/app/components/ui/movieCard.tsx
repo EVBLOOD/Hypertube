@@ -7,7 +7,6 @@ import styles from './movieCard.module.css'
 import TitleCustom from './titleCustom'
 import { MovieType } from '@/types/apiTypes';
 
-// https://m.media-amazon.com/images/M/MV5BYjdiOTFlNzMtYTE0MC00ZWIyLTlkOWMtN2FlOGJjZmYyNjE2XkEyXkFqcGc@._V1_SX300.jpg
 
 export default function MovieCard({ movie }: { movie: MovieType }) {
     const Library = useTranslations('Library')
@@ -27,7 +26,11 @@ export default function MovieCard({ movie }: { movie: MovieType }) {
                 <TitleCustom className={styles.movieTitle} title={movie.title} nb_color={-movie.title.length}></TitleCustom>
                 <span>{movie.rating}</span>
             </div>
-            <DescriptionComponent text={`${movie.year} ${movie.genres}`}></DescriptionComponent>
+
+            <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                <DescriptionComponent text={`${movie.year}`}></DescriptionComponent>
+                <DescriptionComponent text={`${typeof movie.genres === 'string' ? movie.genres?.split(',')[0] : movie.genres?.length ? movie.genres[0] : movie.genres}`}></DescriptionComponent>
+            </div>
         </div>
     )
 }
