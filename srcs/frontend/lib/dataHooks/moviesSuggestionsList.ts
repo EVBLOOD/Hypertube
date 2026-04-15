@@ -7,6 +7,6 @@ export const useSuggestionsList = () => {
         queryKey: ['movies', 'suggestions'],
         queryFn: MovieService.getLibrary,
         initialPageParam: 1,
-        getNextPageParam: (lastpage) => lastpage.hasMore ? lastpage.nextPage : undefined
+        getNextPageParam: (lastpage) => lastpage.metadata.hasMore ? lastpage.metadata.nextPage : undefined
     })
 }

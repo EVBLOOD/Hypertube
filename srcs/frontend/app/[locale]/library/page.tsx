@@ -62,7 +62,7 @@ export default function Library() {
         <div className={styles.moviesList}>
           {data?.pages.map((page, pageIndex) => (
             <React.Fragment key={pageIndex}>
-              {page?.results?.map(
+              {page?.data?.map(
                 (movie: MovieType) => <MovieCard key={movie.id} movie={movie}></MovieCard>
               )}
             </React.Fragment>
