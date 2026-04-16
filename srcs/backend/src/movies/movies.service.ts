@@ -6,6 +6,7 @@ import axios from 'axios';
 import { FilterMovieDto } from './dto/filter-movie.dto';
 import { UserMovieProgress } from './entities/user-movie-progress.entity';
 import { RedisService } from 'src/common/redis/redis.service';
+import { exit } from 'process';
 
 @Injectable()
 export class MoviesService {
@@ -41,9 +42,12 @@ export class MoviesService {
 
   async getLibrary(filters: FilterMovieDto, userId: number) {
     // ss
-    const { query, genre, minRating, page = 1, limit = 20, sortBy } = filters;
+    const { query, genre, minRating, maxYear, minYear, page = 1, limit = 20, sortBy } = filters;
     const cacheKey = `search:${userId}:${query || 'all'}:${genre || 'all'}`;
     let cachedCount = await this.redisservice.len(cacheKey)
+
+    if (!query)
+      filters = {genre , limit, minRating, maxYear, minYear, page, sortBy}
 
     if (cachedCount < limit) {
       const [ytsResults, clawResults] = await Promise.allSettled([
@@ -98,8 +102,7 @@ export class MoviesService {
 
   private async fetchFromYts(filters: FilterMovieDto) {
     try {
-      const params = {
-        query_term: filters.query,
+      const params : any = {
         genre: filters.genre,
         minimum_rating: filters.minRating,
         sort_by: filters.query ? (filters.sortBy || 'title') : (filters.sortBy || 'download_count'),
@@ -107,7 +110,11 @@ export class MoviesService {
         page: filters.page || 1,
         limit: filters.limit,
       };
+      if (filters.query) params.query_term = filters.query
 
+
+      console.log(params)
+      console.log(`${process.env.LINK_API_MOVIES_LIST_YTS}list_movies.json`)
       const { data } = await axios.get(`${process.env.LINK_API_MOVIES_LIST_YTS}list_movies.json`, { params });
       return (data.data.movies || [])?.map((m: any) => this.normalizeMovie(m, 'YTS'));
     } catch (err) {
@@ -118,20 +125,20 @@ export class MoviesService {
 
   private async fetchFromTorrentClaw(filters: FilterMovieDto) {
     try {
-      const isSearch = !!filters.query;
-      const endpoint = isSearch ? 'search' : 'popular';
+      // const isSearch = !!filters.query;
+      // const endpoint = isSearch ? 'search' : 'popular';
 
-      const params = isSearch
-        ? { q: filters.query, page: filters.page, genre: filters.genre, minimum_rating: filters.minRating }
-        : { limit: filters.limit || 12, page: 1 };
+      // const params = isSearch
+      //   ? { q: filters.query, page: filters.page, genre: filters.genre, minimum_rating: filters.minRating }
+      //   : { limit: filters.limit || 12, page: 1 };
 
-      const { data } = await axios.get(`${process.env.LINK_API_MOVIES_LIST_TORRENTCLAW}${endpoint}`, {
-        params,
-        // 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36
-        headers: { 'User-Agent': 'Hypertube-Bot/1.0' }
-      });
-      // ss
-      const results = data.items || data;
+      // const { data } = await axios.get(`${process.env.LINK_API_MOVIES_LIST_TORRENTCLAW}${endpoint}`, {
+      //   params,
+      //   // 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36
+      //   headers: { 'User-Agent': 'Hypertube-Bot/1.0' }
+      // });
+      // // ss
+      // const results = data.items || data;
       // return (results || []).map((m: any) => this.normalizeMovie(m, 'other'));
       return [].map((m: any) => this.normalizeMovie(m, 'other'));
     } catch (err) {

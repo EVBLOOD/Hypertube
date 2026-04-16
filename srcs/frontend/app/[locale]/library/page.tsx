@@ -7,7 +7,7 @@ import TitleCustom from "@/app/components/ui/titleCustom";
 import DescriptionComponent from "@/app/components/ui/descriptionComponent";
 import MovieCard from "@/app/components/ui/movieCard";
 import { useTranslations } from "next-intl";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { MovieType } from "@/types/apiTypes";
 import MovieService from "@/lib/services/MovieService";
 import { useSuggestionsList } from "@/lib/dataHooks/moviesSuggestionsList";
@@ -18,25 +18,20 @@ export default function Library() {
   const Library = useTranslations('Library')
   const { ref, inView } = useInView({ threshold: 0.1 })
 
+  const [filters, setFilters] = useState({
+    genre: 'all',
+    minYear: 2017,
+    maxYear: 2026,
+    rating: 8,
+    sortBy: 'alpha'
+    // odder: 'asc'
+  });
 
-
-  const [gender, setGender] = useState('')
-  const [minYear, setMinYear] = useState(2017)
-  const [maxYear, setMaxYear] = useState(2026)
-  const [rating, setRating] = useState(8)
-  const [sortBy, setSortBy] = useState('')
-  
-  const activeFilters = { genre: gender, minYear, maxYear, minRating: rating, sortBy };
-  
-  function OnChange(gender: string, minYear: number, maxYear: number, rating: number, sortBy: string) {
-    setGender(gender)
-    setMinYear(minYear)
-    setMaxYear(maxYear)
-    setRating(rating)
-    setSortBy(sortBy)
+  function OnChange(newFilters: typeof filters) {
+    setFilters(newFilters);
   }
 
-  const debouncedSearch = useDebounce(activeFilters, 500);
+  const debouncedSearch = useDebounce(filters, 500);
 
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useSuggestionsList(debouncedSearch);

@@ -45,11 +45,11 @@ export default async function RootLayout({
         `}>
         <NextIntlClientProvider messages={messages}>
           <UseQueryProvider>
-            <AuthProvider>
+            {/* <AuthProvider> */}
               <Header />
               {children}
               {modal}
-            </AuthProvider>
+            {/* </AuthProvider> */}
           </UseQueryProvider>
         </NextIntlClientProvider>
       </body>
