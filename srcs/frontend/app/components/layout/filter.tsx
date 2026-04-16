@@ -29,7 +29,7 @@ export default function Filter({ onChange }: { onChange: Function }) {
             genre: gender,
             minYear,
             maxYear,
-            rating,
+            minRating: rating,
             sortBy
         });
     }, [gender, minYear, maxYear, rating, sortBy]);

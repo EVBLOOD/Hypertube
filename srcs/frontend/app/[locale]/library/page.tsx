@@ -22,7 +22,7 @@ export default function Library() {
     genre: 'all',
     minYear: 2017,
     maxYear: 2026,
-    rating: 8,
+    minRating: 8,
     sortBy: 'alpha'
     // odder: 'asc'
   });
