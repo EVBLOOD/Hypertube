@@ -22,14 +22,14 @@ export class FilterMovieDto {
   @Type(() => Number)
   @IsInt()
   @Min(1888)
-  minYear?: number;
+  minYear?: number = 2017;
 
 
   @IsOptional()
   @Type(() => Number)
   @IsInt()
   @Min(1889)
-  maxYear?: number;
+  maxYear?: number  = 2026;
 
   @IsOptional()
   @Type(() => Number)

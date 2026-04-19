@@ -14,6 +14,13 @@ export class MoviesController {
     return this.moviesService.getLibrary(filters, 1);
   }
 
+  @Get('popular_one')
+  async heroPage() {
+    // ss
+    console.log("Heeere")
+    return await this.moviesService.getHeroMovie()
+  }
+
   @Get(':imdbId')
   async findOne(@Param('imdbId') imdbId: string) {
     return this.moviesService.getMovieDetails(imdbId);
