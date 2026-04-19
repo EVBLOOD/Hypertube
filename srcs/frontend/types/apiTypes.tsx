@@ -13,15 +13,15 @@ export interface Register {
   lastName: string;
 }
 
-
+// Library
 export interface MovieType {
     id: string,
     title: string,
     year: number,
     rating: number,
     genres: string[],
-    quality: string, //1080P
-    standard_audio_format: string, // '5.1 SURROUND'
+    quality: string,
+    standard_audio_format: string,
     poster: string
     isWatched: boolean,
 }

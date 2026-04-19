@@ -79,7 +79,6 @@ export class MoviesService {
       isWatched: false
     }
   }
-  // https://torrentclaw.com/llms.txt https://torrentclaw.com/api/openapi.json
 
   private async imdbIdFromTMDB(movie: MovieInfos): Promise<MovieInfos> {
 
@@ -156,45 +155,6 @@ export class MoviesService {
         hasMore: (await this.redisservice.len(cacheKey)) > 0 || processedMovies.length === limit
       }
     };
-
-
-    // const { query, genre, minRating, maxYear, minYear, page = 1, limit = 20, sortBy } = filters;
-    // const cacheKey = `search:${userId}:${query || 'all'}:${genre || 'all'}`;
-    // let cachedCount = await this.redisservice.len(cacheKey)
-
-    // if (!query)
-    //   filters = { genre, limit, minRating, maxYear, minYear, page, sortBy }
-
-    // if (cachedCount < limit) {
-    //   const [ytsResults, clawResults] = await Promise.allSettled([
-    //     this.fetchFromYts({ ...filters, limit: 50 }),
-    //     this.fetchFromTorrentClaw({ ...filters, limit: 50 }),
-    //   ]);
-    //   let movies: any[] = [];
-
-    //   if (ytsResults.status === 'fulfilled') {
-    //     movies.push(...ytsResults.value);
-    //   }
-    //   if (clawResults.status === 'fulfilled') {
-    //     movies.push(...clawResults.value);
-    //   }
-    //   if (movies.length > 0) {
-    //     await this.redisservice.pushMovies(cacheKey, ...(movies.map((m) => JSON.stringify(m))))
-    //   }
-    // }
-    // const rawData = await this.redisservice.getMovies(cacheKey, limit);
-    // const movies = (rawData || []).map(m => { return JSON.parse(m) });
-
-    // const processedMovies = await Promise.all(movies.map((m) => this.dataUserIMDB(m, userId)))
-    // console.log(processedMovies)
-    // return {
-    //   data: processedMovies,
-    //   metadata: {
-    //     nextPage: page + 1,
-    //     hasMore: (await this.redisservice.len(cacheKey)) > 0 || processedMovies.length === limit
-    //   }
-    // };
-
   }
   private async dataUserIMDB(movie: MovieInfos, userId: number): Promise<MovieInfos> {
     const progress = await this.progressRepo.findOne({
@@ -203,8 +163,6 @@ export class MoviesService {
     movie.isWatched = progress?.isWatched || false
     return movie
   }
-
-
 
   private async fetchFromTMDB(filters: FilterMovieDto): Promise<MovieInfos[]> {
     let results: MovieInfos[] = []
@@ -304,6 +262,17 @@ export class MoviesService {
 
   async getHeroMovie() {
     // dd
+    const heroInfos: MovieInfos = {
+      id: '',
+      title: '',
+      year: 0,
+      rating: 0,
+      genres: [],
+      quality: '',
+      standard_audio_format: '',
+      poster: '',
+      isWatched: false
+    }
     try {
 
       const hero = await this.redisservice.get(`hero`)
@@ -313,11 +282,28 @@ export class MoviesService {
 
         return randomItem
       }
-      const { data } = await axios.get(`${process.env.TMDB_API}trending/movie/day?api_key=${process.env.TMDB_KEY}`);
-      const allMovies = data.results
-      await this.redisservice.set(`hero`, JSON.stringify(allMovies), 86400)
 
-      const randomItem = allMovies[Math.floor(Math.random() * allMovies.length)];
+      const params: any = {
+        api_key: process.env.TMDB_KEY,
+        append_to_response: 'external_ids',
+        language: 'en-US'
+      };
+      const { data } = await axios.get(`${process.env.TMDB_API}trending/movie/day`, {
+        params
+      });
+      const allMovies = data.results
+      // ss
+      const herosInfos: MovieInfos[] = allMovies.map((movie: any) => {
+        const el = this.normalizeMovie(movie, 'TMDB');
+        el.poster = "https://image.tmdb.org/t/p/original/" + movie.backdrop_path;
+        return el
+      })
+      const imdbData = await Promise.all(herosInfos?.map(async (movie: any) => await this.imdbIdFromTMDB(movie)))
+      const yts_movies = await Promise.all(imdbData.map((movie) => this.getMovieYTS(movie)))
+
+      await this.redisservice.set(`hero`, JSON.stringify(yts_movies), 86400)
+
+      const randomItem = yts_movies[Math.floor(Math.random() * allMovies.length)];
       return randomItem
     } catch (err) {
       console.log(err)

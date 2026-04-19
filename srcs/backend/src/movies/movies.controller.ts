@@ -17,7 +17,6 @@ export class MoviesController {
   @Get('popular_one')
   async heroPage() {
     // ss
-    console.log("Heeere")
     return await this.moviesService.getHeroMovie()
   }
 

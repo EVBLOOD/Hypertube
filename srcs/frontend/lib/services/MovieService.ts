@@ -1,8 +1,8 @@
 import api from "../api"
 
 export default {
-    async getLibrary({pageParam = 1, queryKey}: {pageParam: number, queryKey: any}) {
-        
+    async getLibrary({ pageParam = 1, queryKey }: { pageParam: number, queryKey: any }) {
+
         const [_key, _subKey, filters] = queryKey;
         const moviesPromiss = await api.get('/movies', {
             params: {
@@ -13,5 +13,9 @@ export default {
         })
 
         return moviesPromiss.data
+    },
+    async getHero() {
+        const moviesPopular = await api.get('/movies/popular_one')
+        return moviesPopular
     }
 }

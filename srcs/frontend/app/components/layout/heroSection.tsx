@@ -6,23 +6,24 @@ import DescriptionComponent from '../ui/descriptionComponent'
 import RecordComponent from '../ui/recordComponent'
 import TitleCustom from '../ui/titleCustom'
 import styles from './heroSection.module.css'
+import { useMovieHero } from '@/lib/dataHooks/moviesHero';
 
 export default function HeroSection() {
     const Home = useTranslations('Home');
-    const Object = {
-        "backdrop_path": "https://image.tmdb.org/t/p/original/"+"/xBT0oNq6rsTFv4SxG5uGRIEOrq6.jpg", // this is what I'll use
-        "id": 936075, // I should have the imdb ID
-        "title": "Michael", // movie title
-        "original_title": "Michael",
-        "overview": "Discover the story of Michael Jackson, one of the most influential artists the world has ever known, and his life beyond the music, tracing his journey from the discovery of his extraordinary talent as the lead of the Jackson Five, to the visionary artist whose creative ambition fueled a relentless pursuit to become the biggest entertainer in the world, highlighting both his life off-stage and some of the most iconic performances from his early solo career.",
-        "original_language": "en", // based on each user
-    }
+    const { data, isPending, error } = useMovieHero()
+    if (!data)
+        return (
+            <div className={styles.heroSectionWrap}></div>
+        )
+    console.log(data)
+    console.log(data.data)
+    
     return (
-        <div className={styles.heroSectionWrap}>
+        <div style={{backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 90%),  url('${data.data.poster}')`}} className={styles.heroSectionWrap}>
             <div className={`container ${styles.heroSection}`}>
                 <RecordComponent recText={Home('rec')} />
                 <div>
-                    <TitleCustom title={Object.title} nb_color={(Object.title.split(' ').length == 1 ? 0 : Object.title.split(' ').length) - 1} /> 
+                    <TitleCustom title={data.data.title} nb_color={(data.data.title.split(' ').length == 1 ? 0 : data.data.title.split(' ').length) - 1} />
                     <DescriptionComponent
                         className={styles.heroSectionDescription}
                         text={Home('hero_discription')}
