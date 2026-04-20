@@ -16,7 +16,10 @@ export interface MovieInfos {
   quality: string,
   standard_audio_format: string,
   poster: string,
-  isWatched: boolean
+  isWatched: boolean,
+  overview?: string,
+  size?: number,
+  time?: number
 }
 
 export interface MovieLibrary {
@@ -89,6 +92,7 @@ export class MoviesService {
       const { data } = await axios.get(`${process.env.TMDB_API}movie/${movie.id}?api_key=${process.env.TMDB_KEY}&append_to_response=external_ids`);
       movie.id = data.imdb_id
       movie.genres = data.genres.map((g: { id: number, name: string }) => g.name)
+
       await this.redisservice.set(`metadata:${movie.id}`, JSON.stringify(movie), 600000);
     } catch (err) {
       console.log(err)
@@ -98,7 +102,7 @@ export class MoviesService {
   private getQualityScore(q: string) {
     return q === '2160p' ? 3 : q === '1080p' ? 2 : 1;
   }
-  async getMovieYTS(movie: MovieInfos): Promise<MovieInfos> {
+  async getMovieYTS(movie: MovieInfos, moreinfos = false): Promise<MovieInfos> {
     try {
       const { data } = await axios.get(`${process.env.LINK_API_MOVIES_LIST_YTS}list_movies.json`, {
         params: {
@@ -106,6 +110,7 @@ export class MoviesService {
         }
       });
       console.log(data)
+      // ss
       const ytsMovie = data.data.movies?.[0]
       console.log(ytsMovie)
       // let streamInfo = {
@@ -120,6 +125,10 @@ export class MoviesService {
         );
         movie.standard_audio_format = best.audio_channels === '5.1' ? '5.1 SURROUND' : 'STEREO'
         movie.quality = best.quality
+        if (moreinfos) {
+          movie.size = best.size
+          movie.time = ytsMovie.runtime
+        }
       }
     } catch (err) {
       console.log(err)
@@ -127,6 +136,7 @@ export class MoviesService {
     // ss
     return movie
   }
+
   async getLibrary(filters: FilterMovieDto, userId: number) {
     const { query, genre, minRating, maxYear, minYear, page = 1, limit = 20, sortBy } = filters;
     const cacheKey = `search:${userId}:${query || 'all'}:${genre || 'all'}`;
@@ -134,16 +144,18 @@ export class MoviesService {
 
     if (!query)
       filters = { genre, limit, minRating, maxYear, minYear, page, sortBy }
-    if (cachedCount < limit) {
+    if (cachedCount / page <= limit) {
       const tmdbMovies = await this.fetchFromTMDB(filters);
-      const imdbData = await Promise.all(tmdbMovies?.map(async (movie: any) => await this.imdbIdFromTMDB(movie)))
+      const imdbData = (await Promise.all(tmdbMovies?.map(async (movie: any) => await this.imdbIdFromTMDB(movie)))).filter((m) => (m.id))
       const yts_movies = await Promise.all(imdbData.map((movie) => this.getMovieYTS(movie)))
 
       if (yts_movies.length > 0) {
         await this.redisservice.pushMovies(cacheKey, ...(yts_movies.map((m) => JSON.stringify(m))))
       }
     }
-    const rawData = await this.redisservice.getMovies(cacheKey, limit);
+    // const rawData = await this.redisservice.getMovies(cacheKey, limit);
+    const rawData = await this.redisservice.getMovies(cacheKey, (page - 1) * limit, page * limit - 1);
+
     const movies = (rawData || []).map(m => { return JSON.parse(m) });
     const processedMovies = await Promise.all(movies.map((m) => this.dataUserIMDB(m, userId)))
 
@@ -312,19 +324,88 @@ export class MoviesService {
   }
 
   async getMovieDetails(imdbId: string) {
-    let movie: any = {}
-
+    let movie: MovieInfos | null = null
     try {
+      const { data } = await axios.get(`${process.env.TMDB_API}find/${imdbId}`, {
+        params: {
+          api_key: process.env.TMDB_KEY,
+          external_source: 'imdb_id',
+          language: 'en-US'
+        }
+      });
+      movie = data.movie_results?.[0] ? this.normalizeMovie(data.movie_results?.[0], 'TMDB') : null
+      if (movie) {
+        movie.id = imdbId;
+        movie.poster = `https://image.tmdb.org/t/p/original${data.movie_results?.[0].backdrop_path}`,
+        movie.overview = data.movie_results?.[0].overview;
+      } else return movie
+      const tmdbId = data.movie_results?.[0].id
+      // credits
+      const creditsRes = await axios.get(
+        `${process.env.TMDB_API}movie/${tmdbId}/credits`,
+        { params: { api_key: process.env.TMDB_KEY } }
+      );
 
-      const response = await axios.get(`http://www.omdbapi.com/?i=${imdbId}&apikey=${process.env.OMDB_KEY}`);
-      movie = response.data
+      const director = creditsRes.data.crew.find((member: any) => member.job === 'Director')?.name || 'Unknown';
+      const actors = creditsRes.data.cast.slice(0, 3).map((actor: any) => ({
+        name: actor.name,
+        character: actor.character,
+      }));
+      // best 
+      movie = await this.getMovieYTS(movie, true);
+
+      return {
+        movie,
+        director,
+        actors
+      }
     } catch (err) {
       console.log(err);
-    } finally {
-      return movie
     }
+    return movie
   }
 
+
+  async getCuratedTrending() {
+    const cacheKey = 'curated_trending_top_24';
+    const cached = await this.redisservice.get(cacheKey);
+    if (cached) return JSON.parse(cached);
+
+    try {
+      const params: any = {
+        api_key: process.env.TMDB_KEY,
+        append_to_response: 'external_ids',
+        language: 'en-US'
+      };
+      const { data } = await axios.get(`${process.env.TMDB_API}trending/movie/week`, {
+        params
+      });
+      const allMovies = data.results
+      const herosInfos: MovieInfos[] = allMovies.map((movie: any) => {
+        const el = this.normalizeMovie(movie, 'TMDB');
+        el.poster = "https://image.tmdb.org/t/p/original/" + movie.backdrop_path;
+        el.overview = movie.overview;
+
+        return el
+      })
+      const imdbData = await Promise.all(herosInfos?.map(async (movie: any) => await this.imdbIdFromTMDB(movie)))
+      const yts_movies = await Promise.all(imdbData.map((movie) => this.getMovieYTS(movie, true)))
+      const curated : any[] = [];
+      for (const movie of yts_movies) {
+        if (curated.length == 4) break
+        if (movie.quality == '1080p' || movie.quality === '2160p') {
+          curated.push(movie)
+        }
+      }
+      await this.redisservice.set(cacheKey, JSON.stringify(yts_movies), 86400)
+      
+      // ss
+      return curated;
+    } catch (err) {
+      console.log(err);
+    }
+    return {};
+  }
   async updateProgress(userId: number, imdbId: string, seconds: number, isLive: boolean) {
     let movie = await this.movieRepo.findOne({ where: { imdbId } });
     if (!movie) throw new Error('Movie not found locally');

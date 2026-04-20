@@ -6,12 +6,15 @@ import DescriptionComponent from './descriptionComponent'
 import styles from './movieCard.module.css'
 import TitleCustom from './titleCustom'
 import { MovieType } from '@/types/apiTypes';
+import { useRouter } from 'next/navigation';
 
 
 export default function MovieCard({ movie }: { movie: MovieType }) {
     const Library = useTranslations('Library')
+    const router = useRouter()
+
     return (
-        <div className={styles.bodyCard}>
+        <div onClick={() => router.push(`/movie/${movie.id}`)} className={styles.bodyCard}>
             <div style={{ backgroundImage: `url(${movie.poster})` }} className={styles.cardImage}>
                 <div className={styles.seenWrapper}>
                     {movie.isWatched ? <ButtonCustom textButton={Library('seen')} buttonImage='/costumIcons/play.svg' color='primary' className={styles.wasSeen} /> : ''}

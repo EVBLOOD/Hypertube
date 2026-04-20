@@ -7,7 +7,7 @@ import TitleCustom from "@/app/components/ui/titleCustom";
 import DescriptionComponent from "@/app/components/ui/descriptionComponent";
 import MovieCard from "@/app/components/ui/movieCard";
 import { useTranslations } from "next-intl";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { MovieType } from "@/types/apiTypes";
 import MovieService from "@/lib/services/MovieService";
 import { useSuggestionsList } from "@/lib/dataHooks/moviesSuggestionsList";
@@ -16,7 +16,7 @@ import useDebounce from "@/lib/dataHooks/useDebounce";
 
 export default function Library() {
   const Library = useTranslations('Library')
-  const { ref, inView } = useInView({ threshold: 0.1 })
+  const { ref: viewRef, inView } = useInView({ threshold: 0.1 })
 
   const [filters, setFilters] = useState({
     genre: 'all',
@@ -30,6 +30,9 @@ export default function Library() {
   function OnChange(newFilters: typeof filters) {
     setFilters(newFilters);
   }
+  //   const OnChange = React.useCallback((newFilters: typeof filters) => {
+  //   setFilters(newFilters);
+  // }, []);
 
   const debouncedSearch = useDebounce(filters, 500);
 
@@ -40,7 +43,8 @@ export default function Library() {
     if (inView && hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
-  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+  }, [inView]);
+
 
   return (
     <div className={`container ${styles.browseContent}`}>
@@ -58,7 +62,6 @@ export default function Library() {
             </div>
           </div>
         </div>
-
         <div className={styles.moviesList}>
           {data?.pages.map((page, pageIndex) => (
             <React.Fragment key={pageIndex}>
@@ -69,8 +72,8 @@ export default function Library() {
           ))}
         </div>
 
-
-        <div ref={ref}>
+ 
+        <div ref={viewRef} style={{ height: 20 }}>
           {isFetchingNextPage ? (
             <div> fetching... </div>
           ) : hasNextPage ? (

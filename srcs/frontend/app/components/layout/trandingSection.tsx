@@ -4,7 +4,7 @@ import { useTranslations } from 'use-intl';
 import CardElementHighlight from '../ui/cardElementHighlight'
 import styles from './trandingSection.module.css'
 
-export default function TrandingSection() {
+export default function TrandingSection({movies}: {movies: any}) {
     const Home = useTranslations('Home');
     return (
         <div className={`container ${styles.trandingSectionParent}`}>
@@ -23,10 +23,10 @@ export default function TrandingSection() {
                 </div>
             </div>
             <div className={styles.trandingSection}>
-                <CardElementHighlight className={styles.mainTrand} />
-                <CardElementHighlight classNameTitle={styles.smallerTitle} className={styles.subtrand} yeExtra={false}/>
-                <CardElementHighlight classNameTitle={styles.smallerTitle} className={styles.subtrand} yeExtra={false}/>
-                <CardElementHighlight classNameTitle={styles.smallTitle} className={`${styles.subcollection} ${styles.collectionElement}`} yeIfos={false}/>
+                <CardElementHighlight movie={movies[0]} className={styles.mainTrand} />
+                <CardElementHighlight movie={movies[1]} classNameTitle={styles.smallerTitle} className={styles.subtrand} yeExtra={false}/>
+                <CardElementHighlight movie={movies[2]} classNameTitle={styles.smallerTitle} className={styles.subtrand} yeExtra={false}/>
+                <CardElementHighlight movie={movies[3]} classNameTitle={styles.smallTitle} className={`${styles.subcollection} ${styles.collectionElement}`} yeIfos={false}/>
             </div>
         </div>
     )

@@ -17,5 +17,13 @@ export default {
     async getHero() {
         const moviesPopular = await api.get('/movies/popular_one')
         return moviesPopular
+    },
+    async getMovieDetails({ queryKey }: any) {
+        const [_key, movieId] = queryKey;
+        const movieDetails = await api.get(`/movies/${movieId}`)
+        return movieDetails
+    },
+    async getCuratedMovies() {
+        return await api.get('/movies/curated')
     }
 }

@@ -20,9 +20,14 @@ export class MoviesController {
     return await this.moviesService.getHeroMovie()
   }
 
+  @Get('curated')
+  async getCuratedTrending() {
+    return await this.moviesService.getCuratedTrending()
+  }
+
   @Get(':imdbId')
   async findOne(@Param('imdbId') imdbId: string) {
-    return this.moviesService.getMovieDetails(imdbId);
+    return await this.moviesService.getMovieDetails(imdbId);
   }
 
   @Post(':imdbId/progress')

@@ -1,0 +1,17 @@
+.borderWrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 82px;
+    color: color-mix(in srgb, var(--font-color-white), transparent 40%);
+}
+
+.logo {
+    color: var(--primary-color);
+    letter-spacing: 4px;
+}
+
+.borderInfos {
+    display: flex;
+    gap: 15px;
+}

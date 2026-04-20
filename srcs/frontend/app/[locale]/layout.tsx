@@ -6,6 +6,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import AuthProvider from "../components/providers/authProvider";
 import UseQueryProvider from "../components/providers/useQueryProvider";
+import Footer from "../components/layout/footer";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -49,6 +50,7 @@ export default async function RootLayout({
               <Header />
               {children}
               {modal}
+              <Footer />
             {/* </AuthProvider> */}
           </UseQueryProvider>
         </NextIntlClientProvider>

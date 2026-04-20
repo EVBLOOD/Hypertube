@@ -9,18 +9,25 @@ import ProdictionAuthorCard from "@/app/components/ui/prodictionAuthorCard";
 import ButtonCustom from "@/app/components/ui/buttonCustom";
 import CommentInput from "@/app/components/ui/commentInput";
 import ViewInteractComment from "@/app/components/ui/viewInteractComment";
+import { useMovieDetails } from "@/lib/dataHooks/moviesDetails";
 
 
-export default function MoviePage({ params }: { params: Promise<{ id: number }> }) {
+export default function MoviePage({ params }: { params: Promise<{ id: string }> }) {
 
     const resolvedParams = use(params)
     const id = resolvedParams.id
-
-    // I should cheack if the number is number // later to do
+    const { data, isPending, error } = useMovieDetails(id)
+    if (!data && isPending)
+        return (
+            <div>Loading..</div>
+        )
+    if (error) return (
+            <div>Error1..</div>
+        )
 
     return (
         <div>
-            <HeroSectionMovie />
+            <HeroSectionMovie obj={data.data.movie} />
             <div style={{ backgroundColor: '#131313', paddingBottom: '80px' }} >
                 <div className="container">
                     <div className={styles.productionWraper}>
@@ -28,10 +35,9 @@ export default function MoviePage({ params }: { params: Promise<{ id: number }> 
                         <TitleCustom title="PRODUCTION LOGS" nb_color={-2} className={styles.productionLogTitle} />
                     </div>
                     <div className={styles.productionLogElements}>
-                        <ProdictionAuthorCard />
-                        <ProdictionAuthorCard />
-                        <ProdictionAuthorCard />
-                        <ProdictionAuthorCard />
+                        
+                        <ProdictionAuthorCard overview={"The director behind the Movie"} name={data.data.director} role="Director"/>
+                        {data.data.actors.map((act: any) => <ProdictionAuthorCard name={act.name} role="Actor" overview={act.character} />)}
                     </div>
                 </div>
             </div>

@@ -6,24 +6,16 @@ import DescriptionComponent from '../ui/descriptionComponent'
 import RecordComponent from '../ui/recordComponent'
 import TitleCustom from '../ui/titleCustom'
 import styles from './heroSection.module.css'
-import { useMovieHero } from '@/lib/dataHooks/moviesHero';
 
-export default function HeroSection() {
+export default function HeroSection({movie}: {movie: any}) {
     const Home = useTranslations('Home');
-    const { data, isPending, error } = useMovieHero()
-    if (!data)
-        return (
-            <div className={styles.heroSectionWrap}></div>
-        )
-    console.log(data)
-    console.log(data.data)
     
     return (
-        <div style={{backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 90%),  url('${data.data.poster}')`}} className={styles.heroSectionWrap}>
+        <div style={{backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 90%),  url('${movie.poster}')`}} className={styles.heroSectionWrap}>
             <div className={`container ${styles.heroSection}`}>
                 <RecordComponent recText={Home('rec')} />
                 <div>
-                    <TitleCustom title={data.data.title} nb_color={(data.data.title.split(' ').length == 1 ? 0 : data.data.title.split(' ').length) - 1} />
+                    <TitleCustom title={movie.title} nb_color={(movie.title.split(' ').length == 1 ? 0 : movie.title.split(' ').length) - 1} />
                     <DescriptionComponent
                         className={styles.heroSectionDescription}
                         text={Home('hero_discription')}

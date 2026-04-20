@@ -2,16 +2,16 @@
 import DescriptionComponent from './descriptionComponent';
 import styles from './prodictionAuthorCard.module.css'
 
-export default function ProdictionAuthorCard() {
+export default function ProdictionAuthorCard({role, name, overview}: {role: string, name: string, overview: string}) {
     return (
         <div className={styles.productionLogCard}>
             <span style={{ color: "var(--primary-color)", letterSpacing: '5px' }}>
-                Director
+                {role}
             </span>
             <h2>
-                Saad AKLLAM
+                {name}
             </h2>
-            <DescriptionComponent text="The visionary behind 'Static Dreams' and 'Neon Ghost'." />
+            <DescriptionComponent text={overview} />
         </div>
     )
 }
