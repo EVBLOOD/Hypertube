@@ -10,6 +10,7 @@ import ButtonCustom from "@/app/components/ui/buttonCustom";
 import CommentInput from "@/app/components/ui/commentInput";
 import ViewInteractComment from "@/app/components/ui/viewInteractComment";
 import { useMovieDetails } from "@/lib/dataHooks/moviesDetails";
+import LoadingPage from "@/app/components/layout/loading";
 
 
 export default function MoviePage({ params }: { params: Promise<{ id: string }> }) {
@@ -17,9 +18,9 @@ export default function MoviePage({ params }: { params: Promise<{ id: string }> 
     const resolvedParams = use(params)
     const id = resolvedParams.id
     const { data, isPending, error } = useMovieDetails(id)
-    if (!data && isPending)
+    if (isPending)
         return (
-            <div>Loading..</div>
+            <LoadingPage></LoadingPage>
         )
     if (error) return (
             <div>Error1..</div>
@@ -37,7 +38,7 @@ export default function MoviePage({ params }: { params: Promise<{ id: string }> 
                     <div className={styles.productionLogElements}>
                         
                         <ProdictionAuthorCard overview={"The director behind the Movie"} name={data.data.director} role="Director"/>
-                        {data.data.actors.map((act: any) => <ProdictionAuthorCard name={act.name} role="Actor" overview={act.character} />)}
+                        {data.data.actors.map((act: any, index: number) => <ProdictionAuthorCard key={index} name={act.name} role="Actor" overview={act.character} />)}
                     </div>
                 </div>
             </div>

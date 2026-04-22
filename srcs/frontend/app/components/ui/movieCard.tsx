@@ -9,7 +9,7 @@ import { MovieType } from '@/types/apiTypes';
 import { useRouter } from 'next/navigation';
 
 
-export default function MovieCard({ movie }: { movie: MovieType }) {
+export default function MovieCard({ movie, className }: { movie: MovieType, className?: string }) {
     const Library = useTranslations('Library')
     const router = useRouter()
 
@@ -26,7 +26,7 @@ export default function MovieCard({ movie }: { movie: MovieType }) {
                 </div>
             </div>
             <div className={styles.titleRatingWraper}>
-                <TitleCustom className={styles.movieTitle} title={movie.title} nb_color={-movie.title.length}></TitleCustom>
+                <TitleCustom isMovie={true} title={movie.title} nb_color={-movie.title.length}></TitleCustom>
                 <span>{movie.rating}</span>
             </div>
 

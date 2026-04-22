@@ -1,5 +1,6 @@
 import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
 import { createClient, RedisClientType } from 'redis';
+import { start } from 'repl';
 
 @Injectable()
 export class RedisService implements OnModuleInit, OnModuleDestroy {
@@ -40,14 +41,53 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     return await this.client.lLen(key)
   }
 
-  async pushMovies(key: string, ...value: string[]) {
-    await this.client.rPush(key, value);
-    await this.client.expire(key, 6000);
+  // async pushMovies(key: string, ...value: string[]) {
+  //   await this.client.rPush(key, value);
+  //   await this.client.expire(key, 6000);
+  // }
+
+  // async getMovies(key: string, skip: number, limit: number) {
+  //   const start = skip;
+  //   const stop = skip + limit - 1;
+  //   return await this.client.lRange(key, start, stop);
+  // }
+
+  async pushMovies(key: string, movies: any[]) {
+    const pipeline = this.client.multi();
+
+    let scoreBase = await this.client.incr(`${key}:counter`);
+    for (const movie of movies) {
+      const id = movie.id;
+      pipeline.set(`movie:${id}`, JSON.stringify(movie), { EX: 86400 });
+      pipeline.zAdd(key, {
+        score: scoreBase++,
+        value: String(id)
+      });
+    }
+    await pipeline.exec()
+    await this.client.expire(key, 86400)
+    await this.client.expire(`${key}:counter`, 86400);
   }
 
-  async getMovies(key: string, skip: number, limit: number) {
-    const start = skip;
-    const stop = skip + limit - 1;
-    return await this.client.lRange(key, start, stop);
+  async getMovies(key: string, start: number, size: number) {
+    const ids = await this.client.zRange(key, start, start + size - 1);
+
+    if (!ids.length) return []
+
+    const pipeline = this.client.multi()
+    for (const id of ids) {
+      pipeline.get(`movie:${id}`)
+    }
+
+    const results = await pipeline.exec()
+    if (!results) return [];
+    return results.map((r : any) => { 
+      return JSON.parse(r as string) 
+    })
   }
+
+  async lenZSet(key: string) {
+    return this.client.ZCARD(key)
+  }
+
 }

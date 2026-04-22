@@ -27,7 +27,7 @@ export default async function middleware(req: NextRequest) {
     }
 
     // const isProtectedRoute = pathname_direction.includes('/library') || pathname_direction.includes('/profile');
-    const isProtectedRoute = pathname_direction.includes('/profile');
+    const isProtectedRoute = false;
     const isAuthPage = pathname_direction.includes('/login') || pathname_direction.includes('/register');
 
     if (isProtectedRoute && !(useUserStore.getState().user)) {

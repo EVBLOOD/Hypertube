@@ -32,9 +32,9 @@ export default function Header() {
         <h2 className={styles.logo} ><Link href={'/'}>HYPERTUBE</Link></h2>
         <div className={styles.optionsWraper}>
           <Link href='/library' className={`${styles.optionSelection} ${styles.optionNotSelection}`}>{header('library')}</Link>
-          <Link href='/library' className={styles.optionNotSelection}>{header('trending')}</Link>
-          <Link href='/library' className={styles.optionNotSelection}>{header('watchlist')}</Link>
-          <Link href='/library' className={styles.optionNotSelection}>{header('my_vault')}</Link>
+          <Link href='/trending' className={styles.optionNotSelection}>{header('trending')}</Link>
+          <Link href='/watchlist' className={styles.optionNotSelection}>{header('watchlist')}</Link>
+          <Link href='/profile' className={styles.optionNotSelection}>{header('my_vault')}</Link>
         </div>
         <div className={styles.actionsWraper}>
           <img onClick={handleSearch} style={{cursor: 'pointer'}} src="/costumIcons/icon.svg" alt="search" />

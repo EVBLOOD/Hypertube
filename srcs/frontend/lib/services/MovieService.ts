@@ -14,6 +14,15 @@ export default {
 
         return moviesPromiss.data
     },
+    async getTrending({ pageParam = 1 }: { pageParam: number, queryKey: any }) {
+
+        return (await api.get('/movies/trending', {
+            params: {
+                page: pageParam,
+                limit: 20,
+            }
+        })).data
+    },
     async getHero() {
         const moviesPopular = await api.get('/movies/popular_one')
         return moviesPopular

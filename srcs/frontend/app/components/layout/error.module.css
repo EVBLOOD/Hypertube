@@ -1,0 +1,32 @@
+.errorPage {
+    width: 100%;
+    height: 92.5vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 25px;
+
+}
+
+.recSizeChange {
+    font-size: larger;
+}
+
+
+.actionsButton {
+  width: 50%;
+  display: flex;
+  justify-content: flex-start;
+  gap: 30px;
+}
+
+.buttonStyle {
+  padding: 20px 38px 20px 38px;
+  width: fit-content;
+}
+
+.titleJust {
+    text-align: start;
+    font-size: revert-rule;
+}

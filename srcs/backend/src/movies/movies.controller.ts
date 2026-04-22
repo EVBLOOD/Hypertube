@@ -3,26 +3,33 @@ import { FilterMovieDto } from './dto/filter-movie.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { VerifiedGuard } from '../auth/guards/verified.guard';
 import { MoviesService } from './movies.service';
+import { PaginationMovieDto } from './dto/pagination-movie.dto ';
 
 @Controller('movies')
 // @UseGuards(JwtAuthGuard, VerifiedGuard)
 export class MoviesController {
-  constructor(private readonly moviesService: MoviesService) {}
+  constructor(private readonly moviesService: MoviesService) { }
 
   @Get()
   async findAll(@Query() filters: FilterMovieDto, @Req() req) {
     return this.moviesService.getLibrary(filters, 1);
   }
 
-  @Get('popular_one')
-  async heroPage() {
-    // ss
-    return await this.moviesService.getHeroMovie()
-  }
 
   @Get('curated')
   async getCuratedTrending() {
     return await this.moviesService.getCuratedTrending()
+  }
+
+  @Get('trending')
+  async trendingPage(@Query() paging: PaginationMovieDto) {
+    return await this.moviesService.getTrending(paging)
+  }
+
+  @Get('popular_one')
+  async heroPage() {
+    // ss
+    return await this.moviesService.getHeroMovie()
   }
 
   @Get(':imdbId')

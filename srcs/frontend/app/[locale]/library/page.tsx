@@ -13,6 +13,10 @@ import MovieService from "@/lib/services/MovieService";
 import { useSuggestionsList } from "@/lib/dataHooks/moviesSuggestionsList";
 import { useInView } from "react-intersection-observer";
 import useDebounce from "@/lib/dataHooks/useDebounce";
+import LoadingPage from "@/app/components/layout/loading";
+import ErrorPage from "@/app/components/layout/error";
+import { AxiosError } from "axios";
+import ScrollLoading from "@/app/components/ui/scrollLoading";
 
 export default function Library() {
   const Library = useTranslations('Library')
@@ -37,7 +41,7 @@ export default function Library() {
   const debouncedSearch = useDebounce(filters, 500);
 
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useSuggestionsList(debouncedSearch);
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, error, isPending } = useSuggestionsList(debouncedSearch);
 
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
@@ -45,6 +49,12 @@ export default function Library() {
     }
   }, [inView]);
 
+  if (!data && error) {
+    const axiosErr = error as AxiosError<any>
+    const errorMessage = axiosErr.response?.data?.message || "Something went wrong"
+    const errorCode = axiosErr?.response?.status || 404
+    return <ErrorPage errorCode={errorCode} errorMessage={errorMessage} />
+  }
 
   return (
     <div className={`container ${styles.browseContent}`}>
@@ -62,26 +72,25 @@ export default function Library() {
             </div>
           </div>
         </div>
-        <div className={styles.moviesList}>
-          {data?.pages.map((page, pageIndex) => (
-            <React.Fragment key={pageIndex}>
-              {page?.data?.map(
-                (movie: MovieType) => <MovieCard key={movie.id} movie={movie}></MovieCard>
-              )}
-            </React.Fragment>
-          ))}
-        </div>
-
- 
-        <div ref={viewRef} style={{ height: 20 }}>
-          {isFetchingNextPage ? (
-            <div> fetching... </div>
-          ) : hasNextPage ? (
-            <span>Load more...</span>
-          ) : (
-            <p>This is the end</p>
-          )}
-        </div>
+        {
+          isPending && !data ? <LoadingPage /> :
+            <>
+              <div className={styles.moviesList}>
+                {data?.pages.map((page, pageIndex) => (
+                  <React.Fragment key={pageIndex}>
+                    {page?.data?.map(
+                      (movie: MovieType) => <MovieCard className="" key={movie.id} movie={movie}></MovieCard>
+                    )}
+                  </React.Fragment>
+                ))}
+              </div>
+              <div ref={viewRef} style={{ height: 40 }}>
+                {isFetchingNextPage ? (
+                  <ScrollLoading />
+                ) : ''}
+              </div>
+            </>
+        }
       </div>
     </div>
   );

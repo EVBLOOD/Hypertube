@@ -6,6 +6,8 @@ import styles from './trandingSection.module.css'
 
 export default function TrandingSection({movies}: {movies: any}) {
     const Home = useTranslations('Home');
+
+    console.log(movies)
     return (
         <div className={`container ${styles.trandingSectionParent}`}>
             <div className={styles.tradingHeader}>

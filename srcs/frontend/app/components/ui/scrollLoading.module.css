@@ -1,0 +1,30 @@
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+
+.spiner {
+    height: 2px;
+    width: 32px;
+    animation: spin 2s linear infinite;
+    background-color: var(--primary-color);
+}
+
+.loadingText {
+    color: color-mix(in srgb, var(--font-color-white), transparent 40%);
+}
+
+.containerLoading {
+    margin-top: 40px;
+    align-items: center;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
