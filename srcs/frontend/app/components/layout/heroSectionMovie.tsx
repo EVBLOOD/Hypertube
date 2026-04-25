@@ -23,20 +23,6 @@ export interface MovieInfos {
 
 export default function HeroSectionMovie({ obj }: {obj : any}) {
 
-    // const obj: MovieInfos = {
-    //     id: '',
-    //     title: 'CHINATOWN NOIR REVIVAL',
-    //     year: 2024,
-    //     rating: 0, // 8.9 IMDB
-    //     genres: [],
-    //     quality: '4k ULTRA HD',
-    //     standard_audio_format: '',
-    //     poster: '',
-    //     isWatched: false,
-    //     overview: "Access the most secure, peer-to-peer technical vault for cinematic masterpieces. Uncompressed frames. Professional metadata. The divector's intent, preserved.",
-    //     size: '12.4 GB',
-    //     time: 0 // 2H 14MIN
-    // }
     if (obj)
     return (
         <div style={{backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 90%),  url('${obj.poster}')`}} className={styles.heroSectionWrap}>

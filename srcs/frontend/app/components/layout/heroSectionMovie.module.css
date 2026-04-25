@@ -1,6 +1,5 @@
-
 .heroSectionWrap {
-    
+
     /* background-image: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 90%),  url('/hero.png'); */
     background-size: cover;
     background-position: center;
@@ -14,6 +13,7 @@
     padding: 64px 96px 64px 96px;
 
 }
+
 .heroSectionTitle {
     height: 85vh;
     display: flex;
@@ -61,7 +61,7 @@
     gap: 10px;
 }
 
-.MovieHeroInfosItems  {
+.MovieHeroInfosItems {
     width: fit-content;
     padding: 2px 6px;
 }
@@ -75,7 +75,7 @@
     border-style: solid;
     border-width: 1px 0px 0px 0px;
     padding-top: 10px;
-    border-color: color-mix(in srgb, #999077, transparent 80%) ;
+    border-color: color-mix(in srgb, #999077, transparent 80%);
     display: flex;
     justify-content: space-between;
 }
@@ -84,6 +84,21 @@
     display: flex;
     gap: 10px;
 
-    
+
 }
 
+@media screen and (max-width: 768px) {
+    .heroSection {
+        padding: 15px;
+        flex-direction: column;
+    }
+
+    .heroSectionInfos {
+        width: -webkit-fill-available;
+    }
+
+    .heroSectionDescription {
+        width: auto;
+    }
+
+}
