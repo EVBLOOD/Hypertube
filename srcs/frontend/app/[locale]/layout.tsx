@@ -7,6 +7,7 @@ import { getMessages } from "next-intl/server";
 import AuthProvider from "../components/providers/authProvider";
 import UseQueryProvider from "../components/providers/useQueryProvider";
 import Footer from "../components/layout/footer";
+import LanguageSwitcher from "../components/ui/languageSwitcher";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -35,7 +36,7 @@ export default async function RootLayout({
   params: Promise<{ locale: string }>
 }>) {
   const { locale } = await params;
-  const messages = await getMessages()
+  const messages = await getMessages();
   return (
     <html lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'}>
       <body className={`
@@ -47,6 +48,7 @@ export default async function RootLayout({
         <NextIntlClientProvider messages={messages}>
           <UseQueryProvider>
             {/* <AuthProvider> */}
+            <LanguageSwitcher local={locale} />
               <Header />
               {children}
               {modal}

@@ -3,11 +3,12 @@
 import { useTranslations } from 'use-intl';
 import CardElementHighlight from '../ui/cardElementHighlight'
 import styles from './trandingSection.module.css'
+import { useRouter } from 'next/navigation';
 
 export default function TrandingSection({movies}: {movies: any}) {
     const Home = useTranslations('Home');
 
-    console.log(movies)
+    const router = useRouter()
     return (
         <div className={`container ${styles.trandingSectionParent}`}>
             <div className={styles.tradingHeader}>
@@ -19,7 +20,7 @@ export default function TrandingSection({movies}: {movies: any}) {
                         Curated Technical Selection
                     </span>
                 </div>
-                <div className={styles.tradingViewMore}>
+                <div className={styles.tradingViewMore} onClick={() => router.push('/trending')}>
                     <p>SEE ALL ENTRIES</p>
                     <img src="/costumIcons/go_in.svg" alt="Next" height='10px' />
                 </div>

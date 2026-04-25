@@ -11,6 +11,9 @@
   --popup-background: var(--secondry-color);
   --popup-background-second: #3A3939;
 
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+
   font-family: var(--body-font);
 }
 
@@ -26,3 +29,10 @@ body {
   margin: 0 auto;
   padding: 0 20px;
 }
+
+
+/* @media screen and (max-width: 768px) {
+  .container {
+    padding: 0px;
+  }
+} */

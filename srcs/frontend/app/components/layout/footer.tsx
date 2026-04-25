@@ -2,9 +2,10 @@
 
 import styles from './footer.module.css'
 
+
 export default function Footer() {
     return (
-        <div style={{backgroundColor: 'var(--popup-background)'}}>
+        <div className={styles.footerAll} style={{backgroundColor: 'var(--popup-background)'}}>
             <div className={`container ${styles.borderWrap}`}>
                 <span className={styles.logo}>
                     HYPERTUBE

@@ -18,6 +18,8 @@
     display: flex;
     align-items: center;
     gap: 5px;
+    justify-content: center;
+    cursor: pointer;
 }
 
 .subTitleTranding {
@@ -54,13 +56,68 @@
 }
 
 .smallerTitle {
-    font-size:x-large;
+    font-size: x-large;
 }
 
 .smallTitle {
-    font-size:xx-large;
+    font-size: xx-large;
 }
 
 .collectionElement {
     justify-content: center;
+}
+
+@media screen and (max-width: 768px) {
+    .trandingSection {
+        display: grid;
+
+        grid-template-areas:
+            "mainTrand"
+            "mainTrand"
+            "subtrand"
+            "subtrand"
+            "subcollection";
+        grid-template-columns: 1fr;
+    }
+
+
+    .subTitleTranding {
+        display: none;
+    }
+
+    .tradingViewMore p {
+        display: none;
+    }
+
+    .trandingSectionParent {
+        padding: 15px;
+        margin-bottom: 250px;
+    }
+
+    .smallerTitle {
+        font-size: large;
+
+    }
+
+    .smallTitle {
+        font-size: x-large;
+    }
+
+    .mainTrand {
+        grid-area: mainTrand;
+        grid-row: span 2;
+    }
+
+
+    .subtrand {
+        grid-area: subtrand;
+        grid-row: span 1;
+    }
+
+    .subcollection {
+        grid-area: subcollection;
+        grid-row: span 1; 
+        grid-column: span 1;
+    }
+
 }

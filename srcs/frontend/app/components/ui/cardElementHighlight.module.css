@@ -3,6 +3,7 @@
     width: 160px;
     text-transform: uppercase;
     font-weight: bold;
+    cursor: pointer;
 }
 
 .mainCard {

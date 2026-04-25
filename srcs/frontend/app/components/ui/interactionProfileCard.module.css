@@ -1,0 +1,29 @@
+.cardBody {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #2A2A2A;
+    padding: 16px 16px 16px 16px;
+    height: 98px;
+}
+
+.coverTitleInfo {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.movieTitle {
+    margin: 0px;
+}
+
+.discreptionMarginCorrection {
+    margin: 0;
+}
+
+.interactionInofs {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}

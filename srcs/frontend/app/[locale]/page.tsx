@@ -13,7 +13,7 @@ import { AxiosError } from "axios";
 
 export default function Home() {
   const { data: hero, isPending: hero_pending, error: hero_error } = useMovieHero()
-  const {data: topFour,isPending: topFour_pending, error: topFour_error, } =  useCuratedMovies()
+  const { data: topFour, isPending: topFour_pending, error: topFour_error, } = useCuratedMovies()
 
   if (hero_pending || topFour_pending)
     return <LoadingPage />
@@ -27,7 +27,7 @@ export default function Home() {
 
   return (
     <div>
-      <HeroSection movie={hero?.data}/>
+      <HeroSection movie={hero?.data} />
       <TrandingSection movies={topFour?.data} />
     </div>)
 }

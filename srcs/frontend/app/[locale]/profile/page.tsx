@@ -3,6 +3,12 @@ import styles from './page.module.css'
 import DescriptionComponent from '@/app/components/ui/descriptionComponent'
 import InputCustom from '@/app/components/ui/inputCustom'
 import ButtonCustom from '@/app/components/ui/buttonCustom'
+import CardInfosProfile from '@/app/components/ui/cardInfosProfile'
+import CardStatsProfile from '@/app/components/ui/cardStatsProfile'
+import ProfileSelectionInputs from '@/app/components/ui/profileSelectionInputs'
+import InteractionProfileCard from '@/app/components/ui/interactionProfileCard'
+import Link from 'next/link'
+import TitleSectionProfile from '@/app/components/ui/titleSectionProfile'
 
 export default function ProfilePage() {
     return (
@@ -20,11 +26,12 @@ export default function ProfilePage() {
                     {/* profile */}
                     <div className={styles.privateProfileSection}>
                         <div>
-                            <h2>Private Settings</h2>
+                            <TitleSectionProfile title='Private Settings' icon='/costumIcons/recent.svg' />
+
                         </div>
                         <div className={styles.personalInfosField}>
                             <div className={styles.profilePicture}>
-                                <img src="/hero.png" alt="" width='120px' height='120px' style={{ borderStyle: 'dashed' }} />
+                                <img className={styles.avatarProfile} src="/hero.png" alt="" width='128px' height='128px' />
                             </div>
                             <div className={styles.inputsholder}>
                                 <InputCustom placeHolder='' lableName='Director Alias'></InputCustom>
@@ -32,42 +39,50 @@ export default function ProfilePage() {
                             </div>
 
                         </div>
-                        <div>
-                            <div className={styles.selectionsSections}>
-                                <div>
-                                    <h3 style={{ margin: 0 }}>Public Preview</h3>
-                                    <DescriptionComponent text='Hide primary email address from community members' />
-                                </div>
-                                <div className={styles.buttonOnOff}>
-                                    <span></span>
-                                    <span></span>
-                                </div>
-                            </div>
+                        <ProfileSelectionInputs />
+                        <ProfileSelectionInputs />
 
-
-                            <div className={styles.selectionsSections}>
-                                <div>
-                                    <h3 style={{ margin: 0 }}>Public Preview</h3>
-                                    <DescriptionComponent text='Hide primary email address from community members' />
-                                </div>
-                                <div className={styles.buttonOnOff}>
-                                    <span></span>
-                                    <span></span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <ButtonCustom textButton='COMMIT CHANGES' buttonImage={undefined}></ButtonCustom>
+                        <ButtonCustom className={styles.submitChangesButton} textButton='COMMIT CHANGES' buttonImage={undefined} color='primary'></ButtonCustom>
                     </div>
                     {/* receent interactions */}
+                    <div className={styles.privateProfileSection}>
+                        <div className={styles.interactionTitleSection}>
+                            <TitleSectionProfile title='Recent Intersections' icon='/costumIcons/recent.svg' />
+                            <Link href="" className={styles.interactionsOpenMore}>View All Logs</Link>
+                        </div>
+                        <div className={styles.interactionsSection}>
+                            <InteractionProfileCard />
+                            <InteractionProfileCard />
+                            <InteractionProfileCard />
+                        </div>
+                    </div>
                     <div>
 
                     </div>
                 </div>
                 {/* second part */}
-                <div>
-                    sss
+                <div className={styles.secondPartHolder}>
+                    <CardInfosProfile />
+                    <div className={styles.statisticCards}>
+                        <CardStatsProfile />
+                        <CardStatsProfile />
+                    </div>
+                    <div className={styles.statisticCards}>
+                        <CardStatsProfile />
+                        <CardStatsProfile />
+                    </div>
 
+                    <div className={styles.logsContainer}>
+                        <h2>Security Logs</h2>
+                        <div className={styles.SecurityLogs}>
+                            <DescriptionComponent className={styles.discreptionRemoveMargin} text='LAST ACCESS: 192.168.1.45' />
+                            <p  className={styles.discreptionRemoveMargin}>3m ago</p>
+                        </div>
+                        <div className={styles.SecurityLogs}>
+                            <DescriptionComponent className={styles.discreptionRemoveMargin} text='DEVICE: WORKSTATION_01' />
+                            <p  className={styles.discreptionRemoveMargin}>SECURE</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

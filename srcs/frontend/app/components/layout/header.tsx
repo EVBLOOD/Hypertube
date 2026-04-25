@@ -27,22 +27,30 @@ export default function Header() {
     setOpenSearch(!openSearch)
   }
   return (
-    <div className={styles.headerWraperCantainer}>
-      <div className={`container ${styles.headerWraper}`}>
-        <h2 className={styles.logo} ><Link href={'/'}>HYPERTUBE</Link></h2>
-        <div className={styles.optionsWraper}>
-          <Link href='/library' className={`${styles.optionSelection} ${styles.optionNotSelection}`}>{header('library')}</Link>
-          <Link href='/trending' className={styles.optionNotSelection}>{header('trending')}</Link>
-          <Link href='/watchlist' className={styles.optionNotSelection}>{header('watchlist')}</Link>
-          <Link href='/profile' className={styles.optionNotSelection}>{header('my_vault')}</Link>
-        </div>
-        <div className={styles.actionsWraper}>
-          <img onClick={handleSearch} style={{cursor: 'pointer'}} src="/costumIcons/icon.svg" alt="search" />
-          {openSearch ? <InputCustom className={styles.searchInput} lableName='' placeHolder='Search'/> : ''}
-          {!user ? <ButtonCustom href='/login' style={{ width: '90px' }} buttonImage={undefined} textButton={header('sign_in')} color='var(--primary-color)' /> :
-            <ButtonCustom onClick={handleLogout} style={{ width: '90px' }} buttonImage={undefined} textButton={header('sign_out')} color='var(--primary-color)' />}
+    <>
+      <div className={styles.headerWraperCantainer}>
+        <div className={`container ${styles.headerWraper}`}>
+          <h2 className={styles.logo} ><Link href={'/'}>HYPERTUBE</Link></h2>
+          <div className={styles.optionsWraper}>
+            <Link href='/library' className={`${styles.optionSelection} ${styles.optionNotSelection}`}>{header('library')}</Link>
+            <Link href='/trending' className={styles.optionNotSelection}>{header('trending')}</Link>
+            <Link href='/watchlist' className={styles.optionNotSelection}>{header('watchlist')}</Link>
+            <Link href='/profile' className={styles.optionNotSelection}>{header('my_vault')}</Link>
+          </div>
+          <div className={styles.actionsWraper}>
+            <img onClick={handleSearch} style={{cursor: 'pointer'}} src="/costumIcons/icon.svg" alt="search" className={styles.searchButton} />
+            {!user ? <ButtonCustom href='/login' style={{ width: '90px' }} buttonImage={undefined} textButton={header('sign_in')} color='var(--primary-color)' /> :
+              <ButtonCustom onClick={handleLogout} style={{ width: '90px' }} buttonImage={undefined} textButton={header('sign_out')} color='var(--primary-color)' />}
+          </div>
         </div>
       </div>
-    </div>
+
+      <div className={styles.phoneNavBarHolder}>
+          <Link href='/trending' className={`${styles.optionNotSelection} ${styles.optionSelection}`}><img height={'20px'} src="/costumIcons/play.svg" alt="library" /> <span>library</span></Link>
+          <Link href='/watchlist' className={styles.optionNotSelection}><img height={'20px'} src="/costumIcons/play.svg" alt="trending" /> <span>trending</span></Link>
+          <Link href='/library' className={styles.optionNotSelection}><img height={'20px'} src="/costumIcons/play.svg" alt="watchlist" /><span>watchlist</span></Link>
+          <Link href='/profile' className={styles.optionNotSelection}><img height={'20px'} src="/costumIcons/play.svg" alt="my_vault" /><span>my_vault</span></Link>
+      </div>
+    </>
   )
 }
