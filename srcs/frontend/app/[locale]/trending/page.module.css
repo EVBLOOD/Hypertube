@@ -1,6 +1,5 @@
 .browseContent {
     margin-top: 100px;
-    width: 100%;
 }
 
 .mainBrowseContentHead {
@@ -19,4 +18,21 @@
     flex-wrap: wrap;
     justify-content: center;
     align-items: center;
+}
+
+@media screen and (max-width: 768px) {
+    .browseContent {
+        padding: 15px;
+        margin-top: 0px;
+
+    }
+    .mainBrowseContentHead {
+        margin-top: 0px;
+        padding-bottom: 15px;
+    }
+    .moviesList {
+        gap: 20px;
+
+
+    }
 }

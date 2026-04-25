@@ -22,11 +22,11 @@
     display: flex;
     gap: 15px;
     background-color: var(--popup-background);
-    padding:  8px 16px 8px 16px;
+    padding: 8px 16px 8px 16px;
 }
 
-.infosSearch p{
-margin: 0;
+.infosSearch p {
+    margin: 0;
 }
 
 .wrapperInfoSearch {
@@ -41,4 +41,26 @@ margin: 0;
     flex-wrap: wrap;
     justify-content: center;
     align-items: center;
+}
+
+@media screen and (max-width: 768px) {
+    .browseContent {
+        flex-direction: column;
+        margin-top: 0px;
+    }
+
+    .wrapperInfoSearch {
+        display: none;
+    }
+
+    .mainBrowseContentHead {
+        padding-bottom: 15px;
+
+    }
+
+    .mainBrowseContent {
+        width: auto;
+        margin: 0px;
+        margin-top: 15px;
+    }
 }

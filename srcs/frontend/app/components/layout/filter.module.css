@@ -90,3 +90,69 @@
     border-style: solid;
     border-width: 0 0 0 2px;
 }
+
+.mobileRating {
+    display: none;
+}
+
+.desktopRating {
+    display: block;
+}
+
+.ratingDisplay span {
+    display: block;
+}
+
+.sortingForChices {
+    display: none;
+}
+
+@media screen and (max-width: 768px) {
+    .filterWraper {
+        flex-direction: row;
+        border-width: 0px 0px 1px 0px;
+        width: auto;
+        margin-top: 0px;
+        padding: 0px;
+        gap: 15px;
+
+        overflow-y: hidden;
+        overflow-x: auto;
+    }
+
+    .filterTitle {
+        display: none;
+    }
+
+    .inputHorisantal label {
+        display: none;
+    }
+
+    .prodYear input {
+        direction: none;
+        width: 50px;
+    }
+
+    .mobileRating {
+        display: block;
+    }
+
+    .desktopRating {
+        display: none;
+    }
+
+    .ratingDisplay span {
+        display: none;
+    }
+
+    .sortingForLabel {
+        display: none;
+    }
+
+    .sortingForChices {
+        display: block;
+    }
+    .sortingForChices select {
+        width: 125px;
+    }
+}

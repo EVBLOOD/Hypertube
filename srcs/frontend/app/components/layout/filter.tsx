@@ -36,7 +36,7 @@ export default function Filter({ onChange }: { onChange: Function }) {
 
     return (
         <div className={styles.filterWraper}>
-            <DescriptionComponent text={Library('filter_title')} />
+            <DescriptionComponent className={styles.filterTitle} text={Library('filter_title')} />
             <div className={styles.inputHorisantal}>
                 <label htmlFor='genderId'>{Library('filter_genre')}</label>
                 <select name="" defaultValue={gender} id="genderId" required onChange={(e) => { setGender(e.target.value); }}>
@@ -53,15 +53,14 @@ export default function Filter({ onChange }: { onChange: Function }) {
             </div>
             <div className={styles.inputHorisantal}>
                 <label htmlFor='genderId'>{Library('filter_rating')}</label>
-                <input onChange={(e) => { setRating(parseInt(e.target.value)); }} type="range" min={0} max={10} />
-                <div>
+                <input className={styles.mobileRating} onChange={(e) => { setRating(parseInt(e.target.value)); }} type="number" value={rating} min={0} max={10} />
+                <input className={styles.desktopRating} onChange={(e) => { setRating(parseInt(e.target.value)); }} type="range" min={0} max={10} />
+                <div className={styles.ratingDisplay}>
                     <span>0.0</span>
-                    {/* <span style={{textDecoration: 'underline'}}>{rating}</span>
-                    <span>10.0</span> */}
                     <span>{rating}.0</span>
                 </div>
             </div>
-            <div className={styles.inputHorisantal}>
+            <div className={`${styles.inputHorisantal} ${styles.sortingForLabel}`}>
                 <label htmlFor='genderId'>{Library('filter_sortby')}</label>
                 <ul>
                     {
@@ -71,6 +70,13 @@ export default function Filter({ onChange }: { onChange: Function }) {
                             </li>)
                     }
                 </ul>
+            </div>
+
+
+            <div className={`${styles.inputHorisantal} ${styles.sortingForChices}`}>
+                <select name="" defaultValue={sortBy} required onChange={(e) => { setSortBy(e.target.value); }}>
+                    {sortOptions.map((obj) => <option key={obj.id} value={obj.id}>{Library(obj.label)}</option>)}
+                </select>
             </div>
         </div>
     )

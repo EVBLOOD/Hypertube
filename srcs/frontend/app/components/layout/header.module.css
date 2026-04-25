@@ -77,7 +77,8 @@
 
     .phoneNavBarHolder {
         display: flex;
-        justify-content: center;
+        justify-content: space-evenly;
+        /* justify-content: center; */
         align-items: center;
         width: -webkit-fill-available;
         position: fixed;

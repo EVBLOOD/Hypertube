@@ -46,9 +46,9 @@ export default function Header() {
       </div>
 
       <div className={styles.phoneNavBarHolder}>
-          <Link href='/trending' className={`${styles.optionNotSelection} ${styles.optionSelection}`}><img height={'20px'} src="/costumIcons/play.svg" alt="library" /> <span>library</span></Link>
-          <Link href='/watchlist' className={styles.optionNotSelection}><img height={'20px'} src="/costumIcons/play.svg" alt="trending" /> <span>trending</span></Link>
-          <Link href='/library' className={styles.optionNotSelection}><img height={'20px'} src="/costumIcons/play.svg" alt="watchlist" /><span>watchlist</span></Link>
+          <Link href='/library' className={`${styles.optionNotSelection} ${styles.optionSelection}`}><img height={'20px'} src="/costumIcons/play.svg" alt="library" /> <span>library</span></Link>
+          <Link href='/trending' className={styles.optionNotSelection}><img height={'20px'} src="/costumIcons/play.svg" alt="trending" /> <span>trending</span></Link>
+          <Link href='/watchlist' className={styles.optionNotSelection}><img height={'20px'} src="/costumIcons/play.svg" alt="watchlist" /><span>watchlist</span></Link>
           <Link href='/profile' className={styles.optionNotSelection}><img height={'20px'} src="/costumIcons/play.svg" alt="my_vault" /><span>my_vault</span></Link>
       </div>
     </>
