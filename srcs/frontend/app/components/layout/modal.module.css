@@ -9,3 +9,7 @@
     justify-content: center;
     backdrop-filter: blur(5px);
 }
+
+.popupDiv {
+    width: 90%;
+}

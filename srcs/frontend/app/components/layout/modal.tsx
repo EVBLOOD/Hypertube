@@ -9,7 +9,7 @@ export default function Modal({children}: {children: ReactNode}) {
 
    return (
     <div className={styles.popup}  onClick={() => router.back()}>
-        <div onClick={(e) => e.stopPropagation()}>
+        <div className={styles.popupDiv} onClick={(e) => e.stopPropagation()}>
         {children}
       </div>
     </div>

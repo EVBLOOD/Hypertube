@@ -1,5 +1,6 @@
 .card {
   display: flex;
+  width: 100%;
 }
 
 .halfCard {
@@ -12,6 +13,26 @@
 }
 
 .secondHalf {
-  /* padding: 50px 0px 50px 50px; */
+  padding: 50px;
+  display: flex;
+  width: 40%;
+  flex-direction: column;
+  gap: 30px;
   background-color: var(--popup-background-second);
+}
+
+
+@media screen and (max-width: 768px) {
+  .card {
+    flex-direction: column;
+    width: 100%;
+  }
+  .secondHalf {
+    display: flex;
+    width: auto;
+    padding: 15px;
+  }
+  .halfCard {
+    display: none;
+  }
 }

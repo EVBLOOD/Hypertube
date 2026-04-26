@@ -42,7 +42,7 @@ export default function Login() {
       <PopupCard
       childrenHelfCard={
         <>
-          <RecordComponent />
+          <RecordComponent recText='' />
           <TitleCustom title={Login('title')}/>
           <span>
             {Login('description')}

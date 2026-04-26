@@ -52,3 +52,9 @@
 .extraQs a {
   color: var(--font-color-white);
 }
+
+@media screen and (max-width: 768px) {
+  .registerFullName {
+    flex-direction: column;
+  }
+}

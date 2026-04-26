@@ -9,13 +9,13 @@ export default function PopupCard({ childrenHelfCard, childrenSecondHelfCard, wi
     return (
         <div className={styles.card}>
             {childrenHelfCard ?
-                <div className={styles.halfCard} style={{ width: widthchildrenHelfCard ? widthchildrenHelfCard.toString() + '%' : '' }}>
+                <div className={styles.halfCard} style={{ width: widthchildrenHelfCard ? widthchildrenHelfCard.toString() + '%' : 'auto' }}>
                     {childrenHelfCard}
                 </div>
                 : ''}
             {childrenSecondHelfCard ?
-                <div className={`${styles.halfCard} ${styles.secondHalf}`}
-                    style={{ width: widthchildrenSecondHelfCard ? widthchildrenSecondHelfCard.toString() + '%' : '' }}>
+                <div className={`${styles.secondHalf}`}
+                    style={{ width: widthchildrenSecondHelfCard ? widthchildrenSecondHelfCard.toString() + '%' : 'auto' }}>
                     {childrenSecondHelfCard}
                 </div>
                 : ''}

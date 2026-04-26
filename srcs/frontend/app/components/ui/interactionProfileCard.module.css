@@ -19,6 +19,7 @@
 
 .discreptionMarginCorrection {
     margin: 0;
+    text-align: center;
 }
 
 .interactionInofs {
@@ -26,4 +27,12 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    gap: 4px;
+}
+
+@media screen and (max-width: 768px) {
+    .cardBody {
+        padding: 5px;
+        height: auto;
+    }
 }

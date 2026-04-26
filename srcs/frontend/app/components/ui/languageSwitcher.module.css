@@ -1,7 +1,8 @@
 .languageStyle {
     position: fixed;
     top: 10%;
-    right: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     z-index: 100000;
     background-color: var(--popup-background);
     width: 100px;
@@ -11,8 +12,9 @@
 
 .languageStyleOpen {
     position: fixed;
-    top: 10%;
-    right: 50%;
+    top: 16%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     z-index: 100000;
     background-color: var(--popup-background);
     cursor: pointer;

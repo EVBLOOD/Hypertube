@@ -110,9 +110,34 @@
 .SecurityLogs {
     display: flex;
     align-items: center;
-    justify-content: space-between;    
+    justify-content: space-between;
 }
 
 .discreptionRemoveMargin {
     margin: 0;
+}
+
+@media screen and (max-width: 768px) {
+    .profileField {
+        flex-direction: column;
+    }
+
+    .firstPartHolder {
+        width: auto;
+    }
+
+    .secondPartHolder {
+        width: auto;
+    }
+
+    .personalInfosField {
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    .browseContent {
+        margin-top: 0px;
+        margin-bottom: 70px;
+        
+    }
 }
