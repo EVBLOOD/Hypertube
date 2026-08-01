@@ -2,11 +2,16 @@
 
 import { useState, useEffect } from "react";
 import styles from './languageSwitcher.module.css'
+import { usePathname, useRouter } from "next/navigation";
 
 export default function LanguageSwitcher({ local }: { local: string }) {
     const [isAtTop, setIsAtTop] = useState(true);
     const [isOpen, setIsOpen] = useState(false);
     const [choose, setChoice] = useState(local);
+
+    const router = useRouter()
+    const pathname = usePathname()
+    
     const langs = ["EN", "FR", "AR"]
 
 
@@ -34,7 +39,7 @@ export default function LanguageSwitcher({ local }: { local: string }) {
                     <span>{choose.toUpperCase()}</span>
                 </div>
                 <ul style={{ display: isOpen ? 'flex' : 'none' }} className={styles.languageChoices}>
-                    {langs.filter(e => e != local.toUpperCase()).map((e, i) => <li key={i}>{e}</li>)}
+                    {langs.filter(e => e != local.toUpperCase()).map((e, i) => <li key={i} onClick={() => router.push(`/${e.toLowerCase()}/${pathname.slice(4)}`)}>{e}</li>)}
                 </ul>
             </div>
         // </>

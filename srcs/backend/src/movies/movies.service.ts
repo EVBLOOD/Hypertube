@@ -31,13 +31,29 @@ export interface MovieLibrary {
   }
 }
 
+export const YTS_TRACKERS = [
+  'udp://tracker.opentrackr.org:1337/announce',
+  'udp://open.demonii.com:1337/announce',
+  'udp://exodus.desync.com:6969/announce'
+]
+
+export interface YtsTorrent {
+  magnet: string;
+  seeds: number;
+  peers: number;
+  quality: string;
+  size: string;
+}
+
 @Injectable()
 export class MoviesService {
+
   constructor(
     @InjectRepository(Movie) private movieRepo: Repository<Movie>,
     @InjectRepository(UserMovieProgress) private progressRepo: Repository<UserMovieProgress>,
     private redisservice: RedisService
   ) { }
+
   TMDB_GENRE_MAP = {
     28: "Action", 12: "Adventure", 16: "Animation", 35: "Comedy", 80: "Crime",
     99: "Documentary", 18: "Drama", 10751: "Family", 14: "Fantasy", 36: "History",
@@ -100,9 +116,11 @@ export class MoviesService {
     }
     return movie;
   }
+
   private getQualityScore(q: string) {
     return q === '2160p' ? 3 : q === '1080p' ? 2 : 1;
   }
+
   async getMovieYTS(movie: MovieInfos, moreinfos = false): Promise<MovieInfos> {
     try {
       const { data } = await axios.get(`${process.env.LINK_API_MOVIES_LIST_YTS}list_movies.json`, {
@@ -110,14 +128,7 @@ export class MoviesService {
           query_term: movie.id
         }
       });
-      // ss
       const ytsMovie = data.data.movies?.[0]
-      // let streamInfo = {
-      //   hasVideo: !!ytsMovie,
-      //   quality: 'N/A',
-      //   audio: 'STEREO',
-      //   seeds: 0
-      // };
       if (ytsMovie) {
         const best = ytsMovie.torrents.reduce((prev, curr) =>
           (this.getQualityScore(curr.quality) > this.getQualityScore(prev.quality)) ? curr : prev
@@ -132,7 +143,6 @@ export class MoviesService {
     } catch (err) {
       console.error(err)
     }
-    // ss
     return movie
   }
 
@@ -140,11 +150,11 @@ export class MoviesService {
     const { query, genre, minRating, maxYear, minYear, page = 1, limit = 20, sortBy } = filters;
     const cacheKey = `search:${userId}:${query || 'all'}:${genre || 'all'}`;
     const cachedCount = await this.redisservice.lenZSet(cacheKey)
-    console.log(cachedCount)
+
     if (!query)
       filters = { genre, limit, minRating, maxYear, minYear, page, sortBy }
+
     const needed = page * limit;
-    console.log(page * limit)
 
     if (cachedCount <= needed) {
       const tmdbMovies = await this.fetchFromTMDB(filters);
@@ -155,12 +165,10 @@ export class MoviesService {
         await this.redisservice.pushMovies(cacheKey, yts_movies)
       }
     }
+
     const start = (page - 1) * limit;
     const movies = await this.redisservice.getMovies(cacheKey, start, limit);
-
-    // const movies = (rawData || []).map(m => { return JSON.parse(m) });
     const processedMovies = await Promise.all(movies.map((m) => this.dataUserIMDB(m, userId)))
-
     const total = await this.redisservice.lenZSet(cacheKey);
 
     return {
@@ -188,7 +196,7 @@ export class MoviesService {
       const requests: any = []
       for (let i = 0; i < pagesToFetch; i++) {
         requests.push(
-          axios.get(`${process.env.TMDB_API}${endpoint}`, { params: {...params, page: params.page + i} })
+          axios.get(`${process.env.TMDB_API}${endpoint}`, { params: { ...params, page: params.page + i } })
         )
       }
       const responses = await Promise.all(requests);
@@ -200,7 +208,7 @@ export class MoviesService {
     return results;
   }
 
-  async getTrending(paging : PaginationMovieDto) {
+  async getTrending(paging: PaginationMovieDto) {
     const { page = 1, limit = 20 } = paging;
     const cacheKey = `trending`
 
@@ -208,7 +216,7 @@ export class MoviesService {
 
     if (total < page * limit) {
       const tmdbTrending = await this.fetchTrendingFromTMDB(paging);
-      const imdbDate  = (await Promise.all(tmdbTrending?.map(async (m) => await this.imdbIdFromTMDB(m)))).filter((m) => m.id);
+      const imdbDate = (await Promise.all(tmdbTrending?.map(async (m) => await this.imdbIdFromTMDB(m)))).filter((m) => m.id);
       const yts_movie = await Promise.all(imdbDate.map(async (m) => await this.getMovieYTS(m)))
       if (yts_movie.length > 0) {
         await this.redisservice.pushMovies(cacheKey, yts_movie)
@@ -272,7 +280,7 @@ export class MoviesService {
       const requests: any = []
       for (let i = 0; i < pagesToFetch; i++) {
         requests.push(
-          axios.get(`${process.env.TMDB_API}${endpoint}`, { params: {...params, page: params.page + i} })
+          axios.get(`${process.env.TMDB_API}${endpoint}`, { params: { ...params, page: params.page + i } })
         )
       }
       const responses = await Promise.all(requests);
@@ -285,7 +293,6 @@ export class MoviesService {
   }
 
   private async fetchFromYts(filters: FilterMovieDto) {
-    // ss
     try {
       const params: any = {
         genre: filters.genre,
@@ -305,32 +312,7 @@ export class MoviesService {
     }
   }
 
-  private async fetchFromTorrentClaw(filters: FilterMovieDto) {
-    try {
-      // const isSearch = !!filters.query;
-      // const endpoint = isSearch ? 'search' : 'popular';
-
-      // const params = isSearch
-      //   ? { q: filters.query, page: filters.page, genre: filters.genre, minimum_rating: filters.minRating }
-      //   : { limit: filters.limit || 12, page: 1 };
-
-      // const { data } = await axios.get(`${process.env.LINK_API_MOVIES_LIST_TORRENTCLAW}${endpoint}`, {
-      //   params,
-      //   // 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36
-      //   headers: { 'User-Agent': 'Hypertube-Bot/1.0' }
-      // });
-      // // ss
-      // const results = data.items || data;
-      // return (results || []).map((m: any) => this.normalizeMovie(m, 'other'));
-      return [].map((m: any) => this.normalizeMovie(m, 'other'));
-    } catch (err) {
-      console.error(`Claw Fetch Failed: ${err}`);
-      return [];
-    }
-  }
-
   async getHeroMovie() {
-    // dd
     const heroInfos: MovieInfos = {
       id: '',
       title: '',
@@ -361,10 +343,9 @@ export class MoviesService {
         params
       });
       const allMovies = data.results
-      // ss
       const herosInfos: MovieInfos[] = allMovies.map((movie: any) => {
         const el = this.normalizeMovie(movie, 'TMDB');
-        el.poster = "https://image.tmdb.org/t/p/original/" + movie.backdrop_path;
+        el.poster = `${process.env.TMDB_PICS}${movie.backdrop_path}`;
         return el
       })
       const imdbData = await Promise.all(herosInfos?.map(async (movie: any) => await this.imdbIdFromTMDB(movie)))
@@ -393,11 +374,11 @@ export class MoviesService {
       movie = data.movie_results?.[0] ? this.normalizeMovie(data.movie_results?.[0], 'TMDB') : null
       if (movie) {
         movie.id = imdbId;
-        movie.poster = `https://image.tmdb.org/t/p/original${data.movie_results?.[0].backdrop_path}`,
+        movie.poster = `${process.env.TMDB_PICS}${data.movie_results?.[0].backdrop_path}`,
           movie.overview = data.movie_results?.[0].overview;
       } else return movie
+
       const tmdbId = data.movie_results?.[0].id
-      // credits
       const creditsRes = await axios.get(
         `${process.env.TMDB_API}movie/${tmdbId}/credits`,
         { params: { api_key: process.env.TMDB_KEY } }
@@ -408,7 +389,6 @@ export class MoviesService {
         name: actor.name,
         character: actor.character,
       }));
-      // best 
       movie = await this.getMovieYTS(movie, true);
 
       return {
@@ -421,7 +401,6 @@ export class MoviesService {
     }
     return movie
   }
-
 
   async getCuratedTrending() {
     const cacheKey = 'curated_trending_top_24';
@@ -441,7 +420,7 @@ export class MoviesService {
       const allMovies = data.results
       const herosInfos: MovieInfos[] = allMovies.map((movie: any) => {
         const el = this.normalizeMovie(movie, 'TMDB');
-        el.poster = "https://image.tmdb.org/t/p/original/" + movie.backdrop_path;
+        el.poster = `${process.env.TMDB_PICS}${movie.backdrop_path}`;
         el.overview = movie.overview;
 
         return el
@@ -449,6 +428,7 @@ export class MoviesService {
       const imdbData = await Promise.all(herosInfos?.map(async (movie: any) => await this.imdbIdFromTMDB(movie)))
       const yts_movies = await Promise.all(imdbData.map((movie) => this.getMovieYTS(movie, true)))
       const curated: any[] = [];
+
       for (const movie of yts_movies) {
         if (curated.length == 4) break
         if (movie.quality == '1080p' || movie.quality === '2160p') {
@@ -457,14 +437,59 @@ export class MoviesService {
       }
       await this.redisservice.set(cacheKey, JSON.stringify(curated), 86400)
 
-      // ss
-      console.log(curated)
       return curated;
     } catch (err) {
       console.error(err);
     }
     return {};
   }
+
+  async getTorrentMagnetsFromYTS(imdbId: string) {
+    const SUPER_TRACKERS = [
+      'udp://tracker.opentrackr.org:1337/announce',
+      'udp://open.tracker.cl:1337/announce',
+      'udp://tracker.openbittorrent.com:6969/announce',
+      'http://tracker.openbittorrent.com:80/announce',
+      'udp://opentracker.i2p.rocks:6969/announce',
+      'https://opentracker.i2p.rocks:443/announce',
+      'udp://tracker.torrent.eu.org:451/announce',
+      'udp://explodie.org:6969/announce',
+      'udp://tracker.internetwarriors.net:1337/announce',
+      'udp://p4p.arenabg.com:1337/announce',
+      'udp://tracker.leechers-paradise.org:6969/announce'
+    ];
+
+    try {
+      const { data } = await axios.get(`${process.env.LINK_API_MOVIES_LIST_YTS}movie_details.json`, {
+        params: { imdb_id: imdbId }
+      });
+
+
+      const torrents: any[] = data?.data?.movie?.torrents ?? [];
+
+      return torrents.map(t => {
+        const combinedTrackers = Array.from(new Set([...YTS_TRACKERS, ...SUPER_TRACKERS]));
+        
+        const trackerString = combinedTrackers
+            .map(tr => `&tr=${encodeURIComponent(tr)}`)
+            .join('');
+
+        const magnet = `magnet:?xt=urn:btih:${t.hash}&dn=${encodeURIComponent(data.data.movie.title)}${trackerString}`;
+
+        return {
+          magnet,
+          seeds: t.seeds as number, 
+          peers: t.peers as number,
+          quality: t.quality as string,
+          size: t.size as string,
+        };
+      });
+    } catch (err) {
+      console.error(`YTS fetch error ${imdbId} before starting streaming:`, err);
+    }
+    return undefined;
+  }
+
   async updateProgress(userId: number, imdbId: string, seconds: number, isLive: boolean) {
     let movie = await this.movieRepo.findOne({ where: { imdbId } });
     if (!movie) throw new Error('Movie not found locally');

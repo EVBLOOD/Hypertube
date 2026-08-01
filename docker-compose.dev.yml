@@ -36,6 +36,10 @@ services:
       - ${PWD}/srcs/backend:/var/www/html
     expose:
       - 8080
+    ports:
+      - "6881:6881"
+      - "6881:6881/udp"
+      - "20000:20000/udp"
     networks:
       - hypertube
     depends_on:

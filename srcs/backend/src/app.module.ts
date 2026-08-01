@@ -9,6 +9,7 @@ import { CommentsModule } from './comments/comments.module';
 import { MailModule } from './mails/mails.module';
 import { RedisModule } from './common/redis/redis.module';
 import { BullModule } from '@nestjs/bull';
+import { StreamsModule } from './streams/streams.module';
 
 @Module({
   imports: [
@@ -27,8 +28,10 @@ import { BullModule } from '@nestjs/bull';
     MoviesModule,
     CommentsModule,
     MailModule,
-    RedisModule
-  ],
+    RedisModule,
+    StreamsModule
+  ]
+  // providers: [StreamsService],
 })
 
 export class AppModule {}

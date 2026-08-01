@@ -36,6 +36,9 @@
     "@nestjs/websockets": "^11.1.17",
     "argon2": "^0.44.0",
     "axios": "^1.14.0",
+    "bittorrent-dht": "^11.0.11",
+    "bittorrent-protocol": "^4.1.21",
+    "bittorrent-tracker": "^11.2.2",
     "bull": "^4.16.5",
     "cache-manager": "^7.2.8",
     "cache-manager-redis-yet": "^5.1.5",
@@ -43,6 +46,7 @@
     "class-validator": "^0.14.3",
     "cookie-parser": "^1.4.7",
     "nodemailer": "^8.0.4",
+    "parse-torrent": "^11.0.19",
     "passport": "^0.7.0",
     "passport-42": "^1.2.6",
     "passport-github2": "^0.1.12",
@@ -52,7 +56,9 @@
     "redis": "^5.11.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
-    "typeorm": "^0.3.28"
+    "typeorm": "^0.3.28",
+    "ut_metadata": "^4.0.3",
+    "ut_pex": "^4.0.4"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
@@ -66,6 +72,7 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^22.10.7",
     "@types/nodemailer": "^7.0.11",
+    "@types/parse-torrent": "^5.8.8",
     "@types/passport-42": "^1.1.2",
     "@types/passport-github2": "^1.2.9",
     "@types/passport-jwt": "^4.0.1",

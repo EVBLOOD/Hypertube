@@ -1,0 +1,1250 @@
+# BitTorrent: Complete Engineering Reference for Building a Downloader
+
+> This document covers every layer of the BitTorrent protocol from first principles — wire formats, algorithms, data structures, and the reasoning behind each design decision. By the end, you will have everything you need to write a working torrent client from scratch.
+
+---
+
+## Table of Contents
+
+1. [What BitTorrent Actually Is](#1-what-bittorrent-actually-is)
+2. [Bencoding — The Wire Format](#2-bencoding--the-wire-format)
+3. [The Metainfo File (.torrent)](#3-the-metainfo-file-torrent)
+4. [The Info Hash — The Universal Identifier](#4-the-info-hash--the-universal-identifier)
+5. [Magnet Links — Torrents Without .torrent Files](#5-magnet-links--torrents-without-torrent-files)
+6. [Tracker Protocol — Finding Peers](#6-tracker-protocol--finding-peers)
+7. [The Peer Wire Protocol — Talking to Peers](#7-the-peer-wire-protocol--talking-to-peers)
+8. [Pieces, Blocks, and File Assembly](#8-pieces-blocks-and-file-assembly)
+9. [Piece Selection Strategy — Rarest First](#9-piece-selection-strategy--rarest-first)
+10. [The Choking Algorithm — Tit-for-Tat](#10-the-choking-algorithm--tit-for-tat)
+11. [DHT — The Distributed Tracker](#11-dht--the-distributed-tracker)
+12. [Peer Exchange (PEX)](#12-peer-exchange-pex)
+13. [uTP — The Transport Layer](#13-utp--the-transport-layer)
+14. [Local Service Discovery (LSD)](#14-local-service-discovery-lsd)
+15. [Extension Protocol (BEP 10)](#15-extension-protocol-bep-10)
+16. [Building Your Downloader — Implementation Roadmap](#16-building-your-downloader--implementation-roadmap)
+
+---
+
+## 1. What BitTorrent Actually Is
+
+### The Core Problem It Solves
+
+When you download a file from a single server, all bandwidth cost falls on that server. If 10,000 people want a 4 GB file simultaneously, the server must sustain 10,000 × (4 GB / download_time) worth of outbound traffic. This is expensive and fragile — the server is a single point of failure.
+
+BitTorrent inverts this model: every person who downloads also uploads. A person who has already downloaded pieces becomes a source for others still downloading. The protocol is designed so that the more popular a file is, the *faster* it downloads for everyone, because there are more sources.
+
+### Key Terminology You Will Use Throughout
+
+**Peer** — any computer connected to the BitTorrent network for a particular torrent. Every client is a peer.
+
+**Seeder** — a peer that has 100% of the file and is only uploading. Seeders are the backbone of a torrent's health.
+
+**Leecher** — a peer that is still downloading. The word has a negative connotation in everyday language but is a neutral technical term in BitTorrent.
+
+**Swarm** — the complete set of all peers (seeders + leechers) connected for one specific torrent at one moment in time.
+
+**Piece** — a fixed-size chunk of the complete file. Typical sizes: 256 KB, 512 KB, 1 MB, 2 MB. Each piece has its own SHA-1 integrity hash stored in the .torrent file.
+
+**Block** — a subdivision of a piece, used at the request level. Standard block size is 16 KB (16,384 bytes). You *request* blocks, but you *verify* pieces.
+
+**Tracker** — a centralized server that maintains a list of peers in a swarm. Clients announce themselves and get back a peer list. The tracker never touches file data.
+
+**DHT (Distributed Hash Table)** — a decentralized replacement for trackers. Peer lists are stored across all DHT-participating clients. No single server required.
+
+**Info Hash** — a 20-byte SHA-1 digest that uniquely identifies a torrent. It is derived from the torrent metadata, not the file content itself.
+
+**Metainfo** — the full dictionary of data inside a .torrent file: file names, lengths, piece hashes, tracker URLs, etc.
+
+---
+
+## 2. Bencoding — The Wire Format
+
+### What Bencoding Is
+
+Bencoding (pronounced "bee-encoding") is the serialization format used by BitTorrent for all data structures — .torrent files, tracker responses, DHT messages, and the peer wire protocol extension messages. It was designed to be simple to parse, unambiguous, and language-neutral.
+
+It supports exactly four data types: integers, byte strings, lists, and dictionaries.
+
+### Why Not JSON or XML?
+
+JSON did not exist when BitTorrent was designed (2001). XML was available but verbose and slow to parse. Bencoding is simpler than both and handles raw binary data (like SHA-1 hashes) natively as byte strings, without requiring base64 encoding.
+
+### Integer Encoding
+
+Format: `i<number>e`
+
+The `i` starts the integer, `e` ends it. The number is encoded in ASCII decimal. No leading zeros are allowed (except for `i0e` itself). Negative numbers use a leading minus sign.
+
+```
+i42e        → integer 42
+i-7e        → integer -7
+i0e         → integer 0
+```
+
+**Why?** The `e` terminator means you do not need to know the length of the integer in advance when parsing. You read until you see `e`.
+
+### Byte String Encoding
+
+Format: `<length>:<data>`
+
+The length is an ASCII decimal number. A colon separates it from the raw bytes. The bytes themselves are not escaped — they are copied verbatim.
+
+```
+4:spam       → the byte string "spam"
+11:hello world → "hello world"
+20:<20 raw bytes>  → a SHA-1 hash
+```
+
+**Why?** Length-prefixed strings are the fastest to parse. You read the length, then read exactly that many bytes. No escaping, no scanning for delimiters inside the data.
+
+### List Encoding
+
+Format: `l<item1><item2>...e`
+
+Lists begin with `l` and end with `e`. Items are bencoded values placed back-to-back with no separator.
+
+```
+l4:spami42ee    → ["spam", 42]
+li1ei2ei3ee     → [1, 2, 3]
+```
+
+**Why?** The `e` terminator means lists can be arbitrarily long without a length prefix, and they can contain any mixture of types.
+
+### Dictionary Encoding
+
+Format: `d<key1><value1><key2><value2>...e`
+
+Dictionaries begin with `d` and end with `e`. Keys must be byte strings. Keys **must be sorted in lexicographic order** by raw byte value. This ordering rule is critical — the info hash is computed over the bencoded `info` dictionary, and different ordering would produce different hashes.
+
+```
+d3:bar4:spam3:fooi42ee   → {"bar": "spam", "foo": 42}
+```
+
+**Why sorted keys?** To guarantee a canonical encoding. If key order were arbitrary, the same logical dictionary could be encoded multiple ways and produce different SHA-1 hashes. Sorted keys ensure the encoding is deterministic.
+
+### Writing a Bencode Parser
+
+Here is the complete parsing logic in pseudocode:
+
+```python
+def decode(data, index):
+    ch = data[index]
+    if ch == b'i':
+        # integer: find 'e', parse decimal
+        end = data.index(b'e', index + 1)
+        return int(data[index+1:end]), end + 1
+    elif ch == b'l':
+        # list: decode items until 'e'
+        result = []
+        index += 1
+        while data[index] != b'e':
+            item, index = decode(data, index)
+            result.append(item)
+        return result, index + 1
+    elif ch == b'd':
+        # dict: decode key/value pairs until 'e'
+        result = {}
+        index += 1
+        while data[index] != b'e':
+            key, index = decode(data, index)
+            val, index = decode(data, index)
+            result[key] = val
+        return result, index + 1
+    else:
+        # byte string: read length, colon, then bytes
+        colon = data.index(b':', index)
+        length = int(data[index:colon])
+        start = colon + 1
+        return data[start:start+length], start + length
+```
+
+---
+
+## 3. The Metainfo File (.torrent)
+
+### What a .torrent File Actually Contains
+
+A .torrent file is a bencoded dictionary. It is very small — typically 20 KB to a few MB for torrents with many files. It contains no actual file data. It is a *description* of what to download and where to find peers.
+
+### Top-Level Dictionary Keys
+
+**`announce`** — a byte string containing the URL of the primary tracker. Example: `http://tracker.example.com:6969/announce`
+
+**`announce-list`** — an optional list of lists of tracker URLs. This is the multi-tracker extension (BEP 12). The outer list is tiers; the inner lists are trackers within a tier. Your client tries tier 0 first, then tier 1, etc. Within a tier, trackers are tried in random order.
+
+```
+announce-list = [
+  ["http://tracker1.com/announce", "http://tracker2.com/announce"],
+  ["udp://tracker3.com:1337/announce"]
+]
+```
+
+**`info`** — a bencoded dictionary. This is the most important part. The SHA-1 of this bencoded dictionary is the info hash.
+
+**`comment`** — optional free-text string. Creator's notes.
+
+**`created by`** — optional string. The client/tool that created the torrent.
+
+**`creation date`** — optional integer. Unix timestamp of when the torrent was created.
+
+**`encoding`** — optional string. Character encoding for file names (usually "UTF-8").
+
+### The `info` Dictionary
+
+The `info` dictionary has two forms depending on whether the torrent contains a single file or multiple files.
+
+#### Single-File Torrent
+
+**`name`** — suggested filename. This is a suggestion, not a requirement. Your client may save it under a different name.
+
+**`length`** — file size in bytes.
+
+**`piece length`** — the number of bytes per piece. Must be a power of 2 in modern torrents. Common values: 262144 (256 KB), 524288 (512 KB), 1048576 (1 MB). The last piece may be smaller.
+
+**`pieces`** — a concatenated sequence of 20-byte SHA-1 hashes, one per piece. For a 1 GB file with 256 KB pieces, there are 4096 pieces, so this field is 4096 × 20 = 81,920 bytes.
+
+**`md5sum`** — optional. MD5 hash of the whole file. Rarely used.
+
+#### Multi-File Torrent
+
+**`name`** — suggested name of the root directory.
+
+**`piece length`** — same as single-file.
+
+**`pieces`** — same as single-file.
+
+**`files`** — a list of file dictionaries, each containing:
+
+- `length` — size of this file in bytes
+- `path` — a list of strings representing the path components. For example, `["subdir", "filename.txt"]` means the file is at `<name>/subdir/filename.txt`.
+- `md5sum` — optional
+
+**Critical implementation note:** In a multi-file torrent, all files are treated as one virtual flat byte stream for the purpose of splitting into pieces. Files are concatenated in the order they appear in the `files` list. A single piece may span the boundary between two files. When assembling pieces into files, you must handle these cross-file pieces carefully.
+
+### Example: Parsing a .torrent File in Python
+
+```python
+import hashlib, bencodepy  # pip install bencode.py
+
+with open("ubuntu.torrent", "rb") as f:
+    raw = f.read()
+
+torrent = bencodepy.decode(raw)
+
+# Top level
+tracker = torrent[b'announce'].decode()
+info = torrent[b'info']
+
+name = info[b'name'].decode()
+piece_length = info[b'piece length']
+pieces_raw = info[b'pieces']  # raw bytes, length = num_pieces * 20
+
+# Split into individual 20-byte SHA-1 hashes
+piece_hashes = [pieces_raw[i:i+20] for i in range(0, len(pieces_raw), 20)]
+num_pieces = len(piece_hashes)
+
+if b'length' in info:
+    # Single-file torrent
+    total_length = info[b'length']
+else:
+    # Multi-file torrent
+    files = [(f[b'path'], f[b'length']) for f in info[b'files']]
+    total_length = sum(f[1] for f in info[b'files'])
+```
+
+---
+
+## 4. The Info Hash — The Universal Identifier
+
+### What It Is
+
+The info hash is a 20-byte SHA-1 digest computed over the bencoded value of the `info` key in the metainfo dictionary. It uniquely identifies a torrent.
+
+Every single interaction in the BitTorrent ecosystem uses the info hash:
+
+- Announcing to a tracker → you send the info hash
+- Connecting to a peer → you both exchange info hashes in the handshake
+- Querying the DHT → you search for the info hash
+- Magnet links → the info hash is embedded in the URI
+
+### Why SHA-1?
+
+SHA-1 produces a 20-byte (160-bit) digest. The probability of two different info dictionaries producing the same hash is 2^(-160), which is astronomically small. SHA-1 is now considered weak for cryptographic security (collision attacks exist), but for the purpose of content addressing and integrity, it remains used throughout the protocol. Newer extensions and the v2 protocol use SHA-256.
+
+### How to Compute It
+
+**The crucial rule:** You must compute the SHA-1 hash of the raw bencoded bytes of the `info` value — not of the parsed dictionary re-encoded, not of the whole .torrent file. You must extract the exact original bytes.
+
+```python
+import hashlib, re
+
+with open("file.torrent", "rb") as f:
+    raw = f.read()
+
+# Find the start of the 'info' dictionary in the raw bytes
+# The info dict starts after the key '4:info'
+info_start = raw.index(b'4:info') + len(b'4:info')
+
+# Find where the info dict ends - this requires a bencode parser
+# that tracks byte positions, not just returns values
+# A robust approach: use a position-tracking parser
+info_hash = hashlib.sha1(extract_info_bytes(raw)).digest()
+info_hash_hex = info_hash.hex()
+```
+
+The safest approach is to use a bencode parser that returns both the value and the exact byte range it occupied in the input. Do not re-encode and re-hash — whitespace differences or key ordering differences will change the hash.
+
+### Info Hash in URLs
+
+When sending the info hash to an HTTP tracker, it is URL-encoded as percent-encoding of all 20 bytes, not as a hex string. For example, if the first byte is `0x2a`, it appears as `%2a`.
+
+```python
+from urllib.parse import quote
+info_hash_urlencoded = quote(info_hash, safe='')
+```
+
+---
+
+## 5. Magnet Links — Torrents Without .torrent Files
+
+### What a Magnet Link Is
+
+A magnet link is a URI scheme that encodes enough information to start a torrent download without having a .torrent file. The browser or OS passes it to your client, which then fetches the metadata from the swarm itself.
+
+### Anatomy of a Magnet Link
+
+```
+magnet:?xt=urn:btih:2A47DA3A8B2D4F5A9E12C8B3F47A8D3F2A1E9C4B
+       &dn=Ubuntu+22.04+Desktop
+       &tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce
+       &xl=1234567890
+```
+
+**`xt`** (exact topic) — the info hash, encoded as `urn:btih:` followed by either a 40-character hex string or a 32-character Base32 string. This is the only required parameter.
+
+**`dn`** (display name) — URL-encoded display name. Optional hint for the UI.
+
+**`tr`** (tracker) — URL-encoded tracker URL. Can appear multiple times for multiple trackers.
+
+**`xl`** (exact length) — file size in bytes. Optional.
+
+**`as`** (acceptable source) — a direct download URL for the file. Rarely used.
+
+**`ws`** (web seed) — a URL from which file data can be fetched via HTTP (BitTorrent web seeding, BEP 19).
+
+### How Your Client Resolves a Magnet Link
+
+1. Extract the info hash from `xt`.
+2. If `tr` is present, query those trackers immediately to get an initial peer list.
+3. Query the DHT for the info hash to find peers.
+4. Connect to any peer you find. Use the extension protocol (BEP 9) to request the `ut_metadata` extension.
+5. Request the metadata (the bencoded `info` dictionary) in 16 KB blocks from peers.
+6. Once you have all metadata blocks, verify by computing SHA-1 and comparing to the info hash.
+7. Now you have the full torrent metadata and can proceed normally.
+
+This is called "metadata exchange" and is specified in BEP 9.
+
+---
+
+## 6. Tracker Protocol — Finding Peers
+
+### What a Tracker Does
+
+A tracker is a centralized server that maintains an in-memory mapping of `info_hash → list of (ip, port)` tuples. It does not store or transfer file data. Its sole purpose is peer discovery.
+
+Peers announce themselves periodically (typically every 30 minutes) so the tracker knows who is still active. The tracker returns a random sample of peers (typically 50) on each announce.
+
+### HTTP Tracker Protocol
+
+The client sends an HTTP GET request with these query parameters:
+
+**`info_hash`** — the 20-byte info hash, URL-encoded (percent-encoded, not hex).
+
+**`peer_id`** — a 20-byte string that uniquely identifies your client in this session. Convention: the first 8 bytes identify the client software and version (e.g., `-TR3000-` for Transmission 3.0.0), followed by 12 random bytes.
+
+**`port`** — the TCP port your client is listening on for incoming peer connections. If behind NAT and not listening, use 0.
+
+**`uploaded`** — total bytes uploaded since you started this session, as an ASCII decimal integer.
+
+**`downloaded`** — total bytes downloaded since you started this session.
+
+**`left`** — bytes remaining to download. Crucially, this is based on file size minus verified pieces, not just downloaded bytes.
+
+**`compact`** — set to `1`. Requests compact peer list format (6 bytes per peer instead of a full dictionary per peer). Almost all modern trackers require this.
+
+**`event`** — optional. One of `started` (first announce), `completed` (finished downloading), `stopped` (client is shutting down). Omit on regular interval announces.
+
+**`numwant`** — optional. How many peers you want. Default is 50.
+
+**`ip`** — optional. Your external IP if you know it.
+
+**`trackerid`** — optional. A string the tracker gave you in a previous response; send it back.
+
+#### Example Request
+
+```
+GET /announce?info_hash=%2a%47%da%3a%8b%2d%4f%5a%9e%12%c8%b3%f4%7a%8d%3f%2a%1e%9c%4b
+              &peer_id=-MY0100-x%94%d5%c8%1e%d0%8e%5b%b4%3d%3e
+              &port=6881
+              &uploaded=0
+              &downloaded=0
+              &left=1234567890
+              &compact=1
+              &event=started
+              &numwant=50
+HTTP/1.1
+Host: tracker.example.com
+```
+
+#### Tracker Response (Success)
+
+The response is a bencoded dictionary:
+
+**`interval`** — integer. Seconds between announces. Your client must wait at least this long before the next regular announce.
+
+**`min interval`** — optional integer. Minimum seconds between announces. Never announce more frequently than this.
+
+**`tracker id`** — optional string. Opaque identifier; send back in future announces.
+
+**`complete`** — number of seeders.
+
+**`incomplete`** — number of leechers.
+
+**`peers`** — in compact format: a byte string where every 6 bytes is one peer: 4 bytes big-endian IP address + 2 bytes big-endian port. For IPv6, use `peers6` with 18 bytes per peer (16-byte IPv6 + 2-byte port).
+
+**Parsing the compact peer list:**
+
+```python
+import socket, struct
+
+def parse_compact_peers(peers_bytes):
+    peers = []
+    for i in range(0, len(peers_bytes), 6):
+        ip_bytes = peers_bytes[i:i+4]
+        port_bytes = peers_bytes[i+4:i+6]
+        ip = socket.inet_ntoa(ip_bytes)
+        port = struct.unpack('!H', port_bytes)[0]  # big-endian unsigned short
+        peers.append((ip, port))
+    return peers
+```
+
+#### Tracker Response (Failure)
+
+If the tracker rejects your request:
+
+**`failure reason`** — a human-readable string explaining the error. Examples: "Your client is too old", "Rate limit exceeded", "Torrent not registered".
+
+### UDP Tracker Protocol (BEP 15)
+
+Many trackers support the UDP tracker protocol, which is faster and lower overhead. The protocol uses a two-step process: first establish a connection ID (to prevent IP spoofing), then announce.
+
+#### Step 1: Connect Request
+
+Send a UDP packet:
+
+```
+Offset  Length  Name            Value
+0       8       connection_id   0x41727101980  (magic constant)
+8       4       action          0  (connect)
+12      4       transaction_id  random 32-bit integer you choose
+```
+
+The server responds:
+
+```
+Offset  Length  Name            Value
+0       4       action          0  (connect)
+4       4       transaction_id  same as your request
+8       8       connection_id   new connection ID (valid for ~2 minutes)
+```
+
+The `connection_id` changes every 2 minutes. Using a stale one gets you no response.
+
+#### Step 2: Announce Request
+
+Send a UDP packet:
+
+```
+Offset  Length  Name            Value
+0       8       connection_id   from step 1
+8       4       action          1  (announce)
+12      4       transaction_id  random
+16      20      info_hash
+36      20      peer_id
+56      8       downloaded      big-endian int64
+64      8       left            big-endian int64
+72      8       uploaded        big-endian int64
+80      4       event           0=none, 1=completed, 2=started, 3=stopped
+84      4       ip address      0 = use sender's IP
+88      4       key             random, for privacy
+92      4       num_want        -1 = default (50)
+96      2       port            your listening port
+```
+
+Response:
+
+```
+Offset  Length  Name
+0       4       action  (1 = announce)
+4       4       transaction_id
+8       4       interval
+12      4       leechers
+16      4       seeders
+20+     6*n     peers  (same 6-byte compact format as HTTP)
+```
+
+**Why UDP?** HTTP has significant overhead: TCP handshake (1 RTT), HTTP headers (hundreds of bytes). UDP gets you a response in one round trip with tiny packets. For a client managing hundreds of torrents announcing every 30 minutes, this matters.
+
+---
+
+## 7. The Peer Wire Protocol — Talking to Peers
+
+### Overview
+
+Once you have a list of peer IP:port pairs from the tracker or DHT, you open TCP connections to them. The communication uses the **peer wire protocol**, which is message-based over a persistent TCP stream.
+
+### The Handshake
+
+The very first bytes sent over a new connection are the handshake. Both sides send a handshake, and the connection is established if the handshakes match.
+
+**Handshake format:**
+
+```
+Byte  Length  Name              Description
+0     1       pstrlen           Length of the protocol string. Must be 19.
+1     19      pstr              The string "BitTorrent protocol" (ASCII)
+20    8       reserved          8 zero bytes, used for extension negotiation
+28    20      info_hash         The info hash of the torrent
+48    20      peer_id           Your 20-byte peer ID
+```
+
+Total: 68 bytes.
+
+**Reserved bytes:** These 8 bytes are used to signal protocol extensions. Each bit corresponds to a feature. Critical bits:
+
+- Byte 5, bit 4 (0x10): DHT protocol support
+- Byte 7, bit 1 (0x02): Extension Protocol (BEP 10) support
+- Byte 7, bit 4 (0x10): Fast Extension (BEP 6) support
+
+After the handshake, if info hashes do not match, you close the connection immediately. If they match, the connection is live and message exchange begins.
+
+**Incoming connections:** Your client must also accept incoming connections on its listening port. When you receive a connection, you wait for the peer's handshake first (they initiate), check the info hash to know which torrent they want, then send your own handshake back.
+
+### Message Format
+
+After the handshake, all messages follow this format:
+
+```
+Length prefix (4 bytes, big-endian uint32): total length of message ID + payload
+Message ID (1 byte)
+Payload (variable, depends on message type)
+```
+
+**Keep-alive message:** A 4-byte message with length prefix `0x00000000` and no message ID. Send this every ~2 minutes if no other message has been sent, to prevent the peer from closing the connection.
+
+### Message Types
+
+#### ID 0: choke
+
+Length: 1. No payload.
+
+Meaning: "I am no longer sending you any data." You are now *choked* by this peer. Requests you send will be ignored until they unchoke you.
+
+#### ID 1: unchoke
+
+Length: 1. No payload.
+
+Meaning: "I am willing to send you data." You are now *unchoked* by this peer. You can now send `request` messages.
+
+#### ID 2: interested
+
+Length: 1. No payload.
+
+Meaning: "I want pieces you have." Send this when you receive a peer's bitfield or `have` message and they have pieces you don't. Until you express interest, the peer will never unchoke you.
+
+#### ID 3: not interested
+
+Length: 1. No payload.
+
+Meaning: "I don't need anything from you right now." Send this when you've completed a piece and the peer has nothing else you need, or after completing the download.
+
+#### ID 4: have
+
+Length: 5. Payload: `piece_index` (4-byte big-endian uint32).
+
+Meaning: "I have successfully downloaded and verified piece number `piece_index`." Send this to all connected peers when you finish verifying a new piece. This updates their knowledge of your availability so they can request that piece from you.
+
+#### ID 5: bitfield
+
+Length: 1 + ceil(num_pieces / 8). Payload: a bitfield.
+
+Meaning: "Here is which pieces I have." Sent immediately after the handshake (optional but standard). The bitfield is a byte array where bit `i` (MSB first) is 1 if you have piece `i`. The last byte may be padded with 0 bits if `num_pieces` is not a multiple of 8.
+
+**Example:** For 12 pieces, the bitfield has 2 bytes. If you have pieces 0, 1, 2, 5, 6, 7, 8, 9, 10:
+
+```
+Byte 0: pieces 0-7  → bits: 1 1 1 0 0 1 1 1 → 0xE7
+Byte 1: pieces 8-11 → bits: 1 1 1 0 x x x x → 0xE0  (x = padding zeros)
+```
+
+**Parsing the bitfield:**
+
+```python
+def parse_bitfield(data, num_pieces):
+    have = []
+    for i in range(num_pieces):
+        byte_index = i // 8
+        bit_index = 7 - (i % 8)
+        have.append(bool(data[byte_index] & (1 << bit_index)))
+    return have
+```
+
+#### ID 6: request
+
+Length: 13. Payload: `index` (4 bytes) + `begin` (4 bytes) + `length` (4 bytes). All big-endian uint32.
+
+Meaning: "Please send me a block of data." `index` is the piece index. `begin` is the byte offset within the piece. `length` is how many bytes you want.
+
+**Standard block size:** 16,384 bytes (16 KB). Never request more than this at once. The last block in a piece may be smaller if the piece size is not a multiple of 16 KB.
+
+**Pipelining:** Do not send one request and wait for the response before sending the next. Send a window of 5 to 20 outstanding requests per peer. This is critical for throughput — without pipelining, you waste bandwidth waiting for round-trip latency.
+
+**Example request:**
+
+```python
+import struct
+
+def make_request(piece_index, begin, length):
+    msg_len = struct.pack('!I', 13)        # 4 + 4 + 4 + 1 for message ID
+    msg_id = struct.pack('!B', 6)
+    payload = struct.pack('!III', piece_index, begin, length)
+    return msg_len + msg_id + payload
+```
+
+#### ID 7: piece
+
+Length: 9 + block_length. Payload: `index` (4 bytes) + `begin` (4 bytes) + `block` (variable bytes).
+
+Meaning: "Here is the data you requested." `index` and `begin` identify which block this is (same as your request). `block` is the raw bytes.
+
+Upon receiving this message, write the block to the correct offset in your piece buffer. If all blocks for a piece have arrived, verify the piece (see section 8).
+
+#### ID 8: cancel
+
+Length: 13. Payload: same format as `request`.
+
+Meaning: "I no longer want that block — discard the request." Used when you are about to finish a piece and have already received it from another peer (end-game mode).
+
+#### ID 9: port
+
+Length: 5. Payload: `listen-port` (2 bytes big-endian uint16).
+
+Meaning: "My DHT node is listening on this port." Used to help peers join the DHT.
+
+### State Machine Per Connection
+
+Each peer connection has four boolean state flags:
+
+```
+am_choking       = True   # Are we currently choking this peer?
+am_interested    = False  # Are we interested in this peer's pieces?
+peer_choking     = True   # Is this peer currently choking us?
+peer_interested  = False  # Is this peer interested in our pieces?
+```
+
+Rules:
+- You can only request data from a peer if `peer_choking == False` and `am_interested == True`.
+- You only send data to a peer if `am_choking == False` and `peer_interested == True`.
+- Send `interested` as soon as you see a piece in their bitfield/have that you want.
+- Send `not interested` when you no longer need anything from them.
+
+---
+
+## 8. Pieces, Blocks, and File Assembly
+
+### Pieces vs Blocks
+
+Pieces are the unit of *verification* (SHA-1 checked against metainfo). Blocks are the unit of *transfer* (what you actually request and receive).
+
+```
+Piece:  [-------- block0 -------- | -------- block1 -------- | ... ]
+         16 KB                      16 KB
+```
+
+A typical 512 KB piece contains 32 blocks. You must collect all blocks before you can verify the piece.
+
+### Computing Block Offsets
+
+For piece `i`, which has `piece_length` bytes total:
+
+```python
+NUM_BLOCKS = ceil(piece_length / BLOCK_SIZE)  # BLOCK_SIZE = 16384
+
+for block_index in range(NUM_BLOCKS):
+    begin = block_index * BLOCK_SIZE
+    length = min(BLOCK_SIZE, piece_length - begin)
+    # → request(piece_index=i, begin=begin, length=length)
+```
+
+### Last Piece Edge Case
+
+The last piece of a torrent is usually smaller than `piece_length`. Compute it:
+
+```python
+last_piece_index = num_pieces - 1
+last_piece_length = total_file_size - (last_piece_index * piece_length)
+```
+
+### SHA-1 Verification
+
+When all blocks of piece `i` have arrived, concatenate them in order and compute SHA-1:
+
+```python
+import hashlib
+
+def verify_piece(data_bytes, expected_hash):
+    computed = hashlib.sha1(data_bytes).digest()
+    return computed == expected_hash  # expected_hash is 20 bytes from the .torrent
+
+# Usage:
+piece_data = b''.join(blocks_in_order)
+ok = verify_piece(piece_data, piece_hashes[piece_index])
+if not ok:
+    # Discard this piece and re-request from another peer
+    # Optionally track which peer gave you bad data (snubbing)
+```
+
+**Why verify?** Your piece data could be corrupted in transit (rare but happens), deliberately poisoned by a malicious peer, or just garbled. Verification is mandatory — do not write unverified data to disk.
+
+### Writing to Disk
+
+**For single-file torrents:** Open the output file and write:
+
+```python
+offset = piece_index * piece_length
+with open(output_path, 'r+b') as f:
+    f.seek(offset)
+    f.write(piece_data)
+```
+
+**For multi-file torrents:** Build a mapping from byte offset in the virtual byte stream to `(file_path, file_offset)`. A piece that spans a file boundary gets split and written into two separate files:
+
+```python
+def build_file_map(files):
+    mapping = []
+    offset = 0
+    for path_components, length in files:
+        mapping.append((offset, offset + length, path_components))
+        offset += length
+    return mapping
+
+def write_piece(piece_data, piece_index, piece_length, file_map):
+    start = piece_index * piece_length
+    end = start + len(piece_data)
+    for file_start, file_end, path in file_map:
+        if end <= file_start or start >= file_end:
+            continue
+        # This file overlaps with our piece
+        overlap_start = max(start, file_start)
+        overlap_end = min(end, file_end)
+        piece_slice = piece_data[overlap_start - start : overlap_end - start]
+        file_offset = overlap_start - file_start
+        write_to_file(path, file_offset, piece_slice)
+```
+
+### Pre-Allocating Disk Space
+
+Your client should pre-allocate disk space before downloading begins. This:
+
+1. Tells the OS the final file size immediately, preventing fragmentation.
+2. Reserves the space upfront so you don't fill 90% of a download and then fail due to lack of disk space.
+
+```python
+# Create a sparse file (holes on filesystems that support it)
+with open(output_path, 'wb') as f:
+    f.seek(total_length - 1)
+    f.write(b'\x00')
+```
+
+---
+
+## 9. Piece Selection Strategy — Rarest First
+
+### Why Piece Selection Matters
+
+If every downloading peer requests the same popular pieces first, the early pieces become widely distributed but the rarer pieces remain scarce. If a seeder then goes offline before those rare pieces spread, the torrent becomes permanently incomplete for everyone.
+
+### The Rarest-First Algorithm
+
+For each piece you still need, count how many peers in your swarm have that piece. Request the piece with the lowest count first.
+
+```python
+def select_next_piece(needed_pieces, peer_bitfields):
+    # Count availability across all peers
+    availability = {p: 0 for p in needed_pieces}
+    for bf in peer_bitfields:
+        for piece in needed_pieces:
+            if bf[piece]:
+                availability[piece] += 1
+    # Sort by ascending availability (rarest first)
+    # Shuffle ties randomly to prevent all peers requesting the same rare piece
+    import random
+    sorted_pieces = sorted(availability.items(), key=lambda x: (x[1], random.random()))
+    return sorted_pieces[0][0] if sorted_pieces else None
+```
+
+**Why randomize ties?** Without randomization, every peer with the same rarest piece would request that piece simultaneously, still leaving rare pieces under-replicated.
+
+### End-Game Mode
+
+When a download is almost complete (say, fewer than 5 pieces remaining that you haven't received yet), switch to "end-game mode":
+
+- Request every remaining block from *every* peer that has the piece.
+- As soon as any peer delivers a block, send `cancel` messages to all other peers for that block.
+
+This eliminates the "stuck at 99%" problem caused by slow or stalled peers. End-game mode briefly increases redundant traffic but completes the download much faster.
+
+### Strict Piece Priority
+
+Within a single piece (once you've decided to request it), always request blocks in order within that piece. This allows sequential playback for media files — a player can start playing from piece 0 while pieces 10, 11, 12 are still downloading.
+
+---
+
+## 10. The Choking Algorithm — Tit-for-Tat
+
+### The Fundamental Problem
+
+BitTorrent is a cooperative network. Nothing technically stops a peer from connecting, downloading pieces from everyone, and uploading nothing. This is called "freeloading." Without a mechanism to penalise freeloaders, the network degrades.
+
+### The Tit-for-Tat Solution
+
+BitTorrent implements a version of the tit-for-tat strategy from game theory:
+
+1. Be cooperative by default.
+2. Cooperate with peers who cooperate with you.
+3. Stop cooperating with peers who don't cooperate.
+4. Occasionally give new peers a chance (optimistic unchoke).
+
+### Choking and Unchoking
+
+Your client maintains a list of peers it is currently *unchoking* (uploading to). The default maximum is 4 unchoked peers. Every other peer is *choked* (you send no data to them even if they request it).
+
+**Every 10 seconds:** Re-evaluate which 3 peers get "regular unchoke slots" by ranking all interested peers by the rate at which they have uploaded to *you* over the last 20 seconds. Pick the top 3. If a previously unchoked peer drops out of the top 3, send them a `choke` message and pick a new top-3 peer to unchoke.
+
+**Every 30 seconds:** Perform an "optimistic unchoke": pick one currently choked peer at random and unchoke them regardless of their upload rate. This gives new peers a chance to start uploading, and lets you discover whether a peer's upload capacity has improved.
+
+**Why 4 total?** 1 optimistic + 3 regular = 4 unchoking slots. The number is tunable. Clients with high upload capacity often use more (e.g., 6–8).
+
+### Seeds: Different Behaviour
+
+A seeder has the entire file — it only cares about uploading efficiently, not about getting anything back. Seeders rank their unchoke lists by download rate to the peer (who is downloading fastest from us gets preference), to maximise distribution speed.
+
+### Snubbing
+
+If a peer has not sent you any data for 60 seconds despite being unchoked by you, they are considered "snubbed." Stop sending them an interested signal and remove them from your unchoke consideration temporarily.
+
+```python
+SNUB_TIMEOUT = 60  # seconds
+
+def is_snubbed(peer):
+    return (time.time() - peer.last_data_received) > SNUB_TIMEOUT
+```
+
+### Connection Limits
+
+Your client should maintain a maximum total of ~50–80 simultaneous connections (tunable). Within that limit, maintain roughly:
+
+- 30–40 fully connected, active peers per torrent
+- No more than ~8 unchoked at once
+- Constantly rotate which peers are connected as you learn more about availability
+
+---
+
+## 11. DHT — The Distributed Tracker
+
+### Why DHT Exists
+
+Trackers are centralized. They can be shut down, blocked, or overloaded. DHT removes the need for a central tracker by distributing the peer-discovery function across all participating clients. Any client that supports DHT becomes part of the network.
+
+### Kademlia: The Algorithm Behind DHT
+
+BitTorrent DHT is based on Kademlia, a distributed hash table algorithm designed in 2002.
+
+#### Node IDs
+
+Every DHT node has a 160-bit node ID. You generate this randomly when your client first starts and persist it to disk. All future sessions use the same node ID.
+
+#### XOR Distance Metric
+
+The "distance" between two nodes is the XOR of their node IDs, interpreted as a big-endian unsigned integer.
+
+```python
+def distance(id1, id2):
+    return int.from_bytes(id1, 'big') ^ int.from_bytes(id2, 'big')
+```
+
+This is not geographic distance — it is a logical distance in ID space. The key insight: XOR is symmetric (distance(A,B) == distance(B,A)) and satisfies the triangle inequality. This makes it a valid metric for organizing a routing table.
+
+#### Routing Table (K-Bucket)
+
+Each node maintains a routing table organized into "K-buckets." The routing table divides the ID space into progressively smaller intervals based on shared prefix length with your own ID.
+
+A K-bucket for a prefix covers all nodes whose IDs share that prefix with you. Each K-bucket holds up to K nodes (K=8 in BitTorrent). Nodes within a bucket are sorted by last-seen time (LRU order).
+
+When you encounter a new node:
+1. Find the appropriate K-bucket for its ID.
+2. If the bucket has fewer than K entries, add the new node.
+3. If full, ping the least-recently-seen node. If it responds, discard the new node. If it doesn't respond, replace it.
+
+This rule ("evict unresponsive nodes rather than new ones") means routing tables are biased toward long-lived, stable nodes. This creates a self-healing network.
+
+#### The Lookup Algorithm
+
+To find nodes closest to a target (info hash):
+
+1. Start with the K nodes in your routing table closest to the target.
+2. Send concurrent `find_node` RPCs to them.
+3. For each response, collect any closer nodes returned.
+4. Add those nodes to the candidate list.
+5. Contact the closest unqueried nodes.
+6. Stop when the closest K nodes have all responded (or failed to respond).
+
+This converges in O(log N) steps for a network of N nodes. With millions of nodes, that is about 20–30 hops.
+
+### DHT Messages
+
+DHT uses UDP and a simple bencoded RPC protocol with four message types.
+
+All messages share this structure:
+
+```python
+{
+    "t": "aa",           # transaction ID (2 bytes), echoed in response
+    "y": "q"/"r"/"e",   # "q"=query, "r"=response, "e"=error
+    "q": "method_name", # only for queries
+    "a": {...},          # arguments (for queries)
+    "r": {...},          # return value (for responses)
+    "e": [code, msg]     # error tuple (for errors)
+}
+```
+
+#### ping
+
+Query: `{"t": "aa", "y": "q", "q": "ping", "a": {"id": <your_node_id>}}`
+
+Response: `{"t": "aa", "y": "r", "r": {"id": <responder_node_id>}}`
+
+Use: Verify a node is still alive.
+
+#### find_node
+
+Query: `{"a": {"id": <your_id>, "target": <target_id>}}`
+
+Response: `{"r": {"id": <responder_id>, "nodes": <compact_node_info>}}`
+
+`compact_node_info` is a byte string with 26 bytes per node: 20-byte node ID + 4-byte IP + 2-byte port. The response returns the K nodes closest to `target` that the responder knows about.
+
+#### get_peers
+
+This is how you find peers for a torrent. It queries for the info hash.
+
+Query: `{"a": {"id": <your_id>, "info_hash": <20_byte_info_hash>}}`
+
+Two possible responses:
+
+If the node has peers: `{"r": {"id": ..., "token": <token>, "values": [<6-byte peer>,...]}}`
+
+If the node only knows closer nodes: `{"r": {"id": ..., "token": <token>, "nodes": <compact_node_info>}}`
+
+`token` is a short opaque string. You must echo it back if you later call `announce_peer` on this node. Tokens are valid for roughly 10 minutes.
+
+#### announce_peer
+
+After finding peers via get_peers, announce that *you* are a peer for this torrent, so others can find you.
+
+Query: `{"a": {"id": ..., "info_hash": ..., "port": <your_port>, "token": <token_from_get_peers>, "implied_port": 0}}`
+
+`implied_port`: if set to 1, use the UDP source port of this packet rather than the `port` field. Useful for NAT traversal.
+
+### Bootstrapping
+
+When your client starts for the first time and your routing table is empty, you need to contact known nodes to join the network. Several long-running bootstrap nodes are publicly maintained:
+
+```
+router.bittorrent.com:6881
+router.utorrent.com:6881
+dht.transmissionbt.com:6881
+```
+
+Send a `find_node` request with your own node ID as the target. This starts filling your routing table with nodes near you in ID space.
+
+### The DHT Lookup for a Torrent (Full Flow)
+
+```
+1. You have info_hash = X
+2. Find the 3 closest nodes in your routing table to X
+3. Send get_peers to those 3 nodes
+4. For each response:
+   - If "values": you now have peers! Add to peer list.
+   - If "nodes": closer nodes. Add to query queue.
+5. Send get_peers to the newly discovered closer nodes
+6. Continue until no closer nodes are found
+7. Call announce_peer on all nodes that returned tokens
+   (this registers you as a peer for 30 minutes)
+8. Use the peer list to connect and start downloading
+```
+
+---
+
+## 12. Peer Exchange (PEX)
+
+### What PEX Is
+
+Peer Exchange (BEP 11) is an extension where connected peers share their peer lists with each other directly, without going through a tracker or DHT. This is faster than re-querying the tracker and produces higher-quality peer lists (peers your direct connections know about are more likely to be relevant and healthy).
+
+### How It Works
+
+PEX messages are sent via the Extension Protocol (BEP 10). Once both peers have negotiated the `ut_pex` extension, each peer periodically (every ~60 seconds) sends a PEX message containing:
+
+- `added`: a compact list of new peers they have connected to since the last PEX message
+- `added.f`: flags for each added peer (1 = prefers encryption, 2 = seeder)
+- `dropped`: a compact list of peers they have disconnected from
+
+```python
+# Example PEX message payload (bencoded)
+{
+    b"added": b"\x7f\x00\x00\x01\x1a\xe1...",  # compact peer list
+    b"added.f": b"\x02...",                      # flags
+    b"dropped": b""
+}
+```
+
+**Important rule:** Never send PEX data from non-PEX sources to PEX peers (BEP 11 §6). If you learned about a peer from a tracker, do not relay that peer via PEX without first verifying the peer actually accepts connections.
+
+---
+
+## 13. uTP — The Transport Layer
+
+### Why uTP Exists
+
+Standard BitTorrent uses TCP. TCP has no mechanism for yielding to other traffic. When you're torrenting aggressively, your TCP connections compete equally with video calls, web browsing, and games — often winning, because BitTorrent opens many connections. This is the cause of the "BitTorrent kills my internet" phenomenon.
+
+uTP (Micro Transport Protocol, BEP 29) is a UDP-based transport protocol designed specifically for BitTorrent. It implements its own congestion control algorithm (LEDBAT) that actively detects network congestion and backs off, allowing other traffic to proceed unimpeded.
+
+### LEDBAT: Congestion Control
+
+LEDBAT (Low Extra Delay Background Transport) works by measuring the *delay increase* it causes, not just packet loss.
+
+The idea: if your packets are arriving with increasing latency, you are filling a buffer somewhere. Back off before the buffer overflows.
+
+```
+target_delay = 25 ms  (your goal: never add more than 25ms of queuing delay)
+current_delay = measured one-way delay from receiver
+delay_queue = measure delay, subtract base delay (best case, unloaded path)
+
+if delay_queue > target_delay:
+    # We're adding too much delay — shrink congestion window
+    cwnd -= alpha * (delay_queue - target_delay)
+else:
+    # We have headroom — grow window slightly
+    cwnd += max_cwnd_increase_per_rtt * packet_size / cwnd
+```
+
+The result: uTP fills spare bandwidth greedily but immediately yields whenever latency-sensitive traffic (TCP, VoIP, gaming) needs the link.
+
+### uTP Packet Format
+
+uTP is layered over UDP. Each uTP packet has a 20-byte header:
+
+```
+Byte 0:  type (3 bits) + version (4 bits)
+         Types: ST_DATA=0, ST_FIN=1, ST_STATE=2, ST_RESET=3, ST_SYN=4
+Byte 1:  extension (0 = no extension)
+Byte 2-3: connection_id (uint16)
+Byte 4-7: timestamp_microseconds (uint32): sender's time
+Byte 8-11: timestamp_difference_microseconds (uint32): delay measurement
+Byte 12-15: wnd_size: receiver's available buffer
+Byte 16-17: seq_nr: sequence number
+Byte 18-19: ack_nr: acknowledgment number
+```
+
+uTP implements: connection setup (SYN/SYN-ACK), selective ACKs (SACK), retransmission, flow control (window-based), and connection teardown (FIN). It is essentially a reimplementation of TCP's transport guarantees in UDP with better congestion control.
+
+**For your client:** You can use TCP exclusively and still interoperate with all peers. uTP is an optimization. Many clients offer both and prefer uTP when the remote peer supports it.
+
+---
+
+## 14. Local Service Discovery (LSD)
+
+### What LSD Is
+
+Local Service Discovery (BEP 14) allows BitTorrent clients on the same local network (LAN/WiFi) to find each other without going through a tracker. This is useful for campus networks, office networks, or home networks where multiple people are downloading the same file.
+
+### How It Works
+
+Your client periodically sends a multicast UDP message to `239.192.152.143:6771` (IPv4) or `[ff15::efc0:988f]:6771` (IPv6):
+
+```
+BT-SEARCH * HTTP/1.1\r\n
+Host: 239.192.152.143:6771\r\n
+Port: <your_listening_port>\r\n
+Infohash: <info_hash_hex>\r\n
+cookie: <random_32bit_int>\r\n
+\r\n\r\n
+```
+
+Any client on the same LAN that is downloading the same torrent receives this multicast, sees the matching info hash, and connects to you directly. LAN transfer speeds are typically 100 Mbps to 1 Gbps — orders of magnitude faster than internet speeds.
+
+---
+
+## 15. Extension Protocol (BEP 10)
+
+### Overview
+
+The Extension Protocol (BEP 10) defines a generic mechanism for adding new message types to the peer wire protocol without breaking backward compatibility.
+
+During the handshake, you signal support for BEP 10 by setting bit 20 (from the right) in the reserved bytes: `reserved[5] |= 0x10`.
+
+### The Handshake Message (Message ID 20)
+
+After the standard handshake, both peers that support BEP 10 send an extension handshake message:
+
+```
+Message ID: 20
+Extension message ID: 0  (0 = handshake)
+Payload: bencoded dictionary
+```
+
+The handshake dictionary advertises which extensions you support and assigns local IDs:
+
+```python
+{
+    "m": {
+        "ut_pex": 1,       # Peer exchange (BEP 11)
+        "ut_metadata": 2,  # Metadata exchange (BEP 9, for magnet links)
+        "ut_holepunch": 3  # Hole punching (BEP 55)
+    },
+    "v": "MyClient 1.0",   # client version string
+    "yourip": <4 bytes>,   # peer's IP as seen by you
+    "reqq": 255,           # how many outstanding requests you'll accept
+    "metadata_size": 12345 # size of info dict (if you have it)
+}
+```
+
+The `"m"` dictionary maps extension names to local message IDs. These IDs are local to this connection — the same extension might be ID 1 on one connection and ID 3 on another. You always check the handshake to know which ID to use.
+
+### ut_metadata (BEP 9)
+
+Used to fetch the `info` dictionary from peers, enabling magnet link resolution. Messages:
+
+```python
+# Request a 16KB chunk of the metadata
+{"msg_type": 0, "piece": 0}
+
+# Receive a chunk
+{"msg_type": 1, "piece": 0, "total_size": 12345}
+# followed by raw bytes of this chunk
+```
+
+There are `ceil(metadata_size / 16384)` pieces. Request them all, concatenate, and verify the SHA-1 against the info hash.
+
+---
+
+## 16. Building Your Downloader — Implementation Roadmap
+
+### Architecture
+
+A BitTorrent client is inherently concurrent. At a minimum, you need:
+
+- **Tracker thread/coroutine:** Handles announce requests and schedules re-announces.
+- **DHT thread/coroutine:** Handles all DHT UDP communication independently.
+- **Peer manager:** Tracks all peer connections, their state, their bitfields.
+- **Piece manager:** Tracks which pieces are needed, in-progress, and complete.
+- **Disk I/O thread:** Handles writing verified pieces to disk asynchronously.
+- **Connection handler (one per peer):** Reads the TCP stream, parses messages, dispatches them.
+
+Use an async I/O framework (Python: `asyncio`, Go: goroutines, Rust: `tokio`, Node.js: native async). Blocking I/O on peer connections will kill performance.
+
+### Phase 1: Core (Can Download Torrents)
+
+1. **Bencode parser** — decoder and encoder. Test on real .torrent files.
+2. **Torrent file parser** — extract info hash, piece hashes, file list, piece length.
+3. **HTTP tracker client** — send announce, parse compact peer list.
+4. **TCP connection + handshake** — connect to a peer, exchange handshakes.
+5. **Message parser** — parse all 10 message types from a byte stream.
+6. **Basic download loop** — send interested, wait for unchoke, request blocks, receive pieces, verify SHA-1, write to disk.
+7. **Bitfield tracking** — track which pieces each peer has; update on `have` messages.
+
+With just this, you can download torrents from well-seeded swarms.
+
+### Phase 2: Performance
+
+8. **Request pipelining** — 5–20 outstanding requests per peer.
+9. **Multi-peer** — connect to 30+ peers simultaneously, download from many at once.
+10. **Rarest-first selection** — pick pieces based on swarm availability.
+11. **Tit-for-tat choking** — implement the 10-second re-evaluation loop.
+12. **Optimistic unchoke** — 30-second random selection.
+13. **UDP tracker support** — handle the two-step connect/announce protocol.
+14. **End-game mode** — request remaining blocks from all peers when nearly done.
+
+### Phase 3: Resilience
+
+15. **DHT** — bootstrap, routing table, get_peers, announce_peer.
+16. **Magnet link support** — ut_metadata exchange + BEP 10 extension handshake.
+17. **Resume support** — save piece availability to disk; verify existing files on restart.
+18. **PEX** — peer exchange via BEP 10.
+19. **LSD** — multicast for LAN peers.
+
+### Phase 4: Polish
+
+20. **uTP** — implement or use a library for UDP-based transport.
+21. **NAT traversal** — UPnP/NAT-PMP to punch holes and accept incoming connections.
+22. **Encryption** — MSE/PE (Message Stream Encryption) to obfuscate traffic.
+23. **Web seeds** — download pieces from HTTP URLs if seeder availability is low.
+24. **Prioritization** — allow marking files/pieces as high priority for sequential playback.
+
+### Critical Implementation Notes
+
+**Always verify pieces.** Never write unverified data to the output file. Discard any piece that fails SHA-1 verification immediately.
+
+**Handle partial pieces correctly.** The last piece of a torrent and the last block of any piece are often smaller than the standard size. Compute their lengths explicitly, never assume they are full size.
+
+**Respect `min interval` from trackers.** If you hammer a tracker with requests, it will ban your IP.
+
+**Persist your DHT node ID.** Regenerating it every run breaks your routing table and forces full re-bootstrapping every time.
+
+**Implement graceful shutdown.** Send `event=stopped` to trackers when your client exits so they remove you from peer lists promptly.
+
+**Test with multiple real .torrent files** including single-file and multi-file torrents, torrents with many small files, and torrents with very large files.
+
+**Be careful with file paths.** Malicious .torrent files can include `../` in path components to try to write files outside your download directory. Sanitize all path components.
+
+### Recommended Libraries by Language
+
+**Python:** `asyncio` for concurrency, `aiohttp` for HTTP tracker, `bencodepy` for bencoding, `hashlib` for SHA-1.
+
+**Go:** Standard library covers almost everything. `net` for TCP/UDP, `crypto/sha1` for verification. Go's goroutine model is well-suited to BitTorrent's concurrent nature.
+
+**Rust:** `tokio` for async, `serde` for serialization, `sha1` crate, `bytes` for zero-copy buffer management.
+
+**JavaScript/Node.js:** `webtorrent` as reference; native Buffers for binary data, `crypto.createHash('sha1')` for verification.
+
+### Reference Specifications (BEPs — BitTorrent Enhancement Proposals)
+
+- **BEP 3** — The original BitTorrent protocol specification.
+- **BEP 5** — DHT Protocol (Kademlia-based).
+- **BEP 9** — Extension for Peers to Send Metadata Files (magnet links).
+- **BEP 10** — Extension Protocol.
+- **BEP 11** — Peer Exchange (PEX).
+- **BEP 12** — Multitracker Metadata Extension.
+- **BEP 14** — Local Service Discovery.
+- **BEP 15** — UDP Tracker Protocol.
+- **BEP 19** — WebSeed — HTTP/FTP Seeding.
+- **BEP 23** — Tracker Returns Compact Peer Lists.
+- **BEP 29** — uTorrent Transport Protocol (uTP).
+
+All BEPs are freely available at `https://www.bittorrent.org/beps/bep_0000.html`.
+
+---
+
+*This document covers every layer you need to build a working, efficient, and standards-compliant BitTorrent client. Start with Phase 1, verify against real torrents, then layer in the performance and resilience features. The protocol is well-specified and has a large body of open-source reference implementations to compare against.*
