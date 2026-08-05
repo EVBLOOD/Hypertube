@@ -5,6 +5,7 @@ import DescriptionComponent from '../ui/descriptionComponent'
 import RecordComponent from '../ui/recordComponent'
 import TitleCustom from '../ui/titleCustom'
 import styles from './heroSectionMovie.module.css'
+import { useRouter } from 'next/navigation'
 
 export interface MovieInfos {
     id: string,
@@ -22,6 +23,7 @@ export interface MovieInfos {
 }
 
 export default function HeroSectionMovie({ obj }: {obj : any}) {
+    const router = useRouter()
 
     if (obj)
     return (
@@ -48,7 +50,7 @@ export default function HeroSectionMovie({ obj }: {obj : any}) {
                 </div>
 
                 <div className={styles.heroSectionInfos}>
-                    <ButtonCustom textButton='WATCH NOW' buttonImage='/costumIcons/play.svg' color='primary' />
+                    <ButtonCustom textButton='WATCH NOW' buttonImage='/costumIcons/play.svg' color='primary' onClick={() => router.push(`/watch/${obj.id}`)} />
                     <div className={styles.heroSectionActions}>
                         <ButtonCustom textButton='VIEW DETAILS' buttonImage={undefined} />
                         <ButtonCustom textButton='VIEW DETAILS' buttonImage={undefined} />

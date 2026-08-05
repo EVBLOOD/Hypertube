@@ -67,7 +67,7 @@ export class StreamsService implements OnModuleInit, OnModuleDestroy {
     private readonly infoHashToImdbId = new Map<string, HashToImdbMap[]>();
 
     private streamingWindows = new Map<string, { startPiece: number; bufferSize: number }>();
-
+    private readonly sessionWindows = new Map<string, { infoHash: string; startPiece: number; bufferSize: number }>();
 
 
     private blacklistedPeers = new Set<string>();
@@ -449,6 +449,20 @@ export class StreamsService implements OnModuleInit, OnModuleDestroy {
         }
     }
 
+    private recomputeStreamingWindow(infoHash: string): void {
+        let minStartPiece = Infinity;
+        let maxBufferSize = 0;
+        for (const [, session] of this.sessionWindows) {
+            if (session.infoHash !== infoHash) continue;
+            minStartPiece = Math.min(minStartPiece, session.startPiece);
+            maxBufferSize = Math.max(maxBufferSize, session.bufferSize);
+        }
+        if (minStartPiece === Infinity) {
+            this.streamingWindows.delete(infoHash);
+        } else {
+            this.streamingWindows.set(infoHash, { startPiece: minStartPiece, bufferSize: maxBufferSize });
+        }
+    }
 
     private async streamPiecesToResponse(
         infoHash: string,
@@ -459,6 +473,9 @@ export class StreamsService implements OnModuleInit, OnModuleDestroy {
         imdbId: string,
         quality: string,
     ): Promise<void> {
+
+        const sessionId = crypto.randomUUID();
+
         const fileSize = videoFile.length;
         let start = 0;
         let end = fileSize - 1;
@@ -477,13 +494,16 @@ export class StreamsService implements OnModuleInit, OnModuleDestroy {
 
         const firstPiece = Math.floor(absoluteStart / manager.pieceLength);
 
-        manager.updatePlaybackPosition(firstPiece);
-
         const bufferSize = Math.min(20, Math.ceil((fileSize / manager.pieceLength) * 0.1));
-        this.streamingWindows.set(infoHash, {
-            startPiece: firstPiece,
-            bufferSize
-        });
+        // this.streamingWindows.set(infoHash, {
+        //     startPiece: firstPiece,
+        //     bufferSize
+        // });
+
+        this.sessionWindows.set(sessionId, { infoHash, startPiece: firstPiece, bufferSize });
+        this.recomputeStreamingWindow(infoHash);
+
+        manager.updatePlaybackPosition(firstPiece);
 
         const chunkSize = end - start + 1;
         res.writeHead(206, {
@@ -495,39 +515,38 @@ export class StreamsService implements OnModuleInit, OnModuleDestroy {
 
         let nextByteToSend = absoluteStart;
         let bufferedPieceCount = 0;
-        let lastBufferLogAt = 0;
+        // let lastBufferLogAt = 0;
+
+        res.once('close', () => {
+            this.sessionWindows.delete(sessionId);
+            this.recomputeStreamingWindow(infoHash);
+        });
 
         while (nextByteToSend <= absoluteEnd && !res.destroyed) {
             const pieceIndex = Math.floor(nextByteToSend / manager.pieceLength);
+            const session = this.sessionWindows.get(sessionId);
+            if (session) {
+                session.startPiece = pieceIndex;
+                this.recomputeStreamingWindow(infoHash);
+            }
             manager.updatePlaybackPosition(pieceIndex);
 
             if (!manager.isPieceVerified(pieceIndex)) {
-                const MAX_WAIT_TIME = 30000;
-                const startWaitTime = Date.now();
-
                 console.log(`[BUFFER] Waiting for piece ${pieceIndex} (buffered: ${bufferedPieceCount}/${bufferSize})`);
+                const MAX_WAIT_TIME = 30000;
 
-                while (!manager.isPieceVerified(pieceIndex) && !res.destroyed) {
-                    const elapsed = Date.now() - startWaitTime;
+                await Promise.race([
+                    manager.waitForPiece(pieceIndex),
+                    new Promise<void>((_, reject) =>
+                        setTimeout(() => reject(new Error(`Timeout waiting for piece ${pieceIndex}`)), MAX_WAIT_TIME)
+                    ),
+                    new Promise<void>((resolve) => res.once('close', resolve)),
+                ]).catch((err: Error) => {
+                    console.error(`[BUFFER ERROR] ${err.message}`);
+                    if (!res.destroyed) res.destroy();
+                });
 
-                    if (elapsed > MAX_WAIT_TIME) {
-                        console.error(`[BUFFER ERROR] Timeout waiting for piece ${pieceIndex} after ${MAX_WAIT_TIME}ms`);
-                        if (!res.destroyed) {
-                            res.destroy();
-                        }
-                        return;
-                    }
-
-                    if (elapsed - lastBufferLogAt >= 1000) {
-                        const bufferingPct = manager.getBufferingPercentage(bufferSize);
-                        console.debug(`[BUFFER] Piece ${pieceIndex}: ${bufferingPct.toFixed(1)}% ready (${elapsed}ms elapsed)`);
-                        lastBufferLogAt = elapsed;
-                    }
-
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                }
-
-                if (res.destroyed) return;
+                if (res.destroyed) break;
             }
 
             bufferedPieceCount++;
@@ -548,19 +567,24 @@ export class StreamsService implements OnModuleInit, OnModuleDestroy {
                 if (!canWrite) {
                     await new Promise(resolve => res.once('drain', resolve));
                 }
-                console.debug(`[STREAM] Sent piece ${pieceIndex}: ${length} bytes`);
             } catch (err) {
                 console.error(`[STREAM ERROR] Failed to read piece ${pieceIndex}:`, err);
                 if (!res.headersSent) {
                     res.status(500).json({ message: 'Stream read error' });
                 }
-                return;
+                break;
             }
 
             nextByteToSend = chunkEnd + 1;
         }
 
         res.end();
+        this.sessionWindows.delete(sessionId);
+        this.recomputeStreamingWindow(infoHash);
+        if (!res.destroyed) {
+            res.end();
+        }
+
         console.log(`[STREAM COMPLETE] ${imdbId} - ${bufferedPieceCount} pieces streamed`);
 
         if (manager.isComplete()) {
@@ -903,16 +927,16 @@ export class StreamsService implements OnModuleInit, OnModuleDestroy {
 
                 this.updateTrackerStats(infoHash, manager);
             } else if (manager.isPieceFailing(index)) {
-                const key = `${wire.remoteAddress}:${wire.remotePort}`;
-
-                const culprits = this.blockOrigins.get(originKey) || [];
-                culprits.forEach(c => this.blacklistedPeers.add(c));
-                this.blockOrigins.delete(originKey);
-                console.warn(`[Security] Banned ${culprits.length} peers for sending bad data on piece ${index}.`);
-
-                const activeSet = this.activePieces.get(wire);
-                if (activeSet) activeSet.delete(index);
-                if (culprits.includes(key)) socket.destroy();
+                const pieceStatus = manager.getPieceStatus(index);
+                if (pieceStatus === 'pending') {
+                    const culprits = this.blockOrigins.get(originKey) || [];
+                    culprits.forEach(c => this.blacklistedPeers.add(c));
+                    this.blockOrigins.delete(originKey);
+                    console.warn(`[Security] Banned ${culprits.length} peers for sending bad data on piece ${index}.`);
+                    const activeSet = this.activePieces.get(wire);
+                    if (activeSet) activeSet.delete(index);
+                    if (culprits.includes(key)) socket.destroy();
+                }
             }
 
             socket.setTimeout(SOCKET_TIMEOUT);
