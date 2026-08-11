@@ -5,9 +5,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Comment } from './entities/comment.entity';
 import { CommentsGateway } from './comments.gateway';
 import { UsersModule } from 'src/users/users.module';
+import { MoviesModule } from 'src/movies/movies.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Comment]), UsersModule],
+  imports: [TypeOrmModule.forFeature([Comment]), UsersModule, MoviesModule],
   controllers: [CommentsController],
   providers: [CommentsService, CommentsGateway],
 })

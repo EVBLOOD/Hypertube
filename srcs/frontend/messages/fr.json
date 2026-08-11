@@ -114,4 +114,18 @@
         "sign_in": "CONNEXION",
         "sign_out": "DÉCONNEXION"
     }
+
+    ,"Watch": {
+        "start_button": "Démarrer WatchTogether",
+        "invite_copied": "Lien d'invitation copié dans le presse-papiers.",
+        "create_error": "Échec de la création de la salle.",
+        "chat_send": "Envoyer",
+        "chat_placeholder": "Écrire un message..."
+    },
+    "Comments": {
+        "placeholder": "ÉCRIRE UNE TRANSMISSION...",
+        "post_button": "PUBLIER LE COMMENTAIRE",
+        "hours_ago_2": "IL Y A 2 HEURES",
+        "reply": "répondre"
+    }
 }

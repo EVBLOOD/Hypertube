@@ -208,6 +208,87 @@ export class MoviesService {
     return results;
   }
 
+  async getWishlist(paging: PaginationMovieDto, userId: number) {
+    const { page = 1, limit = 20 } = paging;
+    const cacheKey = `wishlist:${userId}`
+
+    const start = (page - 1) * limit;
+    const movies = await this.redisservice.getMovies(cacheKey, start, limit);
+    if (!movies || movies.length === 0) {
+      const wishlistMovies = await this.progressRepo.find({ where: { user: { id: userId }, isWishlisted: true }, skip: start, take: limit, relations: ['movie'] });
+      // const movieDetails = await Promise.all(wishlistMovies.map(async (progress) => await this.getMovieDetails(progress.movie.imdbId)));
+      const imdbDate = (await Promise.all(wishlistMovies?.map(async (m) => {
+        const movieDetails = await this.getMovieDetails(m.movie.imdbId);
+        let movieInfo: MovieInfos;
+        if (movieDetails && 'movie' in movieDetails) {
+          movieInfo = {
+            id: movieDetails.movie.id,
+            title: movieDetails.movie.title,
+            year: movieDetails.movie.year,
+            rating: movieDetails.movie.rating,
+            genres: movieDetails.movie.genres,
+            quality: movieDetails.movie.quality,
+            standard_audio_format: movieDetails.movie.standard_audio_format,
+            poster: movieDetails.movie.poster,
+            isWatched: m.isWatched,
+            overview: movieDetails.movie.overview,
+            size: movieDetails.movie.size,
+            time: movieDetails.movie.time
+          }
+        } else if (movieDetails) {
+          movieInfo = {
+            id: movieDetails.id,
+            title: movieDetails.title,
+            year: movieDetails.year,
+            rating: movieDetails.rating,
+            genres: movieDetails.genres,
+            quality: movieDetails.quality,
+            standard_audio_format: movieDetails.standard_audio_format,
+            poster: movieDetails.poster,
+            isWatched: m.isWatched,
+            overview: movieDetails.overview,
+            size: movieDetails.size,
+            time: movieDetails.time
+          }
+        } else {
+          movieInfo = {
+            id: m.movie.imdbId,
+            title: m.movie.title,
+            year: 0,
+            rating:0,
+            genres: [],
+            quality: '-',
+            standard_audio_format: '-',
+            poster: '-',
+            isWatched: m.isWatched,
+            overview: '-',
+            size: 0,
+            time: 0
+          }
+        }
+        return await this.imdbIdFromTMDB(movieInfo)
+      }
+      ))).filter((m) => m.id);
+      const yts_movie = await Promise.all(imdbDate.map(async (m) => await this.getMovieYTS(m)))
+
+      await this.redisservice.pushMovies(cacheKey, yts_movie);
+      return {
+        data: yts_movie,
+        metadata: {
+          nextPage: page + 1,
+          hasMore: (await this.redisservice.lenZSet(cacheKey)) > page * limit
+        }
+      };
+    }
+    return {
+      data: movies,
+      metadata: {
+        nextPage: page + 1,
+        hasMore: (await this.redisservice.lenZSet(cacheKey)) > page * limit
+      }
+    };
+  }
+
   async getTrending(paging: PaginationMovieDto) {
     const { page = 1, limit = 20 } = paging;
     const cacheKey = `trending`
@@ -469,16 +550,16 @@ export class MoviesService {
 
       return torrents.map(t => {
         const combinedTrackers = Array.from(new Set([...YTS_TRACKERS, ...SUPER_TRACKERS]));
-        
+
         const trackerString = combinedTrackers
-            .map(tr => `&tr=${encodeURIComponent(tr)}`)
-            .join('');
+          .map(tr => `&tr=${encodeURIComponent(tr)}`)
+          .join('');
 
         const magnet = `magnet:?xt=urn:btih:${t.hash}&dn=${encodeURIComponent(data.data.movie.title)}${trackerString}`;
 
         return {
           magnet,
-          seeds: t.seeds as number, 
+          seeds: t.seeds as number,
           peers: t.peers as number,
           quality: t.quality as string,
           size: t.size as string,
@@ -488,6 +569,38 @@ export class MoviesService {
       console.error(`YTS fetch error ${imdbId} before starting streaming:`, err);
     }
     return undefined;
+  }
+
+  async insertOrUpdateInteraction(userId: number, imdbId: string, interaction: number) {
+    const movie = await this.ensureMovie(imdbId);
+
+    let progress = await this.progressRepo.findOne({
+      where: { user: { id: userId }, movie: { id: movie.id } }
+    });
+
+    if (!progress) {
+      progress = this.progressRepo.create({ user: { id: userId }, movie });
+    }
+
+    progress.likedOrDisliked = interaction;
+
+    return this.progressRepo.save(progress);
+  }
+
+  async toggleWishlist(userId: number, imdbId: string) {
+    const movie = await this.ensureMovie(imdbId);
+
+    let progress = await this.progressRepo.findOne({
+      where: { user: { id: userId }, movie: { id: movie.id } }
+    });
+
+    if (!progress) {
+      progress = this.progressRepo.create({ user: { id: userId }, movie });
+    }
+
+    progress.isWishlisted = !progress.isWishlisted;
+
+    return this.progressRepo.save(progress);
   }
 
   async updateProgress(userId: number, imdbId: string, seconds: number, isLive: boolean) {
@@ -507,5 +620,64 @@ export class MoviesService {
     progress.wasWatchedLive = isLive || progress.wasWatchedLive;
 
     return this.progressRepo.save(progress);
+  }
+
+  private async ensureMovie(imdbId: string) {
+    let movie = await this.movieRepo.findOne({ where: { imdbId } });
+    if (movie) return movie;
+
+    const movieDetails = await this.getMovieDetails(imdbId);
+    if (!movieDetails) {
+      return await this.movieRepo.save({ imdbId, title: 'Unknown', year: 0, ratingTmdb: 0, genres: [] });
+    }
+
+    if (typeof movieDetails === 'object' && 'movie' in movieDetails) {
+      const { movie: movieInfo } = movieDetails;
+      return await this.movieRepo.save({
+        imdbId: movieInfo.id,
+        title: movieInfo.title,
+        year: movieInfo.year,
+        ratingTmdb: movieInfo.rating,
+        genres: movieInfo.genres
+      });
+    }
+
+    return await this.movieRepo.save({
+      imdbId: movieDetails.id,
+      title: movieDetails.title,
+      year: movieDetails.year,
+      ratingTmdb: movieDetails.rating,
+      genres: movieDetails.genres
+    });
+  }
+
+  async findByImdbId(imdbId: string) {
+    return this.movieRepo.findOne({ where: { imdbId } });
+  }
+
+  async saveMoviebyImdbId(imdbId: string) {
+    const movieDetails = await this.getMovieDetails(imdbId);
+    if (!movieDetails) {
+      return await this.movieRepo.save({ imdbId, title: 'Unknown', year: 0, ratingTmdb: 0, genres: [] });
+    }
+
+    if (typeof movieDetails === 'object' && 'movie' in movieDetails) {
+      const { movie: movieInfo } = movieDetails;
+      return await this.movieRepo.save({
+        imdbId: movieInfo.id,
+        title: movieInfo.title,
+        year: movieInfo.year,
+        ratingTmdb: movieInfo.rating,
+        genres: movieInfo.genres
+      });
+    }
+
+    return await this.movieRepo.save({
+      imdbId: movieDetails.id,
+      title: movieDetails.title,
+      year: movieDetails.year,
+      ratingTmdb: movieDetails.rating,
+      genres: movieDetails.genres
+    });
   }
 }

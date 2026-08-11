@@ -27,4 +27,9 @@ export class UsersController {
   async updateMe(@Req() req, @Body() dto: UpdateUserDto) {
     return this.userService.update(req.user.id, dto);
   }
+
+  @Get('me/summary')
+  async getMySummary(@Req() req) {
+    return this.userService.getProfileSummary(req.user.id);
+  }
 }

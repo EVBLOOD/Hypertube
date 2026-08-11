@@ -4,14 +4,14 @@ import { Movie } from './movie.entity';
 @Entity()
 export class Subtitle {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @Column()
-  language: string;
+  language!: string;
 
   @Column()
-  filePath: string;
+  filePath!: string;
 
   @ManyToOne(() => Movie)
-  movie: Movie;
+  movie!: Movie;
 }

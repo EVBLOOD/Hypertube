@@ -3,7 +3,7 @@
 import VideoSection from "@/app/components/layout/videoSection"
 import { useMovieDetails } from "@/lib/dataHooks/moviesDetails"
 import { use } from "react"
-
+import styles from './page.module.css'
 
 
 export default function WatchPageMoviePage({ params }: { params: Promise<{ id: string }> }) {
@@ -20,7 +20,7 @@ export default function WatchPageMoviePage({ params }: { params: Promise<{ id: s
         )
     
     return (
-        <div>
+        <div className={styles.watchContent}>
             <VideoSection id={id} title={data.data.movie.title} description={data.data.movie.description} thumbnail={data.data.movie.poster} />
         </div>
     )

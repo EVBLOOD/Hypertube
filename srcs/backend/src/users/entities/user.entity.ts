@@ -11,53 +11,53 @@ import { v4 as uuidv4 } from 'uuid';
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @Column({ unique: true })
   @IsNotEmpty()
-  username: string;
+  username!: string;
 
   @Column({ select: false })
-  password?: string;
+  password!: string;
 
   @Column({ unique: true })
   @IsEmail({}, { message: 'Invalid email format' })
-  email: string;
+  email!: string;
 
   @Column()
   @IsNotEmpty()
-  firstName: string;
+  firstName!: string;
 
   @Column()
   @IsNotEmpty()
-  lastName: string;
+  lastName!: string;
 
   @Column({ nullable: true })
-  profilePicture: string;
+  profilePicture!: string;
 
   @Column({ default: false })
-  isVerified: boolean;
+  isVerified!: boolean;
 
   @Column({ nullable: true, select: false })
-  emailVerificationToken: string;
+  emailVerificationToken!: string;
 
   @Column({ nullable: true, select: false })
-  passwordResetToken: string;
+  passwordResetToken!: string;
 
   @Column({ default: 'en' })
-  preferredLanguage: string;
+  preferredLanguage!: string;
 
   @Column({ nullable: true })
-  fortyTwoId: string;
+  fortyTwoId!: string;
 
   @Column({ nullable: true })
-  externalStrategyId: string;
+  externalStrategyId!: string;
 
   @OneToMany(() => Comment, (comment) => comment.user)
-  comments: Comment[];
+  comments!: Comment[];
 
   @OneToMany(() => UserMovieProgress, (progress) => progress.user)
-  watchHistory: UserMovieProgress[];
+  watchHistory!: UserMovieProgress[];
 
   @BeforeInsert()
   @BeforeUpdate()

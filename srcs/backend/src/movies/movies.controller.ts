@@ -4,8 +4,6 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { VerifiedGuard } from '../auth/guards/verified.guard';
 import { MoviesService } from './movies.service';
 import { PaginationMovieDto } from './dto/pagination-movie.dto ';
-import path from 'path';
-import { createReadStream, statSync } from 'fs';
 import { StreamsService } from 'src/streams/streams.service';
 
 @Controller('movies')
@@ -31,56 +29,33 @@ export class MoviesController {
 
   @Get('popular_one')
   async heroPage() {
-    // ss
     return await this.moviesService.getHeroMovie()
   }
 
-  // @Get('watch/:filename')
-  // async streamVideo(
-  //   @Param('filename') filename: string,
-  //   @Headers('range') range: string,
-  //   @Res() res
-  // ) {
+  @UseGuards(JwtAuthGuard, VerifiedGuard)
+  @Get('wishlist')
+  async wishlistPage(@Query() paging: PaginationMovieDto, @Req() req) {
+    return await this.moviesService.getWishlist(paging, req.user.id)
+  }
 
-  //   const videoPath = path.join(__dirname, '..', '..', 'downloads', filename);
+  @UseGuards(JwtAuthGuard, VerifiedGuard)
+  @Post('interaction/:imdbId')
+  async interaction(
+    @Param('imdbId') imdbId: string,
+    @Body('interaction') interaction: number,
+    @Req() req
+  ) {
+    return await this.moviesService.insertOrUpdateInteraction(req.user.id, imdbId, interaction);
+  }
 
-  //   const { size } = statSync(videoPath);
-
-  //   if (range) {
-  //     const parts = range.replace(/bytes=/, "").split("-");
-  //     const start = parseInt(parts[0], 10);
-  //     const end = parts[1] ? parseInt(parts[1], 10) : size - 1;
-
-  //     if (start >= size) {
-  //       res.status(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE)
-  //         .header({
-  //           'Content-Range': `bytes */${size}`,
-  //         });
-  //       return res.end();
-  //     }
-
-  //     const chunksize = (end - start) + 1;
-
-  //     const file = createReadStream(videoPath, { start, end });
-
-  //     const head = {
-  //       'Content-Range': `bytes ${start}-${end}/${size}`,
-  //       'Accept-Ranges': 'bytes',
-  //       'Content-Length': chunksize,
-  //       'Content-Type': 'video/mp4',
-  //     };
-
-  //     res.writeHead(HttpStatus.PARTIAL_CONTENT, head);
-  //     file.pipe(res);
-  //   } else {
-  //     const head = {
-  //       'Content-Length': size,
-  //       'Content-Type': 'video/mp4',
-  //     };
-  //     res.writeHead(HttpStatus.OK, head);
-  //     createReadStream(videoPath).pipe(res);
-  //   }
-  // }
+  @UseGuards(JwtAuthGuard, VerifiedGuard)
+  @Post('wishlist/:imdbId')
+  async wishlistToggle(
+    @Param('imdbId') imdbId: string,
+    @Req() req
+  ) {
+    return await this.moviesService.toggleWishlist(req.user.id, imdbId);
+  }
 
   @Post('watch')
   startStream(
@@ -98,7 +73,6 @@ export class MoviesController {
     });
   }
 
-
   @Get('watch/:id')
   startStream1(
     @Param('id') imdbId: string,
@@ -114,6 +88,7 @@ export class MoviesController {
       }
     });
   }
+
   @Post(':imdbId/progress')
   async saveProgress(
     @Param('imdbId') imdbId: string,
@@ -121,7 +96,7 @@ export class MoviesController {
     @Body('isLive') isLive: boolean,
     @Req() req
   ) {
-    return this.moviesService.updateProgress(req.user.id, imdbId, seconds, isLive);
+    return this.moviesService.updateProgress(req.user?.id || 1, imdbId, seconds, isLive);
   }
 
   @Get(':imdbId')

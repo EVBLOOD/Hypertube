@@ -10,7 +10,41 @@
 }
 
 .buttonOnOff {
-    width: 70px;
-    height: 30px;
-    background-color: var(--primary-color);
+    width: 40px;
+    height: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    background-color: #353534;
 }
+.buttonOnOff span {
+    width: 50%;
+    height: 100%;
+}
+
+.clickedOff {
+    background-color: #353534;
+}
+
+.clickedOn {
+    background-color: var(--primary-color);
+    color: var(--secondry-color);
+}
+
+
+
+.buttonChoice {
+    gap: 10px;
+    height: 20px;
+    display: flex;
+    align-items: center; 
+    justify-content: center;
+}
+
+.buttonChoice span {    
+    width: 100%;
+    padding: 10px;
+}
+
+

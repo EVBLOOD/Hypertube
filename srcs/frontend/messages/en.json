@@ -114,4 +114,18 @@
         "sign_in": "SIGN IN",
         "sign_out": "SIGN OUT"
     }
+
+    ,"Watch": {
+        "start_button": "Start WatchTogether",
+        "invite_copied": "Invite link copied to clipboard.",
+        "create_error": "Failed to create room.",
+        "chat_send": "Send",
+        "chat_placeholder": "Type a message..."
+    },
+    "Comments": {
+        "placeholder": "WRITE A TRANSMISSION...",
+        "post_button": "POST COMMENT",
+        "hours_ago_2": "2 HOURS AGO",
+        "reply": "replay"
+    }
 }

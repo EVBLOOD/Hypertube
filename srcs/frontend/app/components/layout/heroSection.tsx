@@ -29,7 +29,7 @@ export default function HeroSection({movie}: {movie: any}) {
                 </div>
                 <div className={styles.heroSectionActions}>
                     <ButtonCustom onClick={() => router.push(`watch/${movie.id}`)} textButton={Home('watch_now')} buttonImage='/costumIcons/play.svg' color='primary' />
-                    <ButtonCustom onClick={() => router.push(`movie/${movie.id}`)} textButton={Home('view_more')} buttonImage={undefined} />
+                    <ButtonCustom onClick={() => router.push(`movie/${movie.id}`)} textButton={Home('view_more')} buttonImage={undefined} color={null}  style={{border: 'var(--popup-background-second) 1px solid'}}/>
                 </div>
                 {
                     resulotion ? 

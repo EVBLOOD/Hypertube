@@ -1,0 +1,19 @@
+.watchContent {
+    display: flex;
+    margin-top: 70px;
+}
+
+.mainwatchContent {
+    width: 75%;
+    margin: 32px;
+}
+
+.mainwatchContentHead {
+    padding-bottom: 32px;
+    display: flex;
+    justify-content: space-between;
+    border-color: #1C1B1B;
+    border-width: 0px 0px 1px 0px;
+    border-style: solid;
+
+}

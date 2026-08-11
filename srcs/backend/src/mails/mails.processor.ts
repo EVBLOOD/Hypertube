@@ -22,7 +22,7 @@ export class MailProcessor {
           url: `${process.env.FRONTEND_URL}/verify?token=${job.data.token}`,
         },
       });
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(`Failed to send email: ${error.message}`);
     }
   }
@@ -40,7 +40,7 @@ export class MailProcessor {
           url: `${process.env.FRONTEND_URL}/verify?token=${job.data.token}`,
         },
       });
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(`Failed to send email: ${error.message}`);
     }  }
 }

@@ -22,7 +22,23 @@ export interface MovieInfos {
     time?: number
 }
 
-export default function HeroSectionMovie({ obj }: {obj : any}) {
+export default function HeroSectionMovie({
+    obj,
+    onLike,
+    onDislike,
+    onWishlist,
+    isWishlisted = false,
+    isLiked = false,
+    isDisliked = false,
+}: {
+    obj: any,
+    onLike?: () => void,
+    onDislike?: () => void,
+    onWishlist?: () => void,
+    isWishlisted?: boolean,
+    isLiked?: boolean,
+    isDisliked?: boolean,
+}) {
     const router = useRouter()
 
     if (obj)
@@ -37,10 +53,10 @@ export default function HeroSectionMovie({ obj }: {obj : any}) {
                     </div>
                     <TitleCustom title={obj.title} nb_color={2} />
                     <div className={styles.MovieHeroInfos}>
-                        <ButtonCustom className={styles.MovieHeroInfosItems} textButton={obj.year.toString()} buttonImage={undefined} />
-                        <ButtonCustom className={styles.MovieHeroInfosItems} textButton={obj.time?.toString() || '2H 14MIN'} buttonImage={undefined} />
-                        <ButtonCustom className={styles.MovieHeroInfosItems} textButton={`${obj.rating} IMDB`} buttonImage={undefined} />
-                        <ButtonCustom className={styles.MovieHeroInfosItems} textButton={obj.size || '12.4 GB'} buttonImage={undefined} />
+                        <ButtonCustom className={styles.MovieHeroInfosItems} textButton={obj.year.toString()} buttonImage={undefined} color={null}/>
+                        <ButtonCustom className={styles.MovieHeroInfosItems} textButton={obj.time?.toString() || '2H 14MIN'} buttonImage={undefined} color={null} />
+                        <ButtonCustom className={styles.MovieHeroInfosItems} textButton={`${obj.rating} IMDB`} buttonImage={undefined} color={null} />
+                        <ButtonCustom className={styles.MovieHeroInfosItems} textButton={obj.size || '12.4 GB'} buttonImage={undefined} color={null} />
 
                     </div>
                     <DescriptionComponent
@@ -52,15 +68,21 @@ export default function HeroSectionMovie({ obj }: {obj : any}) {
                 <div className={styles.heroSectionInfos}>
                     <ButtonCustom textButton='WATCH NOW' buttonImage='/costumIcons/play.svg' color='primary' onClick={() => router.push(`/watch/${obj.id}`)} />
                     <div className={styles.heroSectionActions}>
-                        <ButtonCustom textButton='VIEW DETAILS' buttonImage={undefined} />
-                        <ButtonCustom textButton='VIEW DETAILS' buttonImage={undefined} />
+                        <ButtonCustom
+                          textButton='WATCH LATER'
+                          buttonImage={'/costumIcons/watchLater.svg'}
+                          color={isWishlisted ? 'primary' : null}
+                          onClick={onWishlist}
+                          style={{border: 'var(--popup-background-second) 1px solid'}}
+                        />
+                        <ButtonCustom textButton='LIVE INVITE' buttonImage={"/costumIcons/inviteWatch.svg"} color={null} style={{border: 'var(--popup-background-second) 1px solid'}} />
                     </div>
                     <div className={styles.reactOnMovie}>
                         <div>
-                            <ButtonCustom className={styles.MovieHeroInfosItems} textButton='' buttonImage='/costumIcons/play.svg' />
-                            <ButtonCustom className={styles.MovieHeroInfosItems} textButton='' buttonImage='/costumIcons/play.svg' />
+                            <ButtonCustom className={styles.MovieHeroInfosItems} textButton='' buttonImage='/costumIcons/likeMovie.svg' color={isLiked ? 'primary' : null} onClick={onLike} />
+                            <ButtonCustom className={styles.MovieHeroInfosItems} textButton='' buttonImage='/costumIcons/dislikeMovie.svg' color={isDisliked ? 'primary' : null} onClick={onDislike} />
                         </div>
-                        <ButtonCustom className={styles.MovieHeroInfosItems} textButton='' buttonImage='/costumIcons/play.svg' />
+                        <ButtonCustom className={styles.MovieHeroInfosItems} textButton='' buttonImage='/costumIcons/shareMovie.svg' color={null} />
                     </div>
                 </div>
             </div>

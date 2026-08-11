@@ -25,3 +25,15 @@ export interface MovieType {
     poster: string
     isWatched: boolean,
 }
+
+export interface CommentType {
+  id: number;
+  content: string;
+  createdAt: string;
+  user?: {
+    id: number;
+    username?: string;
+    firstName?: string;
+    lastName?: string;
+  };
+}

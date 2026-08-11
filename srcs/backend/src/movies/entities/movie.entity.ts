@@ -5,26 +5,26 @@ import { UserMovieProgress } from './user-movie-progress.entity';
 @Entity()
 export class Movie {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @Column({ unique: true })
-  imdbId: string;
+  imdbId!: string;
 
   @Column()
-  title: string;
+  title!: string;
 
   @Column({ nullable: true })
-  filePath: string; // in the server
+  filePath!: string; // in the server
 
   @UpdateDateColumn()
-  lastWatchedAt: Date;
+  lastWatchedAt!: Date;
 
   @Column({ default: false })
-  isFullyDownloaded: boolean;
+  isFullyDownloaded!: boolean;
 
   @OneToMany(() => Subtitle, (subtitle) => subtitle.movie)
-  subtitles: Subtitle[];
+  subtitles!: Subtitle[];
 
   @OneToMany(() => UserMovieProgress, (progress) => progress.movie)
-  userProgress: UserMovieProgress[];
+  userProgress!: UserMovieProgress[];
 }

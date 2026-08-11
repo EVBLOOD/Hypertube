@@ -2,27 +2,39 @@ import { Movie } from './movie.entity';
 import { User } from 'src/users/entities/user.entity';
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, UpdateDateColumn, Unique } from 'typeorm';
 
+export enum UserInteraction {
+  NEUTRAL = 0,
+  LIKED = 1,
+  DISLIKED = 2
+}
+
 @Entity()
 @Unique(['user', 'movie'])
 export class UserMovieProgress {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @ManyToOne(() => User, (user) => user.watchHistory)
-  user: User;
+  user!: User;
+
+  @Column({ default: false })
+  isWishlisted!: boolean;
+
+  @Column({type: 'enum', enum: UserInteraction, default: UserInteraction.NEUTRAL})
+  likedOrDisliked!: number;
 
   @ManyToOne(() => Movie, (movie) => movie.userProgress)
-  movie: Movie;
+  movie!: Movie;
 
   @Column({ default: 0 })
-  lastMinute: number;
+  lastMinute!: number;
 
   @Column({ default: false })
-  isWatched: boolean;
+  isWatched!: boolean;
 
   @Column({ default: false })
-  wasWatchedLive: boolean;
+  wasWatchedLive!: boolean;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt!: Date;
 }

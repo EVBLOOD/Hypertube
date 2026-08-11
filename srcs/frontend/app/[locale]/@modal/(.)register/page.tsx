@@ -38,8 +38,10 @@ export default function Register() {
         const email = emailRef.current?.value;
         const password = passwordRef.current?.value;
 
+        console.log(firstname, lastname, username, email, password)
+        
         if (!firstname || !lastname || !username || !email || !password) return
-
+        
         try {
             const result = await AuthService.register({ firstName: firstname, lastName: lastname, username, email, password })
             console.log(result)

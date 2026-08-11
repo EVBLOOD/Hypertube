@@ -114,4 +114,18 @@
         "sign_in": "تسجيل الدخول",
         "sign_out": "تسجيل الخروج"
     }
+
+    ,"Watch": {
+        "start_button": "ابدأ المشاهدة معاً",
+        "invite_copied": "تم نسخ رابط الدعوة إلى الحافظة.",
+        "create_error": "فشل إنشاء الغرفة.",
+        "chat_send": "إرسال",
+        "chat_placeholder": "اكتب رسالة..."
+    },
+    "Comments": {
+        "placeholder": "اكتب تعليقاً...",
+        "post_button": "نشر التعليق",
+        "hours_ago_2": "منذ ساعتين",
+        "reply": "رد"
+    }
 }

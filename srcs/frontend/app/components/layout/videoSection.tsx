@@ -2,7 +2,7 @@
 import styles from './videoSection.module.css';
 
 export default function VideoSection(props: { id: string, title: string, description: string, thumbnail?: string }) {
-    const IP = process.env.PUBLIC_API_URL || 'http://localhost:8082/api'
+    const IP = process.env.PUBLIC_API_URL || 'http://localhost:8081/api'
 
     return (
         <div className={styles.videoSection}>
