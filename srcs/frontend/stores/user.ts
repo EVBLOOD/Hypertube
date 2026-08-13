@@ -33,7 +33,10 @@ export const useUserStore = create<GeneralInfosState>()(
                         ? { ...state.user, language: language }
                         : undefined,
                 })),
-            reset: () => set({ user: undefined }),
+            reset: () => {
+                console.log("Resetting user state");
+                set({ user: undefined });
+            },
         }),
         {
             name: "user-storage",

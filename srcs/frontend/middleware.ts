@@ -22,6 +22,7 @@ export default async function middleware(req: NextRequest) {
                 username: user.username,
                 language: user.preferredLanguage,
                 avatar: user.profilePicture,
+                isPublic: user.isPublic,
             });
         } catch (err) {
             console.log(err);

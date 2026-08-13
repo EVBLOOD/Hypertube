@@ -22,6 +22,8 @@ export default function Header() {
             useUserStore.getState().reset();
         } catch (err) {
             console.log(err);
+        } finally {
+            useUserStore.getState().reset();
         }
     }
     function handleSearch() {

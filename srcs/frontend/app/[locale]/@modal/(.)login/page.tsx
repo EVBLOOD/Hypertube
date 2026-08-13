@@ -15,8 +15,11 @@ import { useRef } from "react";
 import AuthService from "@/lib/services/AuthService";
 import { useUserStore } from "@/stores/user";
 
+import { useRouter } from "next/navigation";
+
 export default function Login() {
     const Login = useTranslations("Login");
+    const router = useRouter();
 
     const emailRef = useRef<HTMLInputElement>(null);
     const passwordRef = useRef<HTMLInputElement>(null);
@@ -25,19 +28,35 @@ export default function Login() {
         const email = emailRef.current?.value;
         const password = passwordRef.current?.value;
 
-        if (!email || !password) return;
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            alert("Please enter a valid email address.");
+            return;
+        }
+        if (!password || password.length < 6) {
+            alert("Password must be at least 6 characters long.");
+            return;
+        }
         try {
             const result = (
                 await AuthService.login({ username: email, password })
             )?.data;
+            if (!result || !result.user) {
+                alert("Login failed. Please check your credentials.");
+                return;
+            }
             const user = result.user;
             useUserStore.getState().userLogged({
                 username: user.username,
                 language: user.preferredLanguage,
                 avatar: user.profilePicture,
+                isPublic: user.isPublic,
             });
+            console.log("Login successful:", user);
+
+            router.push("/");
+            // window.location.href = '/';
         } catch (err) {
-            console.error(err);
+            alert("Login failed. Please check your credentials.");
         }
     }
 
