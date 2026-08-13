@@ -1,10 +1,11 @@
-import { create } from 'zustand'
-import { createJSONStorage, persist } from 'zustand/middleware';
+import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
 
 interface Generalinfos {
     username: string;
     language: string;
     avatar: string;
+    isPublic: boolean;
 }
 
 interface GeneralInfosState {
@@ -17,15 +18,26 @@ interface GeneralInfosState {
 
 export const useUserStore = create<GeneralInfosState>()(
     persist(
-        (set) => (
-            {
-                user: undefined,
-                userLogged: (user) => (set((state) => ({ user: user }))),
-                userAvatarUpdate: (avatar) => (set((state) => ({ user: state.user ?  { ...state.user, avatar: avatar } : undefined }))),
-                userLanguageUpdate: (language) => (set((state) => ({user: state.user ? {...state.user, language: language} : undefined}))),
-                reset: () => set({ user: undefined })
-            }), {
-        name: 'user-storage',
-        storage: createJSONStorage(() => localStorage),
-    })
-)
+        (set) => ({
+            user: undefined,
+            userLogged: (user) => set((state) => ({ user: user })),
+            userAvatarUpdate: (avatar) =>
+                set((state) => ({
+                    user: state.user
+                        ? { ...state.user, avatar: avatar }
+                        : undefined,
+                })),
+            userLanguageUpdate: (language) =>
+                set((state) => ({
+                    user: state.user
+                        ? { ...state.user, language: language }
+                        : undefined,
+                })),
+            reset: () => set({ user: undefined }),
+        }),
+        {
+            name: "user-storage",
+            storage: createJSONStorage(() => localStorage),
+        },
+    ),
+);

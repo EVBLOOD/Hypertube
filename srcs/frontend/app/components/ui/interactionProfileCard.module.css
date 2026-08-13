@@ -2,7 +2,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #2A2A2A;
+    background-color: #2a2a2a;
     padding: 16px 16px 16px 16px;
     height: 98px;
 }
@@ -19,7 +19,7 @@
 
 .discreptionMarginCorrection {
     margin: 0;
-    text-align: center;
+    /* text-align: center; */
 }
 
 .interactionInofs {

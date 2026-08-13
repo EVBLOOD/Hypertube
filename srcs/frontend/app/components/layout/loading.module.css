@@ -1,10 +1,10 @@
 @keyframes loading-scan {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
 }
 
 .pandingPage {
@@ -15,7 +15,6 @@
     justify-content: center;
     align-items: center;
     gap: 25px;
-
 }
 
 .recSizeChange {
@@ -27,12 +26,12 @@
     width: 20%;
 
     background: linear-gradient(
-    90deg,
-    transparent,
-    var(--primary-color),
-    transparent
-  );
-  animation: loading-scan 1.5s infinite ease-in-out;
+        90deg,
+        transparent,
+        var(--primary-color),
+        transparent
+    );
+    animation: loading-scan 1.5s infinite ease-in-out;
 }
 
 .titleJust {

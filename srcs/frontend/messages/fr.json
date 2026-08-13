@@ -113,9 +113,9 @@
         "my_vault": "Mon Coffre",
         "sign_in": "CONNEXION",
         "sign_out": "DÉCONNEXION"
-    }
+    },
 
-    ,"Watch": {
+    "Watch": {
         "start_button": "Démarrer WatchTogether",
         "invite_copied": "Lien d'invitation copié dans le presse-papiers.",
         "create_error": "Échec de la création de la salle.",

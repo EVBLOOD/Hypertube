@@ -1,8 +1,7 @@
-'use client';
+"use client";
 
-import styles from './cardInfosProfile.module.css'
-import DescriptionComponent from './descriptionComponent';
-
+import styles from "./cardInfosProfile.module.css";
+import DescriptionComponent from "./descriptionComponent";
 
 export default function CardInfosProfile() {
     return (
@@ -12,7 +11,7 @@ export default function CardInfosProfile() {
                 <h1>1,428</h1>
                 <h2>Hours</h2>
             </div>
-            <DescriptionComponent text='Your consumption of metadata across the HyperTube network exceeds 84% of active directors in this sector.'></DescriptionComponent>
+            <DescriptionComponent text="Your consumption of metadata across the HyperTube network exceeds 84% of active directors in this sector."></DescriptionComponent>
         </div>
-    )
+    );
 }

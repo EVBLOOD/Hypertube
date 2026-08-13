@@ -1,39 +1,75 @@
-'use client';
+"use client";
 
-import { useTranslations } from 'next-intl';
-import ButtonCustom from './buttonCustom'
-import DescriptionComponent from './descriptionComponent'
-import styles from './movieCard.module.css'
-import TitleCustom from './titleCustom'
-import { MovieType } from '@/types/apiTypes';
-import { useRouter } from 'next/navigation';
+import { useTranslations } from "next-intl";
+import ButtonCustom from "./buttonCustom";
+import DescriptionComponent from "./descriptionComponent";
+import styles from "./movieCard.module.css";
+import TitleCustom from "./titleCustom";
+import { MovieType } from "@/types/apiTypes";
+import { useRouter } from "next/navigation";
 
-
-export default function MovieCard({ movie, className }: { movie: MovieType, className?: string }) {
-    const Library = useTranslations('Library')
-    const router = useRouter()
+export default function MovieCard({
+    movie,
+    className,
+}: {
+    movie: MovieType;
+    className?: string;
+}) {
+    const Library = useTranslations("Library");
+    const router = useRouter();
 
     return (
-        <div onClick={() => router.push(`/movie/${movie.id}`)} className={styles.bodyCard}>
-            <div style={{ backgroundImage: `url(${movie.poster})` }} className={styles.cardImage}>
+        <div
+            onClick={() => router.push(`/movie/${movie.id}`)}
+            className={styles.bodyCard}
+        >
+            <div
+                style={{ backgroundImage: `url(${movie.poster})` }}
+                className={styles.cardImage}
+            >
                 <div className={styles.seenWrapper}>
-                    {movie.isWatched ? <ButtonCustom textButton={Library('seen')} buttonImage='/costumIcons/play.svg' color='primary' className={styles.wasSeen} /> : ''}
+                    {movie.isWatched ? (
+                        <ButtonCustom
+                            textButton={Library("seen")}
+                            buttonImage="/costumIcons/play.svg"
+                            color="primary"
+                            className={styles.wasSeen}
+                        />
+                    ) : (
+                        ""
+                    )}
                 </div>
 
                 <div className={styles.infosWraper}>
-                    <ButtonCustom className={styles.infoStyle} textButton={movie.quality} buttonImage={undefined} />
-                    <ButtonCustom className={styles.infoStyle} textButton={movie.standard_audio_format} buttonImage={undefined} />
+                    <ButtonCustom
+                        className={styles.infoStyle}
+                        textButton={movie.quality}
+                        buttonImage={undefined}
+                    />
+                    <ButtonCustom
+                        className={styles.infoStyle}
+                        textButton={movie.standard_audio_format}
+                        buttonImage={undefined}
+                    />
                 </div>
             </div>
             <div className={styles.titleRatingWraper}>
-                <TitleCustom isMovie={true} title={movie.title} nb_color={-movie.title.length}></TitleCustom>
+                <TitleCustom
+                    isMovie={true}
+                    title={movie.title}
+                    nb_color={-movie.title.length}
+                ></TitleCustom>
                 <span>{movie.rating}</span>
             </div>
 
-            <div style={{display: 'flex', justifyContent: 'space-between'}}>
-                <DescriptionComponent text={`${movie.year}`}></DescriptionComponent>
-                <DescriptionComponent text={`${movie.genres?.length ? movie.genres[0] : movie.genres}`}></DescriptionComponent>
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <DescriptionComponent
+                    text={`${movie.year}`}
+                ></DescriptionComponent>
+                <DescriptionComponent
+                    text={`${movie.genres?.length ? movie.genres[0] : movie.genres}`}
+                ></DescriptionComponent>
             </div>
         </div>
-    )
+    );
 }

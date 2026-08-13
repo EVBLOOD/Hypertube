@@ -1,26 +1,26 @@
 .redDot {
-  height: 10px;
-  width: 10px;
-  border-radius: 50%;
-  background-color: var(--third-color);
+    height: 10px;
+    width: 10px;
+    border-radius: 50%;
+    background-color: var(--third-color);
 }
 .recordTitle {
-  display: flex;
-  align-items: center;
-  gap: 5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
 .recordTitle h4 {
-  margin: 0;
+    margin: 0;
 }
 
 .recText {
-  display: flex;
-  align-items: center;
-  gap: 5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
 .recText h4 {
-  margin: 0;
-  color: var(--third-color);
+    margin: 0;
+    color: var(--third-color);
 }

@@ -1,4 +1,3 @@
-
 // auth
 export interface Login {
     username: string;
@@ -6,34 +5,35 @@ export interface Login {
 }
 
 export interface Register {
-  username: string;
-  email: string;
-  password: string;
-  firstName: string;
-  lastName: string;
+    username: string;
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
 }
 
 // Library
 export interface MovieType {
-    id: string,
-    title: string,
-    year: number,
-    rating: number,
-    genres: string[],
-    quality: string,
-    standard_audio_format: string,
-    poster: string
-    isWatched: boolean,
+    id: string;
+    title: string;
+    year: number;
+    rating: number;
+    genres: string[];
+    quality: string;
+    standard_audio_format: string;
+    poster: string;
+    isWatched: boolean;
+    isWishlisted: boolean;
 }
 
 export interface CommentType {
-  id: number;
-  content: string;
-  createdAt: string;
-  user?: {
     id: number;
-    username?: string;
-    firstName?: string;
-    lastName?: string;
-  };
+    content: string;
+    createdAt: string;
+    user?: {
+        id: number;
+        username?: string;
+        firstName?: string;
+        lastName?: string;
+    };
 }

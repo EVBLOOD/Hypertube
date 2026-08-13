@@ -26,7 +26,7 @@
     resize: none;
     max-height: 30px;
     background-color: transparent;
-    border-color: color-mix(in srgb, #1C1B1B, transparent 0%);
+    border-color: color-mix(in srgb, #1c1b1b, transparent 0%);
     color: var(--font-color-white);
 }
 

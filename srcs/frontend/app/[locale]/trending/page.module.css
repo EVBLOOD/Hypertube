@@ -6,7 +6,7 @@
     padding-bottom: 32px;
     display: flex;
     justify-content: space-between;
-    border-color: #1C1B1B;
+    border-color: #1c1b1b;
     border-width: 0px 0px 1px 0px;
     border-style: solid;
 }
@@ -24,7 +24,6 @@
     .browseContent {
         padding: 15px;
         margin-top: 0px;
-
     }
     .mainBrowseContentHead {
         margin-top: 0px;
@@ -32,7 +31,5 @@
     }
     .moviesList {
         gap: 20px;
-
-
     }
 }

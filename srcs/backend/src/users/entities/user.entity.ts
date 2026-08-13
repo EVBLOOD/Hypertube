@@ -1,80 +1,93 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, BeforeInsert, BeforeUpdate } from 'typeorm';
-import { Comment } from 'src/comments/entities/comment.entity';
-import { UserMovieProgress } from 'src/movies/entities/user-movie-progress.entity';
+import {
+    Entity,
+    PrimaryGeneratedColumn,
+    Column,
+    OneToMany,
+    BeforeInsert,
+    BeforeUpdate,
+} from "typeorm";
+import { Comment } from "src/comments/entities/comment.entity";
+import { UserMovieProgress } from "src/movies/entities/user-movie-progress.entity";
 
-import * as argon2 from 'argon2';
-import { IsEmail, IsNotEmpty } from 'class-validator';
+import * as argon2 from "argon2";
+import { IsEmail, IsNotEmpty } from "class-validator";
 
-import { v4 as uuidv4 } from 'uuid';
-
+import { v4 as uuidv4 } from "uuid";
+import { UserMovieHistory } from "src/movies/entities/user-movie-history.entity";
 
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn()
-  id!: number;
+    @PrimaryGeneratedColumn()
+    id!: number;
 
-  @Column({ unique: true })
-  @IsNotEmpty()
-  username!: string;
+    @Column({ unique: true })
+    @IsNotEmpty()
+    username!: string;
 
-  @Column({ select: false })
-  password!: string;
+    @Column({ select: false })
+    password!: string;
 
-  @Column({ unique: true })
-  @IsEmail({}, { message: 'Invalid email format' })
-  email!: string;
+    @Column({ unique: true })
+    @IsEmail({}, { message: "Invalid email format" })
+    email!: string;
 
-  @Column()
-  @IsNotEmpty()
-  firstName!: string;
+    @Column()
+    @IsNotEmpty()
+    firstName!: string;
 
-  @Column()
-  @IsNotEmpty()
-  lastName!: string;
+    @Column()
+    @IsNotEmpty()
+    lastName!: string;
 
-  @Column({ nullable: true })
-  profilePicture!: string;
+    @Column({ nullable: true })
+    profilePicture!: string;
 
-  @Column({ default: false })
-  isVerified!: boolean;
+    @Column({ default: false })
+    isVerified!: boolean;
 
-  @Column({ nullable: true, select: false })
-  emailVerificationToken!: string;
+    @Column({ default: "public" })
+    privacy!: "public" | "private";
 
-  @Column({ nullable: true, select: false })
-  passwordResetToken!: string;
+    @Column({ nullable: true, select: false })
+    emailVerificationToken!: string;
 
-  @Column({ default: 'en' })
-  preferredLanguage!: string;
+    @Column({ nullable: true, select: false })
+    passwordResetToken!: string;
 
-  @Column({ nullable: true })
-  fortyTwoId!: string;
+    @Column({ default: "en" })
+    preferredLanguage!: "en" | "fr" | "ar";
 
-  @Column({ nullable: true })
-  externalStrategyId!: string;
+    @Column({ nullable: true })
+    fortyTwoId!: string;
 
-  @OneToMany(() => Comment, (comment) => comment.user)
-  comments!: Comment[];
+    @Column({ nullable: true })
+    externalStrategyId!: string;
 
-  @OneToMany(() => UserMovieProgress, (progress) => progress.user)
-  watchHistory!: UserMovieProgress[];
+    @OneToMany(() => Comment, (comment) => comment.user)
+    comments!: Comment[];
 
-  @BeforeInsert()
-  @BeforeUpdate()
-  async hashPassword() {
-    if (this.password && !this.password.startsWith('$argon2')) {
-      this.password = await argon2.hash(this.password);
+    @OneToMany(() => UserMovieProgress, (progress) => progress.user)
+    watchHistory!: UserMovieProgress[];
+
+    @OneToMany(() => UserMovieHistory, (history) => history.user)
+    userMovieHistories!: UserMovieHistory[];
+
+    @BeforeInsert()
+    @BeforeUpdate()
+    async hashPassword() {
+        if (this.password && !this.password.startsWith("$argon2")) {
+            this.password = await argon2.hash(this.password);
+        }
     }
-  }
-  
-  // @BeforeInsert()
-  // async emailVerificationTokenToSend() {
-  //   if (this.password) {
-  //     const verificationToken = uuidv4();
-  //     this.emailVerificationToken = verificationToken;
-  //     // I'll need this here and I'm not sure if best practice so for now I'll just use the service
-  //     // await this.mailService.sendVerificationEmail(user, verificationToken);
 
-  //   }
-  // }
+    // @BeforeInsert()
+    // async emailVerificationTokenToSend() {
+    //   if (this.password) {
+    //     const verificationToken = uuidv4();
+    //     this.emailVerificationToken = verificationToken;
+    //     // I'll need this here and I'm not sure if best practice so for now I'll just use the service
+    //     // await this.mailService.sendVerificationEmail(user, verificationToken);
+
+    //   }
+    // }
 }

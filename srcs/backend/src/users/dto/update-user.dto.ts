@@ -1,23 +1,26 @@
-import { IsEmail, IsOptional, IsString, IsEnum } from 'class-validator';
+import { IsEmail, IsOptional, IsString, IsEnum } from "class-validator";
 
 export class UpdateUserDto {
-  @IsOptional()
-  @IsString()
-  firstName?: string;
+    @IsOptional()
+    // @IsString()
+    // firstName?: string;
 
-  @IsOptional()
-  @IsString()
-  lastName?: string;
+    // @IsOptional()
+    // @IsString()
+    // lastName?: string;
+    @IsOptional()
+    @IsEmail()
+    email?: string;
 
-  @IsOptional()
-  @IsEmail()
-  email?: string;
+    @IsOptional()
+    @IsString()
+    username?: string;
 
-  @IsOptional()
-  @IsString()
-  username?: string;
+    @IsOptional()
+    @IsEnum(["en", "fr", "ar"])
+    preferredLanguage?: "en" | "fr" | "ar";
 
-  @IsOptional()
-  @IsEnum(['en', 'fr', 'es'])
-  preferredLanguage?: string;
+    @IsEnum(["public", "private"])
+    @IsOptional()
+    privacy?: "public" | "private";
 }

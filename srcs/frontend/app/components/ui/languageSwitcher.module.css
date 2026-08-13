@@ -30,7 +30,6 @@
     padding: 15px 0px;
 }
 
-
 .languageStyleOverView span {
     font-weight: bolder;
 }
@@ -45,13 +44,12 @@
     align-items: center;
 
     background-color: var(--popup-background-second);
-    color: #D0C6AB;
+    color: #d0c6ab;
 
     margin: 0px 0px;
     padding: 0px 0px;
 
     border-radius: 0px 0px 25px 25px;
-
 }
 
 .languageChoices li {

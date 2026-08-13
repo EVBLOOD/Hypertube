@@ -1,6 +1,6 @@
 .filterWraper {
     border-style: solid;
-    border-color: #1C1B1B;
+    border-color: #1c1b1b;
     border-width: 0px 1px 0px 0px;
     width: 20%;
     margin-top: 32px;
@@ -26,7 +26,6 @@
     background-color: var(--popup-background);
     color: color-mix(in srgb, var(--primary-color), transparent 70%);
     padding: 18px 5px 18px 5px;
-
 }
 
 .inputHorisantal input:focus {
@@ -62,13 +61,12 @@
 .inputHorisantal input[type="range"] {
     padding: 0;
     accent-color: color-mix(in srgb, var(--primary-color), transparent 60%);
-
 }
 
 .inputHorisantal div {
     display: flex;
     justify-content: space-between;
-    color: #D0C6AB;
+    color: #d0c6ab;
 }
 
 .inputHorisantal ul {
@@ -79,9 +77,8 @@
 .noneSelectedSort {
     list-style-type: none;
     padding: 10px 4px;
-    color: #D0C6AB;
+    color: #d0c6ab;
     cursor: pointer;
-
 }
 
 .selectedSort {

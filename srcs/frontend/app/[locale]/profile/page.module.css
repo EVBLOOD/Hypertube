@@ -2,10 +2,9 @@
     padding-bottom: 32px;
     display: flex;
     justify-content: space-between;
-    border-color: #1C1B1B;
+    border-color: #1c1b1b;
     border-width: 0px 0px 1px 0px;
     border-style: solid;
-
 }
 
 .browseContent {
@@ -17,7 +16,6 @@
     flex-direction: column;
     width: 58%;
     gap: 40px;
-
 }
 
 .profileField {
@@ -28,7 +26,7 @@
 
 .privateProfileSection {
     /* width: 100%; */
-    background-color: #1C1B1B;
+    background-color: #1c1b1b;
     padding: 32px 32px 32px 32px;
     gap: 30px;
     display: flex;
@@ -41,9 +39,8 @@
     gap: 40px;
 }
 
-
 .avatarProfile {
-    border-color: #D0C6AB;
+    border-color: #d0c6ab;
     border-style: dashed;
     border-width: 2px;
 }
@@ -56,12 +53,11 @@
 }
 
 .inputsholder input {
-    border-color: #D0C6AB;
-
+    border-color: #d0c6ab;
 }
 
 .inputsholder label {
-    color: #D0C6AB;
+    color: #d0c6ab;
 }
 
 .submitChangesButton {
@@ -69,14 +65,12 @@
     height: 50px;
 }
 
-
 .secondPartHolder {
     width: 39%;
     display: flex;
     flex-direction: column;
     gap: 20px;
 }
-
 
 .statisticCards {
     width: 100%;
@@ -103,7 +97,7 @@
 }
 
 .logsContainer {
-    background-color: #1C1B1B;
+    background-color: #1c1b1b;
     padding: 32px 32px 32px 32px;
 }
 
@@ -138,6 +132,5 @@
     .browseContent {
         margin-top: 0px;
         margin-bottom: 70px;
-        
     }
 }

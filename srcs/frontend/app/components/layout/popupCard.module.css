@@ -1,38 +1,37 @@
 .card {
-  display: flex;
-  width: 100%;
+    display: flex;
+    width: 100%;
 }
 
 .halfCard {
-  padding: 50px;
-  display: flex;
-  width: 50%;
-  flex-direction: column;
-  gap: 30px;
-  background-color: var(--popup-background)
+    padding: 50px;
+    display: flex;
+    width: 50%;
+    flex-direction: column;
+    gap: 30px;
+    background-color: var(--popup-background);
 }
 
 .secondHalf {
-  padding: 50px;
-  display: flex;
-  width: 40%;
-  flex-direction: column;
-  gap: 30px;
-  background-color: var(--popup-background-second);
+    padding: 50px;
+    display: flex;
+    width: 40%;
+    flex-direction: column;
+    gap: 30px;
+    background-color: var(--popup-background-second);
 }
 
-
 @media screen and (max-width: 768px) {
-  .card {
-    flex-direction: column;
-    width: 100%;
-  }
-  .secondHalf {
-    display: flex;
-    width: auto;
-    padding: 15px;
-  }
-  .halfCard {
-    display: none;
-  }
+    .card {
+        flex-direction: column;
+        width: 100%;
+    }
+    .secondHalf {
+        display: flex;
+        width: auto;
+        padding: 15px;
+    }
+    .halfCard {
+        display: none;
+    }
 }

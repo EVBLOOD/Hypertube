@@ -6,15 +6,12 @@
     z-index: 9999;
 }
 
-
 .headerWraper {
     display: flex;
     justify-content: space-between;
     align-items: center;
     text-transform: uppercase;
 }
-
-
 
 .optionsWraper {
     display: flex;
@@ -27,7 +24,6 @@
     justify-content: center;
     align-items: center;
 }
-
 
 .logo {
     color: var(--primary-color);
@@ -54,7 +50,6 @@
 .searchInput input {
     padding: 10px;
 }
-
 
 /* Mobile */
 
@@ -106,5 +101,4 @@
     .headerWraper h2 {
         margin: 10px 0px 10px 0px;
     }
-
 }

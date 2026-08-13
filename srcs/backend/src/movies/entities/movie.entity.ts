@@ -1,30 +1,40 @@
-import { Entity, PrimaryGeneratedColumn, Column, UpdateDateColumn, OneToMany } from 'typeorm';
-import { Subtitle } from './subtitle.entity';
-import { UserMovieProgress } from './user-movie-progress.entity';
+import {
+    Entity,
+    PrimaryGeneratedColumn,
+    Column,
+    UpdateDateColumn,
+    OneToMany,
+} from "typeorm";
+import { Subtitle } from "./subtitle.entity";
+import { UserMovieProgress } from "./user-movie-progress.entity";
+import { UserMovieHistory } from "./user-movie-history.entity";
 
 @Entity()
 export class Movie {
-  @PrimaryGeneratedColumn()
-  id!: number;
+    @PrimaryGeneratedColumn()
+    id!: number;
 
-  @Column({ unique: true })
-  imdbId!: string;
+    @Column({ unique: true })
+    imdbId!: string;
 
-  @Column()
-  title!: string;
+    @Column()
+    title!: string;
 
-  @Column({ nullable: true })
-  filePath!: string; // in the server
+    @Column({ nullable: true })
+    filePath!: string; // in the server
 
-  @UpdateDateColumn()
-  lastWatchedAt!: Date;
+    @UpdateDateColumn()
+    lastWatchedAt!: Date;
 
-  @Column({ default: false })
-  isFullyDownloaded!: boolean;
+    @Column({ default: false })
+    isFullyDownloaded!: boolean;
 
-  @OneToMany(() => Subtitle, (subtitle) => subtitle.movie)
-  subtitles!: Subtitle[];
+    @OneToMany(() => Subtitle, (subtitle) => subtitle.movie)
+    subtitles!: Subtitle[];
 
-  @OneToMany(() => UserMovieProgress, (progress) => progress.movie)
-  userProgress!: UserMovieProgress[];
+    @OneToMany(() => UserMovieProgress, (progress) => progress.movie)
+    userProgress!: UserMovieProgress[];
+
+    @OneToMany(() => UserMovieHistory, (history) => history.movie)
+    userMovieHistories!: UserMovieHistory[];
 }

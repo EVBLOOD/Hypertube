@@ -1,17 +1,17 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
-import { Movie } from './movie.entity';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
+import { Movie } from "./movie.entity";
 
 @Entity()
 export class Subtitle {
-  @PrimaryGeneratedColumn()
-  id!: number;
+    @PrimaryGeneratedColumn()
+    id!: number;
 
-  @Column()
-  language!: string;
+    @Column()
+    language!: string;
 
-  @Column()
-  filePath!: string;
+    @Column()
+    filePath!: string;
 
-  @ManyToOne(() => Movie)
-  movie!: Movie;
+    @ManyToOne(() => Movie)
+    movie!: Movie;
 }

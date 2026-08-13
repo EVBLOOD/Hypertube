@@ -2,7 +2,7 @@
 
 import HeroSectionMovie from "@/app/components/layout/heroSectionMovie";
 import { use, useEffect, useState } from "react";
-import styles from './page.module.css'
+import styles from "./page.module.css";
 import TitleCustom from "@/app/components/ui/titleCustom";
 import DescriptionComponent from "@/app/components/ui/descriptionComponent";
 import ProdictionAuthorCard from "@/app/components/ui/prodictionAuthorCard";
@@ -12,100 +12,125 @@ import { useMovieDetails } from "@/lib/dataHooks/moviesDetails";
 import LoadingPage from "@/app/components/layout/loading";
 import { CommentType } from "@/types/apiTypes";
 import MovieService from "@/lib/services/MovieService";
+import ErrorPage from "@/app/components/layout/error";
+import { AxiosError } from "axios";
 
-
-export default function MoviePage({ params }: { params: Promise<{ id: string }> }) {
-
-    const resolvedParams = use(params)
-    const id = resolvedParams.id
-    const { data, isPending, error } = useMovieDetails(id)
-    const [comments, setComments] = useState<CommentType[]>([])
-    const [wishlisted, setWishlisted] = useState(false)
-    const [reaction, setReaction] = useState<number>(0)
+export default function MoviePage({
+    params,
+}: {
+    params: Promise<{ id: string }>;
+}) {
+    const resolvedParams = use(params);
+    const id = resolvedParams.id;
+    const { data, isPending, error } = useMovieDetails(id);
+    const [comments, setComments] = useState<CommentType[]>([]);
+    const [wishlisted, setWishlisted] = useState(false);
+    const [reaction, setReaction] = useState<number>(0);
 
     const sendComment = async (content: string) => {
         try {
-            const comment = await MovieService.postComment(id, content)
-            const created = comment.data || comment
+            const comment = await MovieService.postComment(id, content);
+            const created = comment.data || comment;
             setComments((current) => {
-                if (current.some((item) => item.id === created.id)) return current
-                return [created, ...current]
-            })
-            return created
+                if (current.some((item) => item.id === created.id))
+                    return current;
+                return [created, ...current];
+            });
+            return created;
         } catch (err) {
-            console.error(err)
+            console.error(err);
         }
-    }
+    };
+
+    const handleLike = async () => {
+        try {
+            await MovieService.setInteraction({
+                queryKey: ["movie", id],
+                interaction: 1,
+            });
+            setReaction(1);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const handleDislike = async () => {
+        try {
+            await MovieService.setInteraction({
+                queryKey: ["movie", id],
+                interaction: 2,
+            });
+            setReaction(2);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const handleWishlist = async () => {
+        try {
+            await MovieService.toggleWishlist(id);
+            setWishlisted((value) => !value);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const handleSubmitComment = async (content: string) => {
+        try {
+            const comment = await sendComment(content);
+            if (comment) {
+                setComments((current) => {
+                    if (current.some((item) => item.id === comment.id))
+                        return current;
+                    return [comment, ...current];
+                });
+                return;
+            }
+
+            const response = await MovieService.postComment(id, content);
+            const created = response.data || response;
+            setComments((current) => {
+                if (current.some((item) => item.id === created.id))
+                    return current;
+                return [created, ...current];
+            });
+        } catch (err) {
+            console.error(err);
+        }
+    };
 
     useEffect(() => {
         const load = async () => {
             try {
-                const commentsResponse = await MovieService.getComments({ queryKey: ['comments', id] })
-                setComments(commentsResponse || [])
+                const commentsResponse = await MovieService.getComments({
+                    queryKey: ["comments", id],
+                });
+                setComments(commentsResponse || []);
+
+                if (data && data.data.personnel) {
+                    setWishlisted(data.data.personnel.isWishlisted);
+                    if (data.data.personnel.liked) setReaction(1);
+                    else if (data.data.personnel.disliked) setReaction(2);
+                    else setReaction(0);
+                }
             } catch (err) {
-                console.error(err)
+                console.error(err);
             }
-        }
+        };
 
-        void load()
-    }, [id])
+        void load();
+    }, [id, data]);
 
-    const handleLike = async () => {
-        try {
-            await MovieService.setInteraction({ queryKey: ['movie', id], interaction: 1 })
-            setReaction(1)
-        } catch (err) {
-            console.error(err)
-        }
+    if (isPending) return <LoadingPage></LoadingPage>;
+    if (!data || error) {
+        const axiosErr = error as AxiosError<any>;
+        const errorMessage =
+            axiosErr.response?.data?.message || "Something went wrong";
+        const errorCode = axiosErr?.response?.status || 404;
+        return <ErrorPage errorCode={errorCode} errorMessage={errorMessage} />;
     }
 
-    const handleDislike = async () => {
-        try {
-            await MovieService.setInteraction({ queryKey: ['movie', id], interaction: 2 })
-            setReaction(2)
-        } catch (err) {
-            console.error(err)
-        }
-    }
-
-    const handleWishlist = async () => {
-        try {
-            await MovieService.toggleWishlist(id)
-            setWishlisted(value => !value)
-        } catch (err) {
-            console.error(err)
-        }
-    }
-
-    const handleSubmitComment = async (content: string) => {
-        try {
-            const comment = await sendComment(content)
-            if (comment) {
-                setComments((current) => {
-                    if (current.some((item) => item.id === comment.id)) return current
-                    return [comment, ...current]
-                })
-                return
-            }
-
-            const response = await MovieService.postComment(id, content)
-            const created = response.data || response
-            setComments((current) => {
-                if (current.some((item) => item.id === created.id)) return current
-                return [created, ...current]
-            })
-        } catch (err) {
-            console.error(err)
-        }
-    }
-
-    if (isPending)
-        return (
-            <LoadingPage></LoadingPage>
-        )
-    if (error) return (
-            <div>Error1..</div>
-        )
+    console.log(data);
 
     return (
         <div>
@@ -118,25 +143,45 @@ export default function MoviePage({ params }: { params: Promise<{ id: string }> 
                 isLiked={reaction === 1}
                 isDisliked={reaction === 2}
             />
-            <div style={{ backgroundColor: '#131313', paddingBottom: '80px' }} >
+            <div style={{ backgroundColor: "#131313", paddingBottom: "80px" }}>
                 <div className="container">
                     <div className={styles.productionWraper}>
                         <div className={styles.productionLogTitleDeco}></div>
-                        <TitleCustom title="PRODUCTION LOGS" nb_color={-2} className={styles.productionLogTitle} />
+                        <TitleCustom
+                            title="PRODUCTION LOGS"
+                            nb_color={-2}
+                            className={styles.productionLogTitle}
+                        />
                     </div>
                     <div className={styles.productionLogElements}>
-                        
-                        <ProdictionAuthorCard overview={"The director behind the Movie"} name={data.data.director} role="Director"/>
-                        {data.data.actors.map((act: any, index: number) => <ProdictionAuthorCard key={index} name={act.name} role="Actor" overview={act.character} />)}
+                        <ProdictionAuthorCard
+                            overview={"The director behind the Movie"}
+                            name={data.data.director}
+                            role="Director"
+                        />
+                        {data.data.actors.map((act: any, index: number) => (
+                            <ProdictionAuthorCard
+                                key={index}
+                                name={act.name}
+                                role="Actor"
+                                overview={act.character}
+                            />
+                        ))}
                     </div>
                 </div>
             </div>
             <div className="container">
-                <TitleCustom className={styles.commentSectionTitle} title="TRANSMISSIONS" nb_color={-1} />
+                <TitleCustom
+                    className={styles.commentSectionTitle}
+                    title="TRANSMISSIONS"
+                    nb_color={-1}
+                />
                 <div className={styles.commentInfos}>
                     <DescriptionComponent text="284 COMMENTS IN THREAD" />
                     <div className={styles.commentInfosFilter}>
-                        <span className={styles.commentSelectedFilter}>LATEST</span>
+                        <span className={styles.commentSelectedFilter}>
+                            LATEST
+                        </span>
                         <span>TOP RATED</span>
                     </div>
                 </div>
@@ -144,11 +189,14 @@ export default function MoviePage({ params }: { params: Promise<{ id: string }> 
                     <CommentInput onSubmit={handleSubmitComment} />
                     <div className={styles.viewCommentSection}>
                         {comments.map((comment) => (
-                            <ViewInteractComment key={comment.id} comment={comment} />
+                            <ViewInteractComment
+                                key={comment.id}
+                                comment={comment}
+                            />
                         ))}
                     </div>
                 </div>
             </div>
         </div>
-    )
+    );
 }

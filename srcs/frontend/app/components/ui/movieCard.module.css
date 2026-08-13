@@ -3,7 +3,6 @@
     cursor: pointer;
 }
 
-
 .cardImage {
     /* width: 160px; */
     height: 240px;
@@ -17,16 +16,13 @@
 }
 
 .seenWrapper {
-    
     display: flex;
     width: 100%;
     justify-content: flex-end;
     font-size: 9;
-
 }
 .seenWrapper img {
-height: 9px;
-
+    height: 9px;
 }
 .wasSeen {
     /* font-size: 9; */
@@ -53,7 +49,6 @@ height: 9px;
     width: fit-content;
     height: fit-content;
     font-weight: light;
-
 }
 
 .titleRatingWraper {

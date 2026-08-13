@@ -1,38 +1,37 @@
 :root {
-  --primary-color: #FFD700;
-  --secondry-color: #1A1A1A;
-  --third-color: #E50914;
-  --neutral-color: #0B0B0B;
-  --headline-font: var(--font-space-grotesk), sans-serif;
-  --body-font: var(--font-manrope), sans-serif;
-  --label-font: var(--font-space-grotesk), sans-serif;
-  --font-color-white: #E5E2E1;
+    --primary-color: #ffd700;
+    --secondry-color: #1a1a1a;
+    --third-color: #e50914;
+    --neutral-color: #0b0b0b;
+    --headline-font: var(--font-space-grotesk), sans-serif;
+    --body-font: var(--font-manrope), sans-serif;
+    --label-font: var(--font-space-grotesk), sans-serif;
+    --font-color-white: #e5e2e1;
 
-  --popup-background: var(--secondry-color);
-  --popup-background-second: #3A3939;
+    --popup-background: var(--secondry-color);
+    --popup-background-second: #3a3939;
 
-  --breakpoint-md: 768px;
-  --breakpoint-lg: 1024px;
+    --breakpoint-md: 768px;
+    --breakpoint-lg: 1024px;
 
-  font-family: var(--body-font);
+    font-family: var(--body-font);
 }
 
 body {
-  margin: 0px;
-  font-family: var(--body-font);
-  background-color: var(--neutral-color);
-  color: var(--font-color-white);
+    margin: 0px;
+    font-family: var(--body-font);
+    background-color: var(--neutral-color);
+    color: var(--font-color-white);
 }
 
 .container {
-  max-width: 1390px;
-  margin: 0 auto;
-  padding: 0 20px;
+    max-width: 1390px;
+    margin: 0 auto;
+    padding: 0 20px;
 }
 
-
 @media screen and (max-width: 768px) {
-  .container {
-    padding: 15px;
-  }
+    .container {
+        padding: 15px;
+    }
 }

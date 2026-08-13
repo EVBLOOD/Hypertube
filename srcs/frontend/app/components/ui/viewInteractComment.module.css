@@ -2,9 +2,8 @@
     display: flex;
     justify-content: flex-start;
     align-items: flex-start;
-    gap: 15px;   
+    gap: 15px;
 }
-
 
 .commentViewingAvatar {
     height: 48px;
@@ -24,7 +23,6 @@
 }
 
 .textCommentView {
-
 }
 
 .commentIntersction {

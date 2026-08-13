@@ -113,9 +113,9 @@
         "my_vault": "My Vault",
         "sign_in": "SIGN IN",
         "sign_out": "SIGN OUT"
-    }
+    },
 
-    ,"Watch": {
+    "Watch": {
         "start_button": "Start WatchTogether",
         "invite_copied": "Invite link copied to clipboard.",
         "create_error": "Failed to create room.",

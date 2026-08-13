@@ -1,22 +1,27 @@
-import { Movie } from 'src/movies/entities/movie.entity';
-import { User } from 'src/users/entities/user.entity';
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn } from 'typeorm';
-
+import { Movie } from "src/movies/entities/movie.entity";
+import { User } from "src/users/entities/user.entity";
+import {
+    Entity,
+    PrimaryGeneratedColumn,
+    Column,
+    ManyToOne,
+    CreateDateColumn,
+} from "typeorm";
 
 @Entity()
 export class Comment {
-  @PrimaryGeneratedColumn()
-  id!: number;
+    @PrimaryGeneratedColumn()
+    id!: number;
 
-  @Column('text')
-  content!: string;
+    @Column("text")
+    content!: string;
 
-  @CreateDateColumn()
-  createdAt!: Date;
+    @CreateDateColumn()
+    createdAt!: Date;
 
-  @ManyToOne(() => User, (user) => user.comments, { onDelete: 'CASCADE' })
-  user!: User;
+    @ManyToOne(() => User, (user) => user.comments, { onDelete: "CASCADE" })
+    user!: User;
 
-  @ManyToOne(() => Movie, { onDelete: 'CASCADE' })
-  movie!: Movie;
+    @ManyToOne(() => Movie, { onDelete: "CASCADE" })
+    movie!: Movie;
 }

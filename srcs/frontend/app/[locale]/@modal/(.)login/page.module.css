@@ -1,36 +1,33 @@
 .buttonSpace {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
-
 .loginInfos {
-  display: flex;
-  flex-direction: column;
-  /* width: 80%; */
-  gap: 25px;
+    display: flex;
+    flex-direction: column;
+    /* width: 80%; */
+    gap: 25px;
 }
 
 .recoverPassword {
-  display: flex;
-  flex-direction: row-reverse;
-  margin-top: -30px;
-  color: color-mix(in srgb, var(--primary-color), transparent 70%);
+    display: flex;
+    flex-direction: row-reverse;
+    margin-top: -30px;
+    color: color-mix(in srgb, var(--primary-color), transparent 70%);
 }
 
 .extraQs {
-  margin-top: 2px;
-  display: flex;
-  gap: 13px;
-  justify-content: center;
-  color: #D0C6AB;
-
+    margin-top: 2px;
+    display: flex;
+    gap: 13px;
+    justify-content: center;
+    color: #d0c6ab;
 }
 .extraQs a {
-  color: var(--font-color-white);
+    color: var(--font-color-white);
 }
 
 @media screen and (max-width: 768px) {
-  
 }

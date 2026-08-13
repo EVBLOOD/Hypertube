@@ -1,34 +1,34 @@
-'use client';
+"use client";
 
-import TitleCustom from '@/app/components/ui/titleCustom';
-import styles from './page.module.css'
-import InputCustom from '@/app/components/ui/inputCustom';
-import RecordComponent from '@/app/components/ui/recordComponent';
-import ButtonCustom from '@/app/components/ui/buttonCustom';
+import TitleCustom from "@/app/components/ui/titleCustom";
+import styles from "./page.module.css";
+import InputCustom from "@/app/components/ui/inputCustom";
+import RecordComponent from "@/app/components/ui/recordComponent";
+import ButtonCustom from "@/app/components/ui/buttonCustom";
 
-import Modal from '@/app/components/layout/modal';
-import PopupCard from '@/app/components/layout/popupCard';
-import Link from 'next/link';
-import { useTranslations } from 'next-intl';
-import { useEffect, useRef, useState } from 'react';
-import AuthService from '@/lib/services/AuthService';
+import Modal from "@/app/components/layout/modal";
+import PopupCard from "@/app/components/layout/popupCard";
+import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { useEffect, useRef, useState } from "react";
+import AuthService from "@/lib/services/AuthService";
 
 export default function Register() {
-    const Register = useTranslations('Register')
+    const Register = useTranslations("Register");
 
-    const firstnameRef = useRef<HTMLInputElement>(null)
-    const lastnameRef = useRef<HTMLInputElement>(null)
-    const usernameRef = useRef<HTMLInputElement>(null)
-    const emailRef = useRef<HTMLInputElement>(null)
-    const passwordRef = useRef<HTMLInputElement>(null)
+    const firstnameRef = useRef<HTMLInputElement>(null);
+    const lastnameRef = useRef<HTMLInputElement>(null);
+    const usernameRef = useRef<HTMLInputElement>(null);
+    const emailRef = useRef<HTMLInputElement>(null);
+    const passwordRef = useRef<HTMLInputElement>(null);
 
     const [width, setWidth] = useState(window.innerWidth);
 
     useEffect(() => {
         const handleResize = () => setWidth(window.innerWidth);
-        window.addEventListener('resize', handleResize);
+        window.addEventListener("resize", handleResize);
 
-        return () => window.removeEventListener('resize', handleResize);
+        return () => window.removeEventListener("resize", handleResize);
     }, []);
 
     async function handelRegister() {
@@ -38,15 +38,21 @@ export default function Register() {
         const email = emailRef.current?.value;
         const password = passwordRef.current?.value;
 
-        console.log(firstname, lastname, username, email, password)
-        
-        if (!firstname || !lastname || !username || !email || !password) return
-        
+        console.log(firstname, lastname, username, email, password);
+
+        if (!firstname || !lastname || !username || !email || !password) return;
+
         try {
-            const result = await AuthService.register({ firstName: firstname, lastName: lastname, username, email, password })
-            console.log(result)
+            const result = await AuthService.register({
+                firstName: firstname,
+                lastName: lastname,
+                username,
+                email,
+                password,
+            });
+            console.log(result);
         } catch (err) {
-            console.debug(err)
+            console.debug(err);
         }
     }
     return (
@@ -54,25 +60,48 @@ export default function Register() {
             <PopupCard
                 childrenHelfCard={
                     <>
-                        <RecordComponent recText='' />
-                        <TitleCustom nb_color={2} title={Register('title')} className={styles.titleRegister} />
-                        <span>
-                            {Register('description')}
-                        </span>
+                        <RecordComponent recText="" />
+                        <TitleCustom
+                            nb_color={2}
+                            title={Register("title")}
+                            className={styles.titleRegister}
+                        />
+                        <span>{Register("description")}</span>
                     </>
                 }
                 widthchildrenHelfCard={35}
-                widthchildrenSecondHelfCard={ width >= 768 ? 65 : undefined }
+                widthchildrenSecondHelfCard={width >= 768 ? 65 : undefined}
                 childrenSecondHelfCard={
                     <>
                         <div className={styles.registerInfos}>
                             <div className={styles.registerFullName}>
-                                <InputCustom ref={firstnameRef} lableName={Register('label_first_name')} placeHolder={Register('holder_first_name')} />
-                                <InputCustom ref={lastnameRef} lableName={Register('label_last_name')} placeHolder={Register('holder_last_name')} />
+                                <InputCustom
+                                    ref={firstnameRef}
+                                    lableName={Register("label_first_name")}
+                                    placeHolder={Register("holder_first_name")}
+                                />
+                                <InputCustom
+                                    ref={lastnameRef}
+                                    lableName={Register("label_last_name")}
+                                    placeHolder={Register("holder_last_name")}
+                                />
                             </div>
-                            <InputCustom ref={usernameRef} lableName={Register('label_user_name')} placeHolder={Register('holder_user_name')} />
-                            <InputCustom ref={emailRef} lableName={Register('label_address')} placeHolder={Register('holder_address')} />
-                            <InputCustom ref={passwordRef} lableName={Register('label_pass')} placeHolder='••••••••••' typeInput='password' />
+                            <InputCustom
+                                ref={usernameRef}
+                                lableName={Register("label_user_name")}
+                                placeHolder={Register("holder_user_name")}
+                            />
+                            <InputCustom
+                                ref={emailRef}
+                                lableName={Register("label_address")}
+                                placeHolder={Register("holder_address")}
+                            />
+                            <InputCustom
+                                ref={passwordRef}
+                                lableName={Register("label_pass")}
+                                placeHolder="••••••••••"
+                                typeInput="password"
+                            />
                             <div className={styles.passwordStringthContainer}>
                                 <div className={styles.passwordStringth}>
                                     <div></div>
@@ -84,12 +113,18 @@ export default function Register() {
                             </div>
                         </div>
 
-
                         <div>
-                            <ButtonCustom onClick={handelRegister} textButton='INITIALIZE SESSION' buttonImage={undefined} color="primary" />
+                            <ButtonCustom
+                                onClick={handelRegister}
+                                textButton="INITIALIZE SESSION"
+                                buttonImage={undefined}
+                                color="primary"
+                            />
                             <div className={styles.extraQs}>
-                                {Register('ye_account')}
-                                <Link href='/login'>{Register('access_account')}</Link>
+                                {Register("ye_account")}
+                                <Link href="/login">
+                                    {Register("access_account")}
+                                </Link>
                             </div>
                         </div>
                     </>

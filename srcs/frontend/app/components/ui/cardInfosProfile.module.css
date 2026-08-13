@@ -5,13 +5,12 @@
     justify-content: flex-start;
     padding: 32px;
     background-color: var(--primary-color);
-    color: #1C1B1B;
+    color: #1c1b1b;
 }
 
 .cardInfos p {
-    color: #1C1B1B;
+    color: #1c1b1b;
     font-size: small;
-
 }
 
 .cardTitle {

@@ -1,11 +1,19 @@
-'use client';
+"use client";
 
-import styles from './descriptionComponent.module.css'
+import styles from "./descriptionComponent.module.css";
 
-export default function DescriptionComponent({text, className}: {text: string, className?: string}) {
+export default function DescriptionComponent({
+    text,
+    className,
+}: {
+    text: string;
+    className?: string;
+}) {
     return (
-    <p className={`${styles.traningDescriptionElement} ${className ? className : ''}`}>
-        {text}
-    </p>
-    )
+        <p
+            className={`${styles.traningDescriptionElement} ${className ? className : ""}`}
+        >
+            {text}
+        </p>
+    );
 }

@@ -1,13 +1,13 @@
 .infoScene {
-  display: flex;
-  align-items: center;
-  gap: 5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 .firstWord {
-  color: var(--primary-color);
+    color: var(--primary-color);
 }
 .lineSep {
-  width: 50%;
-  height: 1px;
-  background-color: var(--font-color-white);
+    width: 50%;
+    height: 1px;
+    background-color: var(--font-color-white);
 }
