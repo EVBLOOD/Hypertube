@@ -1,7 +1,7 @@
 "use client";
 
 import styles from "./modal.module.css";
-import { redirect, usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { ReactNode, useEffect } from "react";
 
 export default function Modal({ children }: { children: ReactNode }) {
@@ -11,9 +11,20 @@ export default function Modal({ children }: { children: ReactNode }) {
         pathname.includes("/login") || pathname.includes("/register");
 
     useEffect(() => {
-        if (!isAuthRoute) {
+        const currentPath = sessionStorage.getItem("currentPath");
+        const isPrevPathAuthRoute =
+            currentPath?.includes("/login") || currentPath?.includes("/register");
+
+            console.log("perv Path:", currentPath);
+        console.log("isPrevPathAuthRoute:", isPrevPathAuthRoute);
+        console.log("isAuthRoute:", isAuthRoute);
+
+        if (!isAuthRoute && isPrevPathAuthRoute) {
+            console.log("Not an auth route, navigating back");
             router.replace("/");
         }
+
+        sessionStorage.setItem("currentPath", pathname);
     }, [isAuthRoute, pathname, router]);
 
     if (!isAuthRoute) {
@@ -23,7 +34,7 @@ export default function Modal({ children }: { children: ReactNode }) {
     return (
         <div className={styles.popup} onClick={() => router.back()}>
             <div
-                className={styles.popupDiv}
+                // className={styles.popupDiv}
                 onClick={(e) => e.stopPropagation()}
             >
                 {children}

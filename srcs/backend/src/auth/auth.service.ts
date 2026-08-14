@@ -6,7 +6,7 @@ import { MailsService } from "src/mails/mails.service";
 import { User } from "src/users/entities/user.entity";
 import { Repository } from "typeorm";
 import { v4 as uuidv4 } from "uuid";
-import { RegisterDto } from "./dto/register.dto";
+import { RegisterDto, RegisterWithOauthDto } from "./dto/register.dto";
 import { verify } from "argon2";
 
 @Injectable()
@@ -36,6 +36,25 @@ export class AuthService {
         await this.mailService.sendVerificationEmail(user, verificationToken);
         return {
             message: "Registration successful. Check your email to verify.",
+        };
+    }
+
+    async registerWithOauth(dto: RegisterWithOauthDto) {
+        const exists = await this.userRepo.findOne({
+            where: [{ email: dto.email }, { username: dto.username }],
+        });
+        if (exists) throw new BadRequestException("User already exists");
+
+
+        const user = this.userRepo.create({
+            ...dto,
+            isVerified: true,
+        });
+
+        const result = await this.userRepo.save(user);
+
+        return {
+           id: result.id,
         };
     }
 

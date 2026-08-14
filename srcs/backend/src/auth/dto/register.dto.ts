@@ -9,11 +9,11 @@ import {
 export class RegisterDto {
     @IsString()
     @IsNotEmpty()
-    username: string;
+    username!: string;
 
     @IsEmail()
     @IsNotEmpty()
-    email: string;
+    email!: string;
 
     @IsString()
     @MinLength(8, { message: "Password must be at least 8 characters" })
@@ -21,13 +21,22 @@ export class RegisterDto {
         message:
             "Password too weak: requires uppercase, lowercase, and a number/special char",
     })
-    password: string;
+    password!: string;
 
     @IsString()
     @IsNotEmpty()
-    firstName: string;
+    firstName!: string;
 
     @IsString()
     @IsNotEmpty()
-    lastName: string;
+    lastName!: string;
+}
+
+export class RegisterWithOauthDto extends RegisterDto {
+    @IsString()
+    @IsNotEmpty()
+    fortyTwoId!: string;
+
+    @IsString()
+    profilePicture!: string;
 }

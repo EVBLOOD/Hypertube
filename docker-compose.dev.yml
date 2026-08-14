@@ -24,8 +24,9 @@ services:
       - hypertube
     depends_on:
       - back
-    env_file:
-      - .env.dev
+    environment:
+      - NEXT_PUBLIC_BACK_API_URL=${PUBLIC_API_URL}
+      - PORT=${PORT}
 
   back:
     build: setup/backend
@@ -46,6 +47,10 @@ services:
       - database
     env_file:
       - .env.dev
+    environment:
+      - FORTY_TWO_CLIENT_ID=${FORTY_TWO_CLIENT_ID}
+      - FORTY_TWO_CLIENT_SECRET=${FORTY_TWO_CLIENT_SECRET}
+      - FORTY_TWO_CALL_BACK=${FORTY_TWO_CALL_BACK}
 
   database:
     image: postgres
@@ -73,8 +78,8 @@ services:
     networks:
       - hypertube
     depends_on:
-      - back
       - front
+      - back
 
   redis:
     image: redis:latest

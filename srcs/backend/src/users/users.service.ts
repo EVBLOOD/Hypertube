@@ -39,6 +39,10 @@ export class UsersService {
         return user;
     }
 
+    findbyEmail(email: string): Promise<User | null> {
+        return this.userRepo.findOne({ where: { email } });
+    }
+
     async update(id: number, dto: UpdateUserDto): Promise<User> {
         const user = await this.userRepo.findOne({ where: { id } });
         if (!user) throw new NotFoundException("User not found");

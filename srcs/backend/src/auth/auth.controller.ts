@@ -19,7 +19,7 @@ import type { Response } from "express";
 
 @Controller("auth")
 export class AuthController {
-    constructor(private authService: AuthService) {}
+    constructor(private authService: AuthService) { }
 
     @Post("register")
     register(@Body() dto: RegisterDto) {
@@ -38,6 +38,31 @@ export class AuthController {
             path: "/",
         });
         return { token, user: req.user };
+    }
+
+    @Get("login/42")
+    @UseGuards(AuthGuard("42"))
+    async login42() {
+        return { message: "Redirecting to 42 login page..." };
+    }
+
+    @Get("login/42/callback")
+    @UseGuards(AuthGuard("42"))
+    async login42Callback(@Request() req, @Res() res: Response) {
+        console.log("42 Callback User:", req.user);
+        if (!req.user) {
+            return { message: "User not found" };
+        }
+        const token = (await this.authService.login(req.user)).access_token;
+        res.cookie("AUTH_TOKEN", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
+            path: "/",
+        });
+
+        res.redirect(`${process.env.FRONTEND_URL}/auth/callback`);
     }
 
     @Get("verify/:token")
@@ -61,7 +86,7 @@ export class AuthController {
             sameSite: "lax",
             path: "/",
         });
-        // res.clearCooki
+
         return { message: "Logged out successfully" };
     }
 }

@@ -115,9 +115,25 @@ export default function ProfilePage() {
                                     lableName="Director Alias"
                                 ></InputCustom>
                                 <InputCustom
+                                    ref={userNameRef}
+                                    placeHolder={"John"}
+                                    lableName="Director first name"
+                                ></InputCustom>
+                                <InputCustom
+                                    ref={userNameRef}
+                                    placeHolder={"Doe"}
+                                    lableName="Director last name"
+                                ></InputCustom>
+                                <InputCustom
                                     ref={userEmailRef}
                                     placeHolder={"email@example.com"}
                                     lableName="Secure Email"
+                                ></InputCustom>
+                                <InputCustom
+                                    ref={userEmailRef}
+                                    typeInput="password"
+                                    placeHolder={"********"}
+                                    lableName="Secure Password"
                                 ></InputCustom>
                             </div>
                         </div>

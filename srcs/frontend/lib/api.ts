@@ -2,7 +2,7 @@ import axios, { AxiosError } from "axios";
 import { redirect } from "next/navigation";
 
 const api = axios.create({
-    baseURL: process.env.PUBLIC_API_URL || "http://localhost:8081/api/",
+    baseURL: process.env.NEXT_PUBLIC_BACK_API_URL || "",
     withCredentials: true,
     headers: {
         "Content-Type": "application/json",

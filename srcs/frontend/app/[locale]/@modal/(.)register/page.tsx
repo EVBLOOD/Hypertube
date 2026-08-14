@@ -109,7 +109,7 @@ export default function Register() {
                         <span>{Register("description")}</span>
                     </>
                 }
-                widthchildrenHelfCard={35}
+                // widthchildrenHelfCard={35}
                 widthchildrenSecondHelfCard={width >= 768 ? 65 : undefined}
                 childrenSecondHelfCard={
                     <>

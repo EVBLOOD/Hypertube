@@ -24,6 +24,53 @@ export default function Login() {
     const emailRef = useRef<HTMLInputElement>(null);
     const passwordRef = useRef<HTMLInputElement>(null);
 
+
+    const handleLogin42 = () => {
+        const backendUrl = process.env.NEXT_PUBLIC_BACK_API_URL || "";
+
+        const targetOrigin = new URL(backendUrl).origin;
+
+        const childWindow = window.open(
+            `${backendUrl}/auth/login/42`,
+            "_blank",
+            "width=500,height=600"
+        );
+
+        const messageListener = (event: MessageEvent) => {
+            if (event.origin !== targetOrigin) return;
+            console.log("Received message:", event.data);
+
+            if (event.data?.type === "login_success") {
+                console.log("User data:", event.data);
+
+                useUserStore.getState().userLogged({
+                    username: event.data.username,
+                    language: event.data.preferredLanguage,
+                    avatar: event.data.profilePicture,
+                    isPublic: event.data.isPublic,
+                });
+
+                cleanup();
+                childWindow?.close();
+                router.push("/");
+                console.log("Login successful:", event.data);
+            }
+        };
+
+        const cleanup = () => {
+            window.removeEventListener("message", messageListener);
+            clearInterval(checkClosedInterval);
+        };
+
+        window.addEventListener("message", messageListener);
+
+        const checkClosedInterval = setInterval(() => {
+            if (childWindow?.closed) {
+                cleanup();
+            }
+        }, 1000);
+    };
+
     async function handelLogin() {
         const email = emailRef.current?.value;
         const password = passwordRef.current?.value;
@@ -87,10 +134,14 @@ export default function Login() {
                             <ButtonCustom
                                 textButton={Login.raw("integrations")[0]}
                                 buttonImage="/costumIcons/42icon.svg"
+                                onClick={handleLogin42}
+                                style={{display: 'flex', justifyContent: 'start', alignItems: 'center', paddingLeft: '10px'}}
                             ></ButtonCustom>
                             <ButtonCustom
                                 textButton={Login.raw("integrations")[1]}
                                 buttonImage="/costumIcons/42icon.svg"
+                                onClick={handleLogin42}
+                                style={{display: 'flex', justifyContent: 'start', alignItems: 'center', paddingLeft: '10px'}}
                             ></ButtonCustom>
                         </div>
                     </>

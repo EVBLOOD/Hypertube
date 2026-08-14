@@ -1,6 +1,14 @@
 .card {
-    display: flex;
     width: 100%;
+    justify-content: center;
+    display: flex;
+}
+
+.cardinner {
+    display: flex;
+    width: 80%;
+    /* justify-content: center;
+    align-items: center; */
 }
 
 .halfCard {

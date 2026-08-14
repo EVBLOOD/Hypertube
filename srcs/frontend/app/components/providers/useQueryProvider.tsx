@@ -21,6 +21,7 @@ export default function UseQueryProvider({
             new QueryClient({
                 queryCache: new QueryCache({
                     onError: (error: any) => {
+                        console.log("Query error:", error);
                         const status = error?.response?.status;
                         if (status === 401) {
                             router.push("/login");
@@ -30,6 +31,7 @@ export default function UseQueryProvider({
 
                 mutationCache: new MutationCache({
                     onError: (error: any) => {
+                        console.log("Mutation error:", error);
                         const status = error?.response?.status;
                         if (status === 401) {
                             router.push("/login");
@@ -40,6 +42,7 @@ export default function UseQueryProvider({
                 defaultOptions: {
                     queries: {
                         retry: (failureCount, error: any) => {
+                            console.log("Query error:", error);
                             if (error?.response?.status === 401) return false;
                             return failureCount < 3;
                         },

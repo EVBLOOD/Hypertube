@@ -8,6 +8,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { User } from "src/users/entities/user.entity";
 import { MailModule } from "src/mails/mails.module";
 import { LocalStrategy } from "./strategies/local.strategy";
+import { FortyTwoStrategy } from "./strategies/42.strategy";
 
 @Module({
     imports: [
@@ -21,8 +22,9 @@ import { LocalStrategy } from "./strategies/local.strategy";
                 expiresIn: "1h",
             },
         }),
+        // FortyTwoStrategy,
     ],
     controllers: [AuthController],
-    providers: [AuthService, JwtStrategy, LocalStrategy],
+    providers: [AuthService, JwtStrategy, LocalStrategy, FortyTwoStrategy],
 })
 export class AuthModule {}
