@@ -1,16 +1,18 @@
-'use client';
+"use client";
 
-import LoadingPage from '@/app/components/layout/loading';
-import AuthService from '@/lib/services/AuthService';
-import { useUserStore } from '@/stores/user';
-import { useEffect } from 'react';
+import LoadingPage from "@/app/components/layout/loading";
+import AuthService from "@/lib/services/AuthService";
+import { useUserStore } from "@/stores/user";
+import { useEffect } from "react";
 
 export default function AuthCallbackPage() {
     useEffect(() => {
         const finishAuth = async () => {
             try {
-
-                const token = document.cookie.split('; ').find(row => row.startsWith('AUTH_TOKEN='))?.split('=')[1];
+                const token = document.cookie
+                    .split("; ")
+                    .find((row) => row.startsWith("AUTH_TOKEN="))
+                    ?.split("=")[1];
                 let user = null;
 
                 if (token) {
@@ -29,12 +31,12 @@ export default function AuthCallbackPage() {
 
                 if (window.opener) {
                     window.opener.postMessage(
-                        { type: 'login_success', user },
-                        window.location.origin
+                        { type: "login_success", user },
+                        window.location.origin,
                     );
                 }
             } catch (error) {
-                console.error('Error during auth callback:', error);
+                console.error("Error during auth callback:", error);
             } finally {
                 window.close();
             }
@@ -43,7 +45,5 @@ export default function AuthCallbackPage() {
         finishAuth();
     }, []);
 
-    return (
-        <LoadingPage />
-    );
+    return <LoadingPage />;
 }

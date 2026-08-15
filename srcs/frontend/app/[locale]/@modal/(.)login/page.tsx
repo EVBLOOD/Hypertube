@@ -24,7 +24,6 @@ export default function Login() {
     const emailRef = useRef<HTMLInputElement>(null);
     const passwordRef = useRef<HTMLInputElement>(null);
 
-
     const handleLogin42 = () => {
         const backendUrl = process.env.NEXT_PUBLIC_BACK_API_URL || "";
 
@@ -33,7 +32,7 @@ export default function Login() {
         const childWindow = window.open(
             `${backendUrl}/auth/login/42`,
             "_blank",
-            "width=500,height=600"
+            "width=500,height=600",
         );
 
         const messageListener = (event: MessageEvent) => {
@@ -135,13 +134,23 @@ export default function Login() {
                                 textButton={Login.raw("integrations")[0]}
                                 buttonImage="/costumIcons/42icon.svg"
                                 onClick={handleLogin42}
-                                style={{display: 'flex', justifyContent: 'start', alignItems: 'center', paddingLeft: '10px'}}
+                                style={{
+                                    display: "flex",
+                                    justifyContent: "start",
+                                    alignItems: "center",
+                                    paddingLeft: "10px",
+                                }}
                             ></ButtonCustom>
                             <ButtonCustom
                                 textButton={Login.raw("integrations")[1]}
                                 buttonImage="/costumIcons/42icon.svg"
                                 onClick={handleLogin42}
-                                style={{display: 'flex', justifyContent: 'start', alignItems: 'center', paddingLeft: '10px'}}
+                                style={{
+                                    display: "flex",
+                                    justifyContent: "start",
+                                    alignItems: "center",
+                                    paddingLeft: "10px",
+                                }}
                             ></ButtonCustom>
                         </div>
                     </>
@@ -165,9 +174,13 @@ export default function Login() {
                                 placeHolder="••••••••••"
                                 typeInput="password"
                             />
-                            <div className={styles.recoverPassword}>
-                                <p>{Login("forgot_pass")}</p>
-                            </div>
+                            <Link
+                                className={styles.recoverPassword}
+                                style={{ color: "none" }}
+                                href="/reset-password-email"
+                            >
+                                {Login("forgot_pass")}
+                            </Link>
                         </div>
                         <div>
                             <ButtonCustom

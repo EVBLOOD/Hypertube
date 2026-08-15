@@ -96,4 +96,20 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     async lenZSet(key: string) {
         return this.client.ZCARD(key);
     }
+
+    async getKeysByPattern(pattern: string): Promise<string[]> {
+        const keys: string[] = [];
+        let cursor = "0";
+
+        do {
+            const { cursor: newCursor, keys: foundKeys } =
+                await this.client.scan(cursor, {
+                    MATCH: pattern,
+                    COUNT: 100,
+                });
+            cursor = newCursor;
+            keys.push(...foundKeys);
+        } while (cursor !== "0");
+        return keys;
+    }
 }

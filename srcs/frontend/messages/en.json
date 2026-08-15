@@ -68,10 +68,7 @@
             }
         ],
         "integration": "Integrate with secure providers",
-        "integrations": [
-            "CONTINUE WITH 42 NETWORK",
-            "CONTINUE WITH GITHUB"
-        ],
+        "integrations": ["CONTINUE WITH 42 NETWORK", "CONTINUE WITH GITHUB"],
         "second_title": "IDENTIFICATION",
         "second_discreption": "Please provide credentials to enter the vault.",
         "label_address": "EMAIL_ADDRESS",
@@ -102,6 +99,22 @@
         "holder_user_name": "UNIQUE_NAME",
         "label_address": "EMAIL_ADDRESS",
         "holder_address": "USER@DOMAIN.COM",
+        "label_pass": "PASS_CODE",
+        "ye_account": "ALREADY REGISTERED?",
+        "access_account": "ACCESS VAULT"
+    },
+    "ResetPasswordEmail": {
+        "title": "SCENE 03: ROUGH CUT: - RESET PASSWORD",
+        "description": "Access the world's most comprehensive vault of cinematic high-definition content. Create account to clap action.",
+        "label_address": "EMAIL_ADDRESS",
+        "holder_address": "USER@DOMAIN.COM",
+        "label_pass": "PASS_CODE",
+        "ye_account": "ALREADY REGISTERED?",
+        "access_account": "ACCESS VAULT"
+    },
+    "ResetPassword": {
+        "title": "SCENE 02: ONBOARDING - CREATE ACCOUNT",
+        "description": "Access the world's most comprehensive vault of cinematic high-definition content. Create account to clap action.",
         "label_pass": "PASS_CODE",
         "ye_account": "ALREADY REGISTERED?",
         "access_account": "ACCESS VAULT"

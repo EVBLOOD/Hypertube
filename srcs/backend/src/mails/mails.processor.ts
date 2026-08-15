@@ -19,7 +19,7 @@ export class MailProcessor {
                 template: "./verification",
                 context: {
                     name: job.data.username,
-                    url: `${process.env.FRONTEND_URL}/verify?token=${job.data.token}`,
+                    url: `${process.env.PUBLIC_API_URL}/auth/verify/${job.data.token}`,
                 },
             });
         } catch (error: any) {
@@ -29,15 +29,55 @@ export class MailProcessor {
 
     @Process("reset-password")
     async handleResetPassword(job: Job) {
-        this.logger.log(`Sending verification email to ${job.data.email}...`);
+        this.logger.log(`Sending reset password email to ${job.data.email}...`);
         try {
             await this.mailerService.sendMail({
                 to: job.data.email,
-                subject: "🎬 Action! Verify your Hypertube account",
-                template: "./verification",
+                subject: "🎬 Action! Reset your Hypertube password",
+                template: "./reset-password",
                 context: {
                     name: job.data.username,
-                    url: `${process.env.FRONTEND_URL}/verify?token=${job.data.token}`,
+                    url: `${process.env.FRONTEND_URL}/reset-password?token=${job.data.token}`,
+                },
+            });
+        } catch (error: any) {
+            this.logger.error(`Failed to send email: ${error.message}`);
+        }
+    }
+
+    @Process("email-change-verification")
+    async handleEmailChangeVerification(job: Job) {
+        this.logger.log(
+            `Sending email change verification to ${job.data.email}...`,
+        );
+        try {
+            await this.mailerService.sendMail({
+                to: job.data.email,
+                subject: "🎬 Action! Verify your new email for Hypertube",
+                template: "./email-change-verification",
+                context: {
+                    name: job.data.username,
+                    url: `${process.env.PUBLIC_API_URL}/auth/verify-email-change/${job.data.token}`,
+                },
+            });
+        } catch (error: any) {
+            this.logger.error(`Failed to send email: ${error.message}`);
+        }
+    }
+
+    @Process("password-change-verification")
+    async handlePasswordChangeVerification(job: Job) {
+        this.logger.log(
+            `Sending password change verification to ${job.data.email}...`,
+        );
+        try {
+            await this.mailerService.sendMail({
+                to: job.data.email,
+                subject: "🎬 Action! Verify your new password for Hypertube",
+                template: "./password-change-verification",
+                context: {
+                    name: job.data.username,
+                    url: `${process.env.PUBLIC_API_URL}/auth/change-password/${job.data.token}`,
                 },
             });
         } catch (error: any) {

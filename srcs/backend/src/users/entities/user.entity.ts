@@ -79,15 +79,4 @@ export class User {
             this.password = await argon2.hash(this.password);
         }
     }
-
-    // @BeforeInsert()
-    // async emailVerificationTokenToSend() {
-    //   if (this.password) {
-    //     const verificationToken = uuidv4();
-    //     this.emailVerificationToken = verificationToken;
-    //     // I'll need this here and I'm not sure if best practice so for now I'll just use the service
-    //     // await this.mailService.sendVerificationEmail(user, verificationToken);
-
-    //   }
-    // }
 }

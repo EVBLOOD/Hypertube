@@ -16,10 +16,12 @@ import { AuthGuard } from "@nestjs/passport";
 import { JwtAuthGuard } from "./guards/jwt-auth.guard";
 import { WhitelistGuard } from "./guards/whitelist.guard";
 import type { Response } from "express";
+import { VerifiedGuard } from "./guards/verified.guard";
+import { ResetPasswordDto } from "./dto/reset-password.dto";
 
 @Controller("auth")
 export class AuthController {
-    constructor(private authService: AuthService) { }
+    constructor(private authService: AuthService) {}
 
     @Post("register")
     register(@Body() dto: RegisterDto) {
@@ -38,6 +40,16 @@ export class AuthController {
             path: "/",
         });
         return { token, user: req.user };
+    }
+
+    @Post("request-reset-password")
+    async requestResetPassword(@Body() body: { email: string }) {
+        return this.authService.requestResetPassword(body.email);
+    }
+
+    @Post("reset-password")
+    async resetPassword(@Body() dto: ResetPasswordDto) {
+        return this.authService.resetPassword(dto.token, dto.newPassword);
     }
 
     @Get("login/42")
@@ -66,8 +78,52 @@ export class AuthController {
     }
 
     @Get("verify/:token")
-    verify(@Param("token") token: string) {
-        return this.authService.verifyEmail(token);
+    async verify(@Param("token") token: string, @Res() res: Response) {
+        const result = await this.authService.verifyEmail(token);
+        if (result.message === "Email verified successfully") {
+            res.redirect(`${process.env.FRONTEND_URL}?verify=success`);
+        } else {
+            res.redirect(`${process.env.FRONTEND_URL}?verify=failed`);
+        }
+        return result;
+    }
+
+    @UseGuards(JwtAuthGuard, VerifiedGuard)
+    @Get("verify-email-change/:token")
+    async verifyEmailChange(
+        @Param("token") token: string,
+        @Req() req,
+        @Res() res: Response,
+    ) {
+        const result = await this.authService.verifyEmailChange(
+            token,
+            req.user.id,
+        );
+        if (result.message === "Email change verified successfully") {
+            res.redirect(`${process.env.FRONTEND_URL}?emailChange=success`);
+        } else {
+            res.redirect(`${process.env.FRONTEND_URL}?emailChange=failed`);
+        }
+        return result;
+    }
+
+    @UseGuards(JwtAuthGuard, VerifiedGuard)
+    @Get("change-password/:token")
+    async changePassword(
+        @Param("token") token: string,
+        @Req() req,
+        @Res() res: Response,
+    ) {
+        const result = await this.authService.passwordChange(
+            token,
+            req.user.id,
+        );
+        if (result.message === "Password changed successfully") {
+            res.redirect(`${process.env.FRONTEND_URL}?passwordChange=success`);
+        } else {
+            res.redirect(`${process.env.FRONTEND_URL}?passwordChange=failed`);
+        }
+        return result;
     }
 
     @UseGuards(JwtAuthGuard, WhitelistGuard)

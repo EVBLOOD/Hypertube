@@ -14,4 +14,18 @@ export default {
     async whois() {
         return await api.get("/auth/whois");
     },
+    async requestResetPassword(email: string) {
+        return await api.post("/auth/request-reset-password", { email });
+    },
+    async resetPassword(token: string, newPassword: string) {
+        return await api.post("/auth/reset-password", { token, newPassword });
+    },
+    async verifyEmail(token: string) {
+        return await api.get(`/auth/verify/${token}`);
+    },
+    async verifyEmailChange(token: string, userId: string) {
+        return await api.get(
+            `/auth/verify-email-change/${token}?userId=${userId}`,
+        );
+    },
 };

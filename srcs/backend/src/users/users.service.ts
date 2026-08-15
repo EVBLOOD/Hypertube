@@ -13,6 +13,9 @@ import {
     UserInteraction,
 } from "src/movies/entities/user-movie-progress.entity";
 import { MoviesService } from "src/movies/movies.service";
+import { RedisService } from "src/common/redis/redis.service";
+import { MailsService } from "src/mails/mails.service";
+import { v4 as uuidv4 } from "uuid";
 
 @Injectable()
 export class UsersService {
@@ -21,6 +24,8 @@ export class UsersService {
         @InjectRepository(UserMovieProgress)
         private progressRepo: Repository<UserMovieProgress>,
         private readonly moviesService: MoviesService,
+        private readonly redisService: RedisService,
+        private readonly emailsService: MailsService,
     ) {}
 
     async findById(id: number, requestorId: number): Promise<User> {
@@ -42,13 +47,75 @@ export class UsersService {
     findbyEmail(email: string): Promise<User | null> {
         return this.userRepo.findOne({ where: { email } });
     }
+    private hasChanged<T extends Record<string, any>>(
+        patch: Partial<T>,
+        original: T,
+    ): boolean {
+        return Object.keys(patch).some((key) => patch[key] !== original[key]);
+    }
+    async update(
+        id: number,
+        dto: UpdateUserDto,
+    ): Promise<{ user: User; actions: string[] }> {
+        let tmpDto: UpdateUserDto = { ...dto };
+        const actions: string[] = [];
 
-    async update(id: number, dto: UpdateUserDto): Promise<User> {
         const user = await this.userRepo.findOne({ where: { id } });
         if (!user) throw new NotFoundException("User not found");
+        if (dto.email && dto.email !== user.email) {
+            const existingUser = await this.userRepo.findOne({
+                where: { email: dto.email },
+            });
+            if (existingUser) {
+                throw new NotFoundException("Email already in use");
+            }
+            const verificationToken = uuidv4();
+            this.redisService.set(
+                `emailChangeToken:${user.id}`,
+                JSON.stringify({ token: verificationToken, email: dto.email }),
+                3600,
+            );
 
-        Object.assign(user, dto);
-        return this.userRepo.save(user);
+            this.emailsService.sendEmailChangeVerification(
+                user,
+                verificationToken,
+            );
+            actions.push("check your email to complete email change");
+            const { email, ...lol } = tmpDto;
+            tmpDto = { ...lol };
+        }
+        if (dto.username && dto.username !== user.username) {
+            const existingUser = await this.userRepo.findOne({
+                where: { username: dto.username },
+            });
+            if (existingUser) {
+                throw new NotFoundException("Username already in use");
+            }
+        }
+
+        if (dto.password && dto.password !== user.password) {
+            const verificationToken = uuidv4();
+            this.redisService.set(
+                `passwordChange:${user.id}`,
+                JSON.stringify({
+                    token: verificationToken,
+                    password: dto.password,
+                }),
+                3600,
+            );
+
+            this.emailsService.sendPasswordChangeVerification(
+                user,
+                verificationToken,
+            );
+            actions.push("check your email to complete password change");
+
+            const { password, ...lol } = tmpDto;
+            tmpDto = { ...lol };
+        }
+
+        actions.push("updated successfully");
+        return { user: await this.userRepo.save(user), actions: actions };
     }
 
     async findAll(): Promise<User[]> {

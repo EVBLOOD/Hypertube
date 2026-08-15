@@ -22,4 +22,20 @@ export class MailsService {
             token,
         });
     }
+
+    async sendEmailChangeVerification(user: User, token: string) {
+        await this.mailQueue.add("email-change-verification", {
+            email: user.email,
+            username: user.username,
+            token: token,
+        });
+    }
+
+    async sendPasswordChangeVerification(user: User, token: string) {
+        await this.mailQueue.add("password-change-verification", {
+            email: user.email,
+            username: user.username,
+            token: token,
+        });
+    }
 }

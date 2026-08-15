@@ -15,8 +15,9 @@
 .recoverPassword {
     display: flex;
     flex-direction: row-reverse;
-    margin-top: -30px;
+    margin-top: -20px;
     color: color-mix(in srgb, var(--primary-color), transparent 70%);
+    text-decoration: none;
 }
 
 .extraQs {

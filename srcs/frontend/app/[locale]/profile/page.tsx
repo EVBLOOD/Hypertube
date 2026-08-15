@@ -24,6 +24,10 @@ export default function ProfilePage() {
     const { user, userLogged, userLanguageUpdate } = useUserStore();
     const userNameRef = useRef<HTMLInputElement>(null);
     const userEmailRef = useRef<HTMLInputElement>(null);
+    const userFirstNameRef = useRef<HTMLInputElement>(null);
+    const userLastNameRef = useRef<HTMLInputElement>(null);
+    // const userAvatarRef = useRef<HTMLInputElement>(null);
+    const userPasswordRef = useRef<HTMLInputElement>(null);
     const [userLanguage, setUserLanguage] = useState<"en" | "ar" | "fr">("en");
     const [userPrivacy, setUserPrivacy] = useState<"public" | "private">(
         "public",
@@ -33,6 +37,8 @@ export default function ProfilePage() {
         if (!data?.user) return;
         userNameRef.current!.value = data.user.username || "";
         userEmailRef.current!.value = data.user.email || "";
+        userFirstNameRef.current!.value = data.user.firstName || "";
+        userLastNameRef.current!.value = data.user.lastName || "";
         setUserLanguage(data.user.preferredLanguage || "en");
         setUserPrivacy(data.user.privacy || "public");
 
@@ -69,10 +75,20 @@ export default function ProfilePage() {
             email: userEmailRef.current?.value,
             preferredLanguage: userLanguage,
             privacy: userPrivacy,
+            firstName: userFirstNameRef.current?.value,
+            lastName: userLastNameRef.current?.value,
+            password: userPasswordRef.current?.value,
+            profilePicture: user?.avatar || null,
         };
         const updated = await UserService.updateMe(form);
-        if (updated?.preferredLanguage) {
-            userLanguageUpdate(updated.preferredLanguage);
+        const updatedUser = updated?.user;
+        const actions = updated?.actions || [];
+
+        actions.forEach((action: string) => {
+            alert(`Action: ${action}`);
+        });
+        if (updatedUser?.preferredLanguage) {
+            userLanguageUpdate(updatedUser.preferredLanguage);
         }
     };
 
@@ -115,12 +131,12 @@ export default function ProfilePage() {
                                     lableName="Director Alias"
                                 ></InputCustom>
                                 <InputCustom
-                                    ref={userNameRef}
+                                    ref={userFirstNameRef}
                                     placeHolder={"John"}
                                     lableName="Director first name"
                                 ></InputCustom>
                                 <InputCustom
-                                    ref={userNameRef}
+                                    ref={userLastNameRef}
                                     placeHolder={"Doe"}
                                     lableName="Director last name"
                                 ></InputCustom>
@@ -130,7 +146,7 @@ export default function ProfilePage() {
                                     lableName="Secure Email"
                                 ></InputCustom>
                                 <InputCustom
-                                    ref={userEmailRef}
+                                    ref={userPasswordRef}
                                     typeInput="password"
                                     placeHolder={"********"}
                                     lableName="Secure Password"

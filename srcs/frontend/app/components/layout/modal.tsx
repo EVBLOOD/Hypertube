@@ -8,14 +8,19 @@ export default function Modal({ children }: { children: ReactNode }) {
     const router = useRouter();
     const pathname = usePathname();
     const isAuthRoute =
-        pathname.includes("/login") || pathname.includes("/register");
+        pathname.includes("/login") ||
+        pathname.includes("/register") ||
+        pathname.includes("/reset-password") ||
+        pathname.includes("/reset-password-email");
 
     useEffect(() => {
         const currentPath = sessionStorage.getItem("currentPath");
         const isPrevPathAuthRoute =
-            currentPath?.includes("/login") || currentPath?.includes("/register");
+            currentPath?.includes("/login") ||
+            currentPath?.includes("/register") ||
+            currentPath?.includes("/reset-password");
 
-            console.log("perv Path:", currentPath);
+        console.log("perv Path:", currentPath);
         console.log("isPrevPathAuthRoute:", isPrevPathAuthRoute);
         console.log("isAuthRoute:", isAuthRoute);
 
