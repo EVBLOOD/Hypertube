@@ -2,6 +2,7 @@
 
 import DescriptionComponent from "./descriptionComponent";
 import styles from "./interactionProfileCard.module.css";
+import { formatDistance } from 'date-fns';
 
 export default function InteractionProfileCard({
     movie,
@@ -18,24 +19,12 @@ export default function InteractionProfileCard({
     console.log("movie", movie);
 
     const getInteractionTime = (actionDate: Date) => {
-        const now = new Date();
-        const actionDateObj = new Date(actionDate);
-        const diffInMs = now.getTime() - actionDateObj.getTime();
-        const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
-        const diffInHours = Math.floor(diffInMinutes / 60);
-        const diffInDays = Math.floor(diffInHours / 24);
+        const timeAgo = formatDistance(new Date(actionDate), new Date(), { addSuffix: true });
+        return timeAgo;
 
-        if (diffInDays > 0) {
-            return `${diffInDays} day${diffInDays > 1 ? "s" : ""} ago`;
-        }
-        if (diffInHours > 0) {
-            return `${diffInHours} hour${diffInHours > 1 ? "s" : ""} ago`;
-        }
-        if (diffInMinutes > 0) {
-            return `${diffInMinutes} minute${diffInMinutes > 1 ? "s" : ""} ago`;
-        }
-        return "Just now";
     };
+
+
 
     const mapActionsToIcons = (action: string) => {
         switch (action) {

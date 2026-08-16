@@ -60,7 +60,7 @@ export class MoviesService {
         @InjectRepository(UserMovieProgress)
         private progressRepo: Repository<UserMovieProgress>,
         private redisservice: RedisService,
-    ) {}
+    ) { }
 
     TMDB_GENRE_MAP = {
         28: "Action",
@@ -180,7 +180,7 @@ export class MoviesService {
             if (ytsMovie) {
                 const best = ytsMovie.torrents.reduce((prev, curr) =>
                     this.getQualityScore(curr.quality) >
-                    this.getQualityScore(prev.quality)
+                        this.getQualityScore(prev.quality)
                         ? curr
                         : prev,
                 );
@@ -810,21 +810,24 @@ export class MoviesService {
             where: { user: { id: userId }, movie: { id: movie.id } },
         });
 
+
+
         if (!progress) {
             progress = this.progressRepo.create({
                 user: { id: userId },
                 movie,
             });
         } else {
+
             if (progress.likedOrDisliked === interaction) {
                 progress.likedOrDisliked = 0;
                 const result = this.progressRepo.save(progress);
                 await this.addToHistory(userId, movie.id, "nutral");
                 return result;
+            } else {
+                progress.likedOrDisliked = interaction;
             }
         }
-
-        progress.likedOrDisliked = interaction;
 
         const result = this.progressRepo.save(progress);
 

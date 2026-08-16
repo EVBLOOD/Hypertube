@@ -30,6 +30,9 @@ export interface CommentType {
     id: number;
     content: string;
     createdAt: string;
+    userReaction: number;
+    likeCount: number;
+    dislikeCount: number;
     user?: {
         id: number;
         username?: string;

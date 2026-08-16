@@ -12,6 +12,7 @@ export default function ButtonCustom({
     className,
     href,
     onClick,
+    refImage,
 }: {
     textButton: string;
     buttonImage: string | undefined;
@@ -20,6 +21,7 @@ export default function ButtonCustom({
     className?: string;
     href?: string;
     onClick?: MouseEventHandler<HTMLButtonElement>;
+    refImage?: React.Ref<HTMLImageElement>;
 }) {
     const buttonStyles: CSSProperties = {
         backgroundColor:
@@ -53,6 +55,7 @@ export default function ButtonCustom({
         >
             {buttonImage ? (
                 <img
+                    ref={refImage}
                     className={styles.buttonImage}
                     src={buttonImage}
                     alt={textButton}

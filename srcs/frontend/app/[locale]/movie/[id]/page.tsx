@@ -1,7 +1,7 @@
 "use client";
 
 import HeroSectionMovie from "@/app/components/layout/heroSectionMovie";
-import { use, useEffect, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import styles from "./page.module.css";
 import TitleCustom from "@/app/components/ui/titleCustom";
 import DescriptionComponent from "@/app/components/ui/descriptionComponent";
@@ -14,6 +14,7 @@ import { CommentType } from "@/types/apiTypes";
 import MovieService from "@/lib/services/MovieService";
 import ErrorPage from "@/app/components/layout/error";
 import { AxiosError } from "axios";
+import { useMovieComments } from "@/lib/dataHooks/moviesComments";
 
 export default function MoviePage({
     params,
@@ -23,9 +24,14 @@ export default function MoviePage({
     const resolvedParams = use(params);
     const id = resolvedParams.id;
     const { data, isPending, error } = useMovieDetails(id);
+    const [commentSort, setCommentSort] = useState<string>("createdAt");
+    const { data: commentsData, isPending: commentsPending, error: commentsError } = useMovieComments(id, 1, commentSort);
     const [comments, setComments] = useState<CommentType[]>([]);
     const [wishlisted, setWishlisted] = useState(false);
     const [reaction, setReaction] = useState<number>(0);
+    
+    const createCommentRef = useRef<HTMLDivElement>(null);
+    const interactionCountRef = useRef<HTMLDivElement>(null);
 
     const sendComment = async (content: string) => {
         try {
@@ -41,6 +47,31 @@ export default function MoviePage({
             console.error(err);
         }
     };
+
+    const handleSubmitComment = async (content: string) => {
+        try {
+            const comment = await sendComment(content);
+            if (comment) {
+                setComments((current) => {
+                    if (current.some((item) => item.id === comment.id))
+                        return current;
+                    return [comment, ...current];
+                });
+                return;
+            }
+
+                const response = await MovieService.postComment(id, content);
+            const created = response.data || response;
+            setComments((current) => {
+                if (current.some((item) => item.id === created.id))
+                    return current;
+                return [created, ...current];
+            });
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
 
     const handleLike = async () => {
         try {
@@ -75,37 +106,23 @@ export default function MoviePage({
         }
     };
 
-    const handleSubmitComment = async (content: string) => {
-        try {
-            const comment = await sendComment(content);
-            if (comment) {
-                setComments((current) => {
-                    if (current.some((item) => item.id === comment.id))
-                        return current;
-                    return [comment, ...current];
-                });
-                return;
-            }
-
-            const response = await MovieService.postComment(id, content);
-            const created = response.data || response;
-            setComments((current) => {
-                if (current.some((item) => item.id === created.id))
-                    return current;
-                return [created, ...current];
-            });
-        } catch (err) {
-            console.error(err);
+    const handleSort = (sort: string) => {
+        if (sort === commentSort) return;
+        if (sort !== "createdAt" && sort !== "interactionCount") return;
+        setCommentSort(sort);
+        createCommentRef.current?.classList.remove(styles.commentSelectedFilter);
+        interactionCountRef.current?.classList.remove(styles.commentSelectedFilter);
+        if (sort === "createdAt") {
+            createCommentRef.current?.classList.add(styles.commentSelectedFilter);
+        } else {
+            interactionCountRef.current?.classList.add(styles.commentSelectedFilter);
         }
     };
 
     useEffect(() => {
         const load = async () => {
             try {
-                const commentsResponse = await MovieService.getComments({
-                    queryKey: ["comments", id],
-                });
-                setComments(commentsResponse || []);
+                setComments(commentsData?.data || []);
 
                 if (data && data.data.personnel) {
                     setWishlisted(data.data.personnel.isWishlisted);
@@ -119,7 +136,7 @@ export default function MoviePage({
         };
 
         void load();
-    }, [id, data]);
+    }, [id, data, commentsData]);
 
     if (isPending) return <LoadingPage></LoadingPage>;
     if (!data || error) {
@@ -179,23 +196,27 @@ export default function MoviePage({
                 <div className={styles.commentInfos}>
                     <DescriptionComponent text="284 COMMENTS IN THREAD" />
                     <div className={styles.commentInfosFilter}>
-                        <span className={styles.commentSelectedFilter}>
+                        <span onClick={() => {handleSort("createdAt")}} ref={createCommentRef} className={styles.commentSelectedFilter}>
                             LATEST
                         </span>
-                        <span>TOP RATED</span>
+                        <span onClick={() => {handleSort("interactionCount")}} ref={interactionCountRef}>TOP RATED</span>
                     </div>
-                </div>
-                <div>
-                    <CommentInput onSubmit={handleSubmitComment} />
-                    <div className={styles.viewCommentSection}>
-                        {comments.map((comment) => (
-                            <ViewInteractComment
-                                key={comment.id}
-                                comment={comment}
-                            />
-                        ))}
+                </div> {
+                    commentsPending ? <LoadingPage></LoadingPage> : 
+                    (commentsError ? <ErrorPage errorCode={(commentsError as AxiosError<any>).status} errorMessage={(commentsError as AxiosError<any>).response?.data?.message || "Something went wrong"} />
+                    : <div>
+                        <CommentInput onSubmit={handleSubmitComment} />
+                        <div className={styles.viewCommentSection}>
+                            {comments.map((comment) => (
+                                <ViewInteractComment
+                                    key={comment.id}
+                                    comment={comment}
+                                />
+                            ))}
+                        </div>
                     </div>
-                </div>
+                    )
+                }
             </div>
         </div>
     );
