@@ -1,6 +1,7 @@
 "use client";
 
 import styles from "./footer.module.css";
+import Link from "next/link";
 
 export default function Footer() {
     return (
@@ -14,7 +15,7 @@ export default function Footer() {
                 <div className={styles.borderInfos}>
                     <span>Technical Specs</span>
                     <span>Privacy Protocol</span>
-                    <span>API Documentation</span>
+                    <Link href="/docs">API Documentation</Link>
                 </div>
             </div>
         </div>
