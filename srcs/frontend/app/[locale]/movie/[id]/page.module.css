@@ -43,6 +43,13 @@
 .commentInfosFilter span {
     font-weight: lighter;
     font-size: small;
+    cursor: pointer;
+}
+.commentInfosFilter span:hover {
+    color: var(--popup-background-second);
+    border-style: solid;
+    border-color: var(--popup-background-second);
+    border-width: 0px 0px 1px 0px;
 }
 
 .commentInfos {

@@ -194,7 +194,7 @@ export default function MoviePage({
                     nb_color={-1}
                 />
                 <div className={styles.commentInfos}>
-                    <DescriptionComponent text="284 COMMENTS IN THREAD" />
+                    <DescriptionComponent text={`${comments ? comments.length : 0} COMMENT${comments && comments.length !== 1 ? 'S' : ''} IN THREAD`} />
                     <div className={styles.commentInfosFilter}>
                         <span onClick={() => {handleSort("createdAt")}} ref={createCommentRef} className={styles.commentSelectedFilter}>
                             LATEST
