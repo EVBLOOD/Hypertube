@@ -1,11 +1,15 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import ButtonCustom from "../ui/buttonCustom";
 import DescriptionComponent from "../ui/descriptionComponent";
 import RecordComponent from "../ui/recordComponent";
 import TitleCustom from "../ui/titleCustom";
 import styles from "./heroSectionMovie.module.css";
 import { useRouter } from "next/navigation";
+import ShareTo from "./shareTo";
+import WatchWith from "./watchWith";
+import { useSocket } from "@/app/context/SocketContext";
 
 export interface MovieInfos {
     id: string;
@@ -40,6 +44,25 @@ export default function HeroSectionMovie({
     isDisliked?: boolean;
 }) {
     const router = useRouter();
+
+
+    const [openShare, setOpenShare] = useState(false);
+    const [openWatch, setOpenWatch] = useState(false);
+    const { socket, isConnected } = useSocket();
+
+    useEffect(() => {
+        if (!socket || !isConnected) return;
+
+        socket.on("INVITE_ACCEPTED", (params: any) => {
+            console.log(`Received INVITE_ACCEPTED event with params: ${JSON.stringify(params)}`);
+            router.push(`/watch/${obj.id}?token=${params.roomId}`);
+        })
+
+        return () => {
+            socket.off('INVITE_ACCEPTED');
+        };
+    }, [socket]);
+
 
     if (obj)
         return (
@@ -117,6 +140,7 @@ export default function HeroSectionMovie({
                                 style={{
                                     border: "var(--popup-background-second) 1px solid",
                                 }}
+                                onClick={() => { setOpenWatch(!openWatch) }}
                             />
                         </div>
                         <div className={styles.reactOnMovie}>
@@ -139,9 +163,24 @@ export default function HeroSectionMovie({
                             <ButtonCustom
                                 className={styles.MovieHeroInfosItems}
                                 textButton=""
+                                onClick={() => setOpenShare(!openShare)}
                                 buttonImage="/costumIcons/shareMovie.svg"
                                 color={null}
                             />
+                            {openShare && (
+                                <ShareTo
+                                    url={`${process.env.NEXT_PUBLIC_BACK_API_URL}/movie/${obj.id}`}
+                                    title={obj.title}
+                                    onClose={() => setOpenShare(false)}
+                                />
+                            )}
+                            {openWatch && (
+                                <WatchWith
+                                    imdbId={obj.id}
+                                    title={obj.title}
+                                    onClose={() => { setOpenWatch(false) }}
+                                ></WatchWith>
+                            )}
                         </div>
                     </div>
                 </div>

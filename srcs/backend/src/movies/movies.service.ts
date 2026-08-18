@@ -1,6 +1,6 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { LessThan, LessThanOrEqual, Repository } from "typeorm";
+import { Repository } from "typeorm";
 import { Movie } from "./entities/movie.entity";
 import axios from "axios";
 import { FilterMovieDto } from "./dto/filter-movie.dto";
@@ -8,6 +8,10 @@ import { UserMovieProgress } from "./entities/user-movie-progress.entity";
 import { RedisService } from "src/common/redis/redis.service";
 import { PaginationMovieDto } from "./dto/pagination-movie.dto ";
 import { UserMovieHistory } from "./entities/user-movie-history.entity";
+import { v4 as uuidv4 } from "uuid";
+import { MailsService } from "src/mails/mails.service";
+import { User } from "src/users/entities/user.entity";
+import { MovieGateway } from "./movies.gateway";
 
 export interface MovieInfos {
     id: string;
@@ -59,7 +63,11 @@ export class MoviesService {
         private historyRepo: Repository<UserMovieHistory>,
         @InjectRepository(UserMovieProgress)
         private progressRepo: Repository<UserMovieProgress>,
+        @InjectRepository(User)
+        private userRepo: Repository<User>,
         private redisservice: RedisService,
+        private readonly emailsService: MailsService,
+        private readonly movieGateway: MovieGateway
     ) { }
 
     TMDB_GENRE_MAP = {
@@ -1064,5 +1072,56 @@ export class MoviesService {
                 hasMore: total > page * limit,
             },
         };
+    }
+
+    async sendInvite(imdbId: string, title: string, userInput: string, currentUserId: number) {
+        const findUser = await this.userRepo.findOne({ where: [{ email: userInput }, { username: userInput }] });
+        if (!findUser) {
+            throw new NotFoundException("user Not Found")
+        }
+        if (findUser.id === currentUserId) {
+            throw new BadRequestException("You cannot send a watch invite to yourself.");
+        }
+
+        const checkRedis = await this.redisservice.get(`invite:${findUser.id}:${imdbId}:${currentUserId}`);
+        if (checkRedis) {
+            return { message: "Invite already sent recently." };
+        }
+        const uuid = uuidv4();
+        await this.redisservice.set(`invite:${findUser.id}:${imdbId}:${currentUserId}`, uuid, 900);
+
+        const inviteLink = `${process.env.PUBLIC_API_URL}/movies/invite/${uuid}`;
+        await this.emailsService.sendInviteEmail(findUser, title, inviteLink);
+
+        return { message: "Invite sent successfully.", inviteLink: `${inviteLink}?accept=true`, token: uuid };
+    }
+
+    async handleInvite(uuid: string, currentUserId: number, status: boolean) {
+        const keys = await this.redisservice.getKeysByPattern("invite:*");
+        for (const key of keys) {
+
+            const storedToken = await this.redisservice.get(key);
+
+            if (storedToken === uuid) {
+                const [_, storedId, imdbId, hostId] = key.split(":");
+
+                if (storedId === currentUserId.toString()) {
+
+                    await this.redisservice.del(key);
+                    if (status == true) {
+                        const roomId = `${uuid}`;
+                        this.movieGateway.notifyHostInviteAccepted(hostId, roomId, storedId)
+                        return { 
+                            message: "Invite accepted successfully!", 
+                            roomId,
+                            imdbId: imdbId
+                        };
+                    }
+                    return { message: "Invite declined successfully." };
+                }
+                break
+            }
+        }
+        throw new NotFoundException("The invite isn't valid!");
     }
 }

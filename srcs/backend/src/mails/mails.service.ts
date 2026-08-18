@@ -38,4 +38,12 @@ export class MailsService {
             token: token,
         });
     }
+    async sendInviteEmail(user: User, title: string, inviteLink: string) {
+        await this.mailQueue.add("send-invite", {
+            email: user.email,
+            username: user.username,
+            title,
+            inviteLink,
+        });
+    }
 }

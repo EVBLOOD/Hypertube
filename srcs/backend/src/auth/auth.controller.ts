@@ -33,7 +33,7 @@ export class AuthController {
     async login(@Request() req, @Res({ passthrough: true }) res: Response) {
         const token = (await this.authService.login(req.user)).access_token;
         res.cookie("AUTH_TOKEN", token, {
-            httpOnly: true,
+            // httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: "lax",
             expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
@@ -67,7 +67,7 @@ export class AuthController {
         }
         const token = (await this.authService.login(req.user)).access_token;
         res.cookie("AUTH_TOKEN", token, {
-            httpOnly: true,
+            // httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: "lax",
             expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
@@ -137,7 +137,7 @@ export class AuthController {
     logout(@Request() req, @Res({ passthrough: true }) res: Response) {
         this.authService.logout(req.user, req.cookies?.AUTH_TOKEN);
         res.clearCookie("AUTH_TOKEN", {
-            httpOnly: true,
+            // httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: "lax",
             path: "/",

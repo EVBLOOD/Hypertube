@@ -28,7 +28,7 @@ export class MoviesController {
     constructor(
         private readonly moviesService: MoviesService,
         private readonly streamService: StreamsService,
-    ) {}
+    ) { }
 
     @UseGuards(OptionalJwtAuthGuard, OptionalVerifiedGuard)
     @Get()
@@ -143,4 +143,31 @@ export class MoviesController {
         }
         return movie;
     }
+
+    @UseGuards(JwtAuthGuard, VerifiedGuard)
+    @Post("invite/:imdbId")
+    async invite(
+        @Param("imdbId") imdbId: string,
+        @Body("title") title: string,
+        @Body("userInput") userInput: string,
+        @Req() req,
+    ) {
+        return await this.moviesService.sendInvite(imdbId, title, userInput, req.user?.id);
+    }
+
+    @UseGuards(JwtAuthGuard, VerifiedGuard)
+    @Get("invite/:uuid")
+    async handelInvite(
+        @Param("uuid") uuid: string,
+        @Query('accept') accept: boolean,
+        @Req() req,
+        @Res() res
+    ) {
+        const result = await this.moviesService.handleInvite(uuid, req.user?.id, accept);
+        if (result) {
+            res.redirect(`${process.env.FRONTEND_URL}/watch/${result.imdbId}?token=${result.roomId}`);
+        }
+        return result;
+    }
+
 }

@@ -84,5 +84,8 @@ export default {
 
     async addCommentInteraction(commentId: number, interaction: number) {
         return await api.post(`/comments/interaction/${commentId}`, { interaction });
+    },
+    async sendInvite(imdbId: string, title: string, userInput: string) {
+        return await api.post(`/movies/invite/${imdbId}`, { title, userInput });
     }
 };

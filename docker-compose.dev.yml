@@ -27,6 +27,7 @@ services:
     environment:
       - NEXT_PUBLIC_BACK_API_URL=${PUBLIC_API_URL}
       - PORT=${PORT}
+      - NEXT_PUBLIC_SOCKET_URL=${FRONTEND_URL}
 
   back:
     build: setup/backend

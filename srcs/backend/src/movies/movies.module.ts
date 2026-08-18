@@ -8,6 +8,9 @@ import { Subtitle } from "./entities/subtitle.entity";
 import { RedisModule } from "src/common/redis/redis.module";
 import { StreamsModule } from "src/streams/streams.module";
 import { UserMovieHistory } from "./entities/user-movie-history.entity";
+import { User } from "src/users/entities/user.entity";
+import { MailModule } from "src/mails/mails.module";
+import { MovieGateway } from "./movies.gateway";
 
 @Module({
     imports: [
@@ -16,11 +19,13 @@ import { UserMovieHistory } from "./entities/user-movie-history.entity";
             Subtitle,
             UserMovieProgress,
             UserMovieHistory,
+            User
         ]),
         forwardRef(() => StreamsModule),
+        MailModule
     ],
     controllers: [MoviesController],
-    providers: [MoviesService, RedisModule],
+    providers: [MoviesService, RedisModule, MovieGateway],
     exports: [MoviesService],
 })
 export class MoviesModule {}
