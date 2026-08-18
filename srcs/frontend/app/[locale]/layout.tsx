@@ -4,7 +4,7 @@ import Header from "../components/layout/header";
 import { Space_Grotesk, Manrope } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
-// import AuthProvider from "../components/providers/authProvider";
+import AuthProvider from "../components/providers/authProvider";
 import UseQueryProvider from "../components/providers/useQueryProvider";
 import Footer from "../components/layout/footer";
 import LanguageSwitcher from "../components/ui/languageSwitcher";
@@ -49,9 +49,9 @@ export default async function RootLayout({
             >
                 <NextIntlClientProvider messages={messages}>
                     <UseQueryProvider>
+                    <AuthProvider>
                         <SocketProvider>
 
-                            {/* <AuthProvider> */}
                             <LanguageSwitcher local={locale} />
                             <Header />
                             {children}
@@ -59,7 +59,7 @@ export default async function RootLayout({
                             <Footer />
 
                         </SocketProvider>
-                        {/* </AuthProvider> */}
+                    </AuthProvider>
                     </UseQueryProvider>
                 </NextIntlClientProvider>
             </body>
