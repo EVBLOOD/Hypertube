@@ -2,11 +2,17 @@ import { SetMetadata } from "@nestjs/common";
 
 export const API_DOC_METADATA = "api-doc";
 
-export interface ApiDocOptions {
-    summary?: string;
-    description?: string;
+export interface Params {
+    name: string;
+    in: "body" | "query" | "param" | "header" | "unknown";
+    type?: string;
+    required: boolean;
 }
 
-export const ApiDoc = (
-    options: ApiDocOptions = {},
-): ClassDecorator & MethodDecorator => SetMetadata(API_DOC_METADATA, options);
+export interface ApiDoc {
+    summary?: string;
+    description?: string;
+    params?: Params[];
+}
+
+export const ApiDoc = (options: ApiDoc = {}): ClassDecorator & MethodDecorator => SetMetadata(API_DOC_METADATA, options);
