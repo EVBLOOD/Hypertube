@@ -1,21 +1,12 @@
 import { Injectable, RequestMethod } from "@nestjs/common";
-import { METHOD_METADATA, PARAMTYPES_METADATA,
-    PATH_METADATA, ROUTE_ARGS_METADATA } from "@nestjs/common/constants";
+import { METHOD_METADATA, PATH_METADATA } from "@nestjs/common/constants";
 import { DiscoveryService } from "@nestjs/core";
 
-import { API_DOC_METADATA, type ApiDocParamOptions, type ApiDocOptions,
-} from "./decorators/api-doc.decorator";
+import { API_DOC_METADATA, type ApiDocOptions } from "./decorators/api-doc.decorator";
 
-export interface ApiEndpointDocumentation extends Omit<ApiDocOptions, "params"> {
+export interface ApiEndpointDocumentation extends Omit<ApiDocOptions, "summary" | "description"> {
     method: string;
     path: string;
-    params: ApiParameterDocumentation[];
-}
-
-export interface ApiParameterDocumentation extends ApiDocParamOptions {
-    name: string;
-    in: "path" | "query" | "body" | "header";
-    type: string;
 }
 
 export type ApiDocumentation = Record<string, ApiEndpointDocumentation[]>;
@@ -29,12 +20,7 @@ export class DocsService {
     getDocumentation(): ApiDocumentation {
         const endpoints = this.discoveryService
             .getControllers()
-            .flatMap((wrapper) => this.describeController(wrapper.metatype))
-            .sort((left, right) =>
-                `${left.path}:${left.method}`.localeCompare(
-                    `${right.path}:${right.method}`,
-                ),
-            );
+            .flatMap((wrapper) => this.describeController(wrapper.metatype));
 
         return endpoints.reduce<ApiDocumentation>((documentation, endpoint) => {
             const resourceName = this.getResourceName(endpoint.path);
@@ -48,43 +34,33 @@ export class DocsService {
         if (!controller?.prototype) {
             return [];
         }
-        const controllerPaths = this.getPaths(
-            Reflect.getMetadata(PATH_METADATA, controller),
-        );
+        const controllerPaths = this.getPaths(Reflect.getMetadata(PATH_METADATA, controller));
 
-        const controllerDocumentation = this.getDocumentationMetadata(controller);
+        console.log("Controller paths:", controllerPaths);
 
         return Object.getOwnPropertyNames(controller.prototype).flatMap(
             (handlerName) => {
-                if (handlerName === "constructor") {
-                    return [];
-                }
-
+                
+                if (handlerName === "constructor") return [];
+                
                 const handler = controller.prototype[handlerName];
-                
-                const requestMethod = Reflect.getMetadata( METHOD_METADATA, handler ) as RequestMethod | undefined;
-                
-                if (typeof handler !== "function" || requestMethod === undefined) {
-                    return [];
-                }
-
-                console.log(requestMethod, handlerName, controller.name);
-
+                const requestMethod = Reflect.getMetadata(METHOD_METADATA, handler);
                 const method = RequestMethod[requestMethod];
+
                 const handlerPaths = this.getPaths(
                     Reflect.getMetadata(PATH_METADATA, handler),
                 );
-                const documentation = {
-                    ...controllerDocumentation,
-                    ...this.getDocumentationMetadata(handler),
-                };
-                const { params: documentedParams, ...metadata } = documentation;
+                                
+                const { ...metadata } = this.getDocumentationMetadata(handler);
+
+
+                console.log(controllerPaths, handlerPaths, method, metadata);
+
 
                 return controllerPaths.flatMap((controllerPath) =>
                     handlerPaths.map((handlerPath) => ({
                         method,
                         path: this.joinPaths(controllerPath, handlerPath),
-                        params: [],
                         ...metadata,
                     })),
                 );

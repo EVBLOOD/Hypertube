@@ -10,7 +10,6 @@ export class DocsController {
     @ApiDoc({
         summary: "Get API documentation",
         description: "Returns the API routes discovered by the application.",
-        tags: ["Documentation"],
     })
     getJson() {
         return this.docsService.getDocumentation();
