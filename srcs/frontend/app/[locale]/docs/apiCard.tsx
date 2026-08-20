@@ -13,12 +13,12 @@ export type ApiParameter = {
 export type ApiCardProps = {
     title: string;
     description: string;
-    method: "GET" | "PATCH" | "POST" | "DELETE";
+    method: string;
     path: string;
     access: "public" | "private";
     permission?: string;
     parameters?: ApiParameter[];
-    response: string;
+    response?: string;
 };
 
 export default function ApiCard({
@@ -30,7 +30,9 @@ export default function ApiCard({
     permission,
     parameters,
     response,
+
 }: ApiCardProps) {
+    
     const isPrivate = access === "private";
     const [isExpanded, setIsExpanded] = useState(false);
     const contentId = useId();
@@ -96,7 +98,7 @@ export default function ApiCard({
                         <div className={`${styles.response} ${!parameters?.length ? styles.responseFull : ""}`}>
                             <span className={styles.responseLabel}>RESPONSE 200 OK</span>
                             <pre>
-                                <code>{response}</code>
+                                <code>{response || "Response schema not documented."}</code>
                             </pre>
                         </div>
                     </div>

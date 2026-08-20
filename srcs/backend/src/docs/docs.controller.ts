@@ -6,7 +6,7 @@ import { DocsService } from "./docs.service";
 export class DocsController {
     constructor(private readonly docsService: DocsService) {}
 
-    @Get("json")
+    @Get("/")
     @ApiDoc({
         summary: "Get API documentation",
         description: "Returns the API routes discovered by the application.",

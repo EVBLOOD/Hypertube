@@ -1,9 +1,15 @@
+"use client";
+
 import Link from "next/link";
-import styles from "./page.module.css";
-import TitleCustom from "@/app/components/ui/titleCustom";
-import DescriptionComponent from "@/app/components/ui/descriptionComponent";
 import { useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
+
 import ApiCard, { type ApiCardProps } from "./apiCard";
+import styles from "./page.module.css";
+import DescriptionComponent from "@/app/components/ui/descriptionComponent";
+import TitleCustom from "@/app/components/ui/titleCustom";
+import DocsService, { type ApiDocumentation, type Docs,
+} from "@/lib/services/DocsService";
 
 const sections = [
     "Getting Started",
@@ -12,53 +18,50 @@ const sections = [
     "Webhooks",
 ];
 
-const userApis: ApiCardProps[] = [
-    {
-        title: "Get user profile",
-        description:
-            "Retrieve high-level metadata for a specific vault identity. Includes watch-history, preference flags, and active streams.",
-        method: "GET",
-        path: "/users/{user_id}",
-        access: "private",
-        permission: "OAUTH2: READ_PROFILE",
-        parameters: [
-            { name: "user_id", type: "integer", required: true },
-        ],
-        response: '{ "id": 42, "username": "cinephile", "privacy": "public" }',
-    },
-    {
-        title: "Update my profile",
-        description: "Update the authenticated user's profile and privacy settings.",
-        method: "PATCH",
-        path: "/users/me",
-        access: "private",
-        permission: "OAUTH2: WRITE_PROFILE",
-        parameters: [
-            { name: "body", type: "UpdateUserDto", required: true },
-        ],
-        response: '{ "message": "Profile updated successfully" }',
-    },
-];
+const resourceLabels: Record<string, string> = {
+    users: "PROFILE & AUTHENTICATION",
+    movies: "CATALOG & STREAMING",
+    auth: "AUTHENTICATION",
+    comments: "COMMUNITY & DISCUSSION",
+    docs: "DOCUMENTATION",
+};
 
-const movieApis: ApiCardProps[] = [
-    {
-        title: "Search movies",
-        description:
-            "Search the public movie catalog and filter results by query and genre.",
-        method: "GET",
-        path: "/movies/search",
-        access: "public",
-        parameters: [
-            { name: "query", type: "string", required: true },
-            { name: "genre", type: "enum [noir, tech, cult]" },
-        ],
-        response:
-            '{\n  "results": [\n    { "id": "tt0110912", "title": "Pulp Fiction" }\n  ]\n}',
-    },
-];
+function detailsEndpoint(endpoint: Docs, resource: string): ApiCardProps {
+    return {
+        title: endpoint.summary || `${endpoint.method} ${endpoint.path}`,
+        description: endpoint.description || "No description available.",
+        method: endpoint.method.toUpperCase(),
+        path: endpoint.path,
+        access: resource === "users" ? "private" : "public",
+        parameters: endpoint.params?.map((parameter) => ({
+            name: parameter.name,
+            type: parameter.type || parameter.in,
+            required: parameter.required,
+        })),
+    };
+}
 
 export default function DocsPage() {
     const Docs = useTranslations("docs");
+    const [data, setData] = useState<ApiDocumentation | null>(null);
+
+
+    useEffect(() => {
+
+        const fetchDocs = async () => {
+            try {
+                const response = await DocsService.getDocumentation();
+                setData(response.data);
+            } catch (error) {
+                console.error("Error fetching documentation:", error);
+            }
+        };
+
+        fetchDocs();
+
+    }, []);
+
+    const docs = Object.entries(data ?? {});
 
     return (
         <main className={`container ${styles.docsPage}`}>
@@ -77,29 +80,19 @@ export default function DocsPage() {
                 <TitleCustom title={Docs("title")} />
                 <DescriptionComponent text={Docs("decription")} className={styles.docsDescription} />
 
-                <section className={styles.apiSection} id="users" aria-labelledby="users-title">
-                    <div className={styles.sectionHeading}>
-                        <h2 id="users-title">/USERS</h2>
-                        <span>PROFILE &amp; AUTHENTICATION</span>
-                    </div>
-                    <div className={styles.apiCards}>
-                        {userApis.map((api) => (
-                            <ApiCard key={api.path} {...api} />
-                        ))}
-                    </div>
-                </section>
-
-                <section className={styles.apiSection} id="movies" aria-labelledby="movies-title">
-                    <div className={styles.sectionHeading}>
-                        <h2 id="movies-title">/MOVIES</h2>
-                        <span>CATALOG &amp; STREAMING</span>
-                    </div>
-                    <div className={styles.apiCards}>
-                        {movieApis.map((api) => (
-                            <ApiCard key={api.path} {...api} />
-                        ))}
-                    </div>
-                </section>
+                {docs && docs.map(([doc, endpoints]) => (
+                    <section className={styles.apiSection} id={doc} key={doc} >
+                        <div className={styles.sectionHeading}>
+                            <h2>{doc.toUpperCase()}</h2>
+                            <span>{resourceLabels[doc] || "API ENDPOINTS"}</span>
+                        </div>
+                        <div className={styles.apiCards}>
+                            {endpoints.map((endpoint, i) => (
+                                <ApiCard key={i} {...detailsEndpoint(endpoint, doc)} />
+                            ))}
+                        </div>
+                    </section>
+                ))}
             </section>
         </main>
     );
