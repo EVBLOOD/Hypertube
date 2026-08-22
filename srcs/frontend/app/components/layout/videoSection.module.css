@@ -1,6 +1,7 @@
 .videoSection {
     width: 100%;
     height: 100%;
+    position: relative;
 }
 
 .videoSection video {
@@ -8,4 +9,22 @@
     height: 100%;
     object-fit: contain;
     display: block;
+}
+
+.qualityControls {
+    position: absolute;
+    bottom: 5%;
+    right: 15%;
+    background-color: var(--color-primary);
+    border-radius: 5px;
+    color: var(--color-text);
+    z-index: 100000;
+}
+
+.qualityControls select {
+    background-color: transparent;
+    color: var(--primary-color);
+    border: none;
+    padding: 5px;
+    font-size: 14px;
 }

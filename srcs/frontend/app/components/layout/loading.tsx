@@ -5,7 +5,7 @@ import TitleCustom from "../ui/titleCustom";
 
 import styles from "./loading.module.css";
 
-export default function LoadingPage() {
+export default function LoadingPage({ message = "WAIT FOR LOADING DATA..."}) {
     return (
         <div className={styles.pandingPage}>
             <RecordComponent
@@ -14,7 +14,7 @@ export default function LoadingPage() {
             ></RecordComponent>
             <TitleCustom
                 className={styles.titleJust}
-                title="WAIT FOR LOADING DATA..."
+                title={message}
             ></TitleCustom>
             <div className={styles.loadingBar}></div>
         </div>

@@ -3,12 +3,13 @@ import { JwtService } from "@nestjs/jwt";
 import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
 import { WsJwtGuard } from "src/auth/guards/ws-jwt.guard";
+import { RedisService } from "src/common/redis/redis.service";
 
 @UseGuards(WsJwtGuard)
 @WebSocketGateway({ namespace: 'movie', cors: { origin: '*' } })
 export class MovieGateway {
 
-    constructor(private readonly jwtService: JwtService) { }
+    constructor(private readonly jwtService: JwtService, private readonly redisService: RedisService) { }
 
     @WebSocketServer()
     server!: Server;
@@ -158,6 +159,26 @@ export class MovieGateway {
             if (socket) {
                 console.log(`User ${userId} seeked stream to ${data.time} in room ${data.roomId}`);
                 socket.emit('SEEK_STREAM', { roomId: data.roomId, time: data.time });
+            }
+        }
+    }
+
+    @SubscribeMessage('abort_stream')
+    handleAbortStream(
+        @ConnectedSocket() client: Socket,
+        @MessageBody() data: { roomId: string },
+    ) {
+        const [hostId, guestId] = this.roomsMembers.get(data.roomId) || [];
+        const userId = client.handshake.headers.userId;
+
+        if (hostId == userId || guestId == userId) {
+            const JoinedRoom = this.JoinedRooms.get(data.roomId);
+            const socket = JoinedRoom?.get(userId != hostId ? hostId : guestId);
+            if (socket) {
+                console.log(`User ${userId} aborted stream in room ${data.roomId}`);
+                socket.emit('ABORT_STREAM', { roomId: data.roomId });
+                this.JoinedRooms.delete(data.roomId);
+                this.roomsMembers.delete(data.roomId);
             }
         }
     }

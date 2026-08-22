@@ -12,6 +12,8 @@ import { v4 as uuidv4 } from "uuid";
 import { MailsService } from "src/mails/mails.service";
 import { User } from "src/users/entities/user.entity";
 import { MovieGateway } from "./movies.gateway";
+import path from "path";
+import { writeFileSync } from "fs";
 
 export interface MovieInfos {
     id: string;
@@ -1085,7 +1087,7 @@ export class MoviesService {
 
         const checkRedis = await this.redisservice.get(`invite:${findUser.id}:${imdbId}:${currentUserId}`);
         if (checkRedis) {
-            return { message: "Invite already sent recently." };
+            return { message: "Invite already sent recently.", inviteLink: `${process.env.PUBLIC_API_URL}/movies/invite/${checkRedis}?accept=true`, token: checkRedis };
         }
         const uuid = uuidv4();
         await this.redisservice.set(`invite:${findUser.id}:${imdbId}:${currentUserId}`, uuid, 900);
@@ -1111,8 +1113,8 @@ export class MoviesService {
                     if (status == true) {
                         const roomId = `${uuid}`;
                         this.movieGateway.notifyHostInviteAccepted(hostId, roomId, storedId)
-                        return { 
-                            message: "Invite accepted successfully!", 
+                        return {
+                            message: "Invite accepted successfully!",
                             roomId,
                             imdbId: imdbId
                         };
@@ -1123,5 +1125,71 @@ export class MoviesService {
             }
         }
         throw new NotFoundException("The invite isn't valid!");
+    }
+
+    async getQualitiesAvailable(imdbId: string) {
+        const qualities = await this.getTorrentMagnetsFromYTS(imdbId);
+        const availableQualitiesSeeds = qualities?.filter((q) => q.seeds > 0) || [];
+        return availableQualitiesSeeds?.map((q) => q.quality) || [];
+    }
+
+    async searchSubtitles(imdbId: string) {
+        let redisValue: any = await this.redisservice.get(`subtitles:${imdbId}`);
+        if (redisValue) {
+            redisValue = JSON.parse(redisValue).map((s: any) => {
+                const { url, ...rest } = s;
+                return rest;
+            });
+            return [...new Map((redisValue || []).map(item => [item.language, item])).values()];
+        }
+        try {
+            const response = await axios.get(`${process.env.SUBDL_API_URL}`, {
+                params:
+                {
+                    api_key: process.env.SUBDL_API_KEY,
+                    imdb_id: imdbId
+                },
+            });
+
+            let reformedData = (response.data?.subtitles || []).map((subtitle: any) => ({
+                lang: subtitle.lang,
+                language: subtitle.language,
+                url: subtitle.url,
+                urlLink: `${process.env.PUBLIC_API_URL}/movies/subtitle_file/${imdbId}?language=${subtitle.lang}`,
+            }));
+            
+            reformedData =  reformedData.map((s: any) => {
+                const { url, ...rest } = s;
+                return rest;
+            });
+            const uniqueByLangs = [...new Map(reformedData.map(item => [item.language, item])).values()];
+            this.redisservice.set(`subtitles:${imdbId}`, JSON.stringify(uniqueByLangs), 36000);
+            return uniqueByLangs;
+        } catch (error) {
+            console.error(`Error fetching subtitles for ${imdbId}:`, error);
+            throw new Error("Failed to fetch subtitles.");
+        }
+    }
+
+    async getDownloadedFileLink(imdbId: string, language: string) {
+        const redisValue = await this.redisservice.get(`subtitles:${imdbId}`);
+        if (!redisValue) {
+            return { message: "No subtitles found for this movie." };
+        }
+        const subtitles = JSON.parse(redisValue);
+        const subtitle = subtitles.find((s: any) => s.language === language);
+        if (!subtitle) {
+            return { message: "No subtitles found for this language." };
+        }
+
+        const fileName = `subtitle_${imdbId}_${language}`;
+        const filePath = path.join(process.cwd(), "downloads", `${fileName}`);
+
+        if (require('fs').existsSync(filePath)) {
+            return `${process.env.PUBLIC_API_URL}/downloads/${fileName}`;
+        }
+        const response = await axios.get(subtitle.url, { responseType: 'arraybuffer' });
+        writeFileSync(filePath, response.data);
+        return `${process.env.PUBLIC_API_URL}/downloads/${fileName}`;
     }
 }

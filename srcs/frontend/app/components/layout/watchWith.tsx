@@ -5,7 +5,7 @@ import styles from "./watchWith.module.css";
 import { useRef } from "react";
 import { useRouter } from "next/navigation";
 
-export default function WatchWith({ imdbId, title, onClose }: { imdbId: string; title: string; onClose: () => void }) {
+export default function WatchWith({ imdbId, title, onClose, setInviteSentAndWaitingRoomId }: { imdbId: string; title: string; onClose: () => void; setInviteSentAndWaitingRoomId: (value: string) => void }) {
 
     const inputRef = useRef<HTMLInputElement>(null);
     const router = useRouter()
@@ -22,7 +22,8 @@ export default function WatchWith({ imdbId, title, onClose }: { imdbId: string; 
 
             alert("Invite sent successfully.");
             onClose();
-
+            console.log(response.data.token)
+            setInviteSentAndWaitingRoomId(response.data.token ||"");
         } catch (error) {
             console.error("Error sending invite:", error);
             alert("Error sending invite.");

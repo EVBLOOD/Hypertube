@@ -1,15 +1,18 @@
 **Architecture & Environment Setup**
-* [ ] Initialize repository structure and strictly add `.env` to `.gitignore` to protect API keys.
-* [ ] Configure your web server and database schema for users, stored videos, and comments.
+* [x] Initialize repository structure and strictly add `.env` to `.gitignore` to protect API keys.
+* [x] Configure your web server and database schema for users, stored videos, and comments.
 * [ ] Set up security middleware for input sanitization, form validation, and SQL/XSS prevention.
-* [ ] Configure secure password hashing (Argon2 or bcrypt) for local authentication.
+* [x] Configure secure password hashing (Argon2 or bcrypt) for local authentication.
 
 **Authentication & User Profiles**
 * [x] Build local user registration (email, username, first name, last name, password).
-* [ ] Implement token-based email password reset flow.
+* [x] Implement token-based email password reset flow.
 * [ ] Integrate 42 OmniAuth strategy alongside a second provider (e.g., GitHub or Google).
-* [ ] Implement site-wide 1-click logout and language preference switcher (defaulting to English).
-* [ ] Build editable user profile settings and public profile views (ensuring emails stay private).
+    - [x] 42
+    - [] github or google to add
+* [x] Implement site-wide 1-click logout and language preference switcher (defaulting to English).
+* [x] Build editable user profile settings
+* [ ] public profile views (ensuring emails stay private).
 
 
 **Torrent Engine & Video Streaming**
@@ -21,10 +24,10 @@
 
 
 **Library & Player UI**
-* [ ] Create responsive layout adhering to grid rules (Header, Main, Footer) supporting mobile screens.
-* [ ] Integrate scrapers for at least 2 external torrent sources + IMDb/TMDb API for movie metadata.
-* [ ] Build library view with infinite scroll, sorting/filtering (name, genre, rating, year), and watched/unwatched indicators.
-* [ ] Build detailed video player page displaying cast, summary, player controls, and real-time user comments.
+* [x] Create responsive layout adhering to grid rules (Header, Main, Footer) supporting mobile screens.
+* [x] Integrate scrapers for at least 2 external torrent sources + IMDb/TMDb API for movie metadata.
+* [x] Build library view with infinite scroll, sorting/filtering (name, genre, rating, year), and watched/unwatched indicators.
+* [x] Build detailed video player page displaying cast, summary, player controls, and real-time user comments.
 
 
 **RESTful API Implementation**

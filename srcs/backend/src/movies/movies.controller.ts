@@ -75,7 +75,25 @@ export class MoviesController {
     @UseGuards(JwtAuthGuard, VerifiedGuard)
     @Post("wishlist/:imdbId")
     async wishlistToggle(@Param("imdbId") imdbId: string, @Req() req) {
-        return await this.moviesService.toggleWishlist(req.user.id, imdbId);
+        return this.moviesService.toggleWishlist(req.user.id, imdbId);
+    }
+
+    @UseGuards(JwtAuthGuard, VerifiedGuard)
+    @Get("subtitles/:imdbId")
+    getSubtitle(@Param("imdbId") imdbId: string) {
+        return this.moviesService.searchSubtitles(imdbId);
+    }
+
+    @UseGuards(JwtAuthGuard, VerifiedGuard)
+    @Get("subtitle_file/:imdbId")
+    getSubtitleFile(@Param("imdbId") imdbId: string, @Query("language") language: string) {
+        return this.moviesService.getDownloadedFileLink(imdbId, language);
+    }
+    
+    @UseGuards(JwtAuthGuard, VerifiedGuard)
+    @Get("qualities/:imdbId")
+    getQualities(@Param("imdbId") imdbId: string) {
+        return this.moviesService.getQualitiesAvailable(imdbId);
     }
 
     @Post("watch")
@@ -100,10 +118,11 @@ export class MoviesController {
     startStream1(
         @Param("id") imdbId: string,
         @Headers("range") range: string,
+        @Query("quality") quality: string,
         @Res() res,
     ) {
         void this.streamService
-            .stream(imdbId, "1080p", range, res)
+            .stream(imdbId, quality, range, res)
             .catch((error: any) => {
                 if (!res.headersSent) {
                     res.status(500).json({

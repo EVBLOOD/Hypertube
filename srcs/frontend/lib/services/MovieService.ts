@@ -77,7 +77,6 @@ export default {
             },
         });
     },
-
     async postComment(movieId: string, content: string) {
         return await api.post(`/comments/${movieId}`, { content });
     },
@@ -87,5 +86,19 @@ export default {
     },
     async sendInvite(imdbId: string, title: string, userInput: string) {
         return await api.post(`/movies/invite/${imdbId}`, { title, userInput });
-    }
+    },
+    async getMovieQualities(imdbId: string) {
+        return await api.get(`/movies/qualities/${imdbId}`);
+    },
+    async getMovieSubtitles(imdbId: string) {
+        return await api.get(`/movies/subtitles/${imdbId}`);
+    },
+    // async getMovieStream(imdbId: string, quality: string, subtitle?: string) {
+    //     return await api.get(`/movies/watch/${imdbId}`, {
+    //         params: {
+    //             quality,
+    //             subtitle,
+    //         },
+    //     });
+    // },
 };
