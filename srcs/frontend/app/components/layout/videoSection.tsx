@@ -118,6 +118,7 @@ export default function VideoSection(props: {
                 ref={refVideo}
                 onSeeked={handleSeek}
                 onSeeking={handleSeeking}
+                crossOrigin="anonymous"
             >
 
                 {props.subtitles && props.subtitles.map((s, index) =>

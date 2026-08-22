@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Movie } from "./entities/movie.entity";
@@ -13,7 +13,9 @@ import { MailsService } from "src/mails/mails.service";
 import { User } from "src/users/entities/user.entity";
 import { MovieGateway } from "./movies.gateway";
 import path from "path";
-import { writeFileSync } from "fs";
+import { existsSync } from "fs";
+import fsPromises from 'node:fs/promises';
+import AdmZip from 'adm-zip';
 
 export interface MovieInfos {
     id: string;
@@ -1157,13 +1159,15 @@ export class MoviesService {
                 url: subtitle.url,
                 urlLink: `${process.env.PUBLIC_API_URL}/movies/subtitle_file/${imdbId}?language=${subtitle.lang}`,
             }));
-            
-            reformedData =  reformedData.map((s: any) => {
+
+            this.redisservice.set(`subtitles:${imdbId}`, JSON.stringify(reformedData), 36000);
+
+
+            reformedData = reformedData.map((s: any) => {
                 const { url, ...rest } = s;
                 return rest;
             });
             const uniqueByLangs = [...new Map(reformedData.map(item => [item.language, item])).values()];
-            this.redisservice.set(`subtitles:${imdbId}`, JSON.stringify(uniqueByLangs), 36000);
             return uniqueByLangs;
         } catch (error) {
             console.error(`Error fetching subtitles for ${imdbId}:`, error);
@@ -1172,24 +1176,37 @@ export class MoviesService {
     }
 
     async getDownloadedFileLink(imdbId: string, language: string) {
-        const redisValue = await this.redisservice.get(`subtitles:${imdbId}`);
-        if (!redisValue) {
-            return { message: "No subtitles found for this movie." };
-        }
-        const subtitles = JSON.parse(redisValue);
-        const subtitle = subtitles.find((s: any) => s.language === language);
-        if (!subtitle) {
-            return { message: "No subtitles found for this language." };
-        }
-
         const fileName = `subtitle_${imdbId}_${language}`;
         const filePath = path.join(process.cwd(), "downloads", `${fileName}`);
 
-        if (require('fs').existsSync(filePath)) {
-            return `${process.env.PUBLIC_API_URL}/downloads/${fileName}`;
+        if (existsSync(filePath)) {
+            return filePath;
         }
-        const response = await axios.get(subtitle.url, { responseType: 'arraybuffer' });
-        writeFileSync(filePath, response.data);
-        return `${process.env.PUBLIC_API_URL}/downloads/${fileName}`;
+        const redisValue = await this.redisservice.get(`subtitles:${imdbId}`);
+        if (!redisValue) {
+            throw new NotFoundException(`No subtitles found for language ${language}`);
+        }
+        const subtitles = JSON.parse(redisValue);
+        const subtitle = subtitles.find((s: any) => s.lang === language);
+        if (!subtitle) {
+            throw new NotFoundException(`No subtitles found for language ${language}`);
+        }
+
+        const response = await axios.get(`${process.env.SUBDL_DWN_URL}${subtitle.url}`, { responseType: 'arraybuffer' });
+        const zip = new AdmZip(Buffer.from(response.data));
+        const zipEntries = zip.getEntries();
+
+        const subFile = zipEntries.find(entry =>
+            !entry.isDirectory && /\.(srt|vtt|ass)$/i.test(entry.entryName)
+        );
+
+        if (!subFile) {
+            throw new InternalServerErrorException("Archive downloaded, but no valid subtitle file was found inside.");
+        }
+
+        const extractedBuffer = subFile.getData();
+        await fsPromises.writeFile(filePath, extractedBuffer);
+
+        return filePath;
     }
 }

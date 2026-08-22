@@ -158,7 +158,7 @@ export class StreamsService implements OnModuleInit, OnModuleDestroy {
         );
         this.dht.once("ready", () => {
             this.dhtReady = true;
-            console.log("DHT is Ready for peer discovery");
+            // console.log("DHT is Ready for peer discovery");
         });
 
         this.dht.listen(20000, "0.0.0.0", () =>
@@ -655,9 +655,9 @@ export class StreamsService implements OnModuleInit, OnModuleDestroy {
             manager.updatePlaybackPosition(pieceIndex);
 
             if (!manager.isPieceVerified(pieceIndex)) {
-                console.log(
-                    `[BUFFER] Waiting for piece ${pieceIndex} (buffered: ${bufferedPieceCount}/${bufferSize})`,
-                );
+                // console.log(
+                //     `[BUFFER] Waiting for piece ${pieceIndex} (buffered: ${bufferedPieceCount}/${bufferSize})`,
+                // );
                 const MAX_WAIT_TIME = 30000;
 
                 await Promise.race([
@@ -722,16 +722,16 @@ export class StreamsService implements OnModuleInit, OnModuleDestroy {
             res.end();
         }
 
-        console.log(
-            `[STREAM COMPLETE] ${imdbId} - ${bufferedPieceCount} pieces streamed`,
-        );
+        // console.log(
+        //     `[STREAM COMPLETE] ${imdbId} - ${bufferedPieceCount} pieces streamed`,
+        // );
 
         if (manager.isComplete()) {
             const storagePath = this.getStoragePath(imdbId);
             const selectedQuality = this.videoQuality.get(infoHash) ?? quality;
-            console.log(
-                `[Download Complete] ${imdbId}-${selectedQuality} - saving to disk...`,
-            );
+            // console.log(
+            //     `[Download Complete] ${imdbId}-${selectedQuality} - saving to disk...`,
+            // );
 
             this.saveDownloadedFile(
                 imdbId,
@@ -766,8 +766,11 @@ export class StreamsService implements OnModuleInit, OnModuleDestroy {
         );
         tracker.on("update", (d: any) =>
             console.log(
-                `Update from Tracker: ${d.complete} seeds / ${d.incomplete} leechers`,
+                ``,
             ),
+            // console.log(
+            //     `Update from Tracker: ${d.complete} seeds / ${d.incomplete} leechers`,
+            // ),
         );
 
         tracker.on("peer", (addr: string) => {
@@ -776,18 +779,18 @@ export class StreamsService implements OnModuleInit, OnModuleDestroy {
             const port = parseInt(addr.slice(sep + 1), 10);
             if (!host || isNaN(port)) return;
 
-            console.log(
-                `Found by Tracker peer ${host}:${port} for infoHash ${infoHash}`,
-            );
+            // console.log(
+            //     `Found by Tracker peer ${host}:${port} for infoHash ${infoHash}`,
+            // );
 
             this.connectToPeer({ host, port }, infoHash, infoHashBuffer);
         });
 
         tracker.start();
         if (this.trackers.has(infoHash)) {
-            console.log(
-                `[WARN] Replacing existing tracker for infoHash ${infoHash}`,
-            );
+            // console.log(
+            //     `[WARN] Replacing existing tracker for infoHash ${infoHash}`,
+            // );
             const oldTracker = this.trackers.get(infoHash);
             oldTracker?.destroy?.();
         }
@@ -809,9 +812,9 @@ export class StreamsService implements OnModuleInit, OnModuleDestroy {
             if (!Buffer.isBuffer(ihBuf) || ihBuf.toString("hex") !== infoHash)
                 return;
             if (!peer?.host || isNaN(peer.port)) return;
-            console.log(
-                `[DHT] Found peer ${peer.host}:${peer.port} for infoHash ${infoHash}`,
-            );
+            // console.log(
+            //     `[DHT] Found peer ${peer.host}:${peer.port} for infoHash ${infoHash}`,
+            // );
 
             this.connectToPeer(
                 { host: peer.host, port: peer.port },
@@ -1006,9 +1009,9 @@ export class StreamsService implements OnModuleInit, OnModuleDestroy {
 
         if (wire.ut_pex) {
             wire.ut_pex.on("peer", (addr: string) => {
-                console.log(
-                    `PEX discovered peer ${addr} for infoHash ${infoHash}`,
-                );
+                // console.log(
+                //     `PEX discovered peer ${addr} for infoHash ${infoHash}`,
+                // );
                 const sep = addr.lastIndexOf(":");
                 const h = addr.slice(0, sep);
                 const p = parseInt(addr.slice(sep + 1), 10);

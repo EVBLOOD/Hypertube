@@ -13,6 +13,7 @@ import {
     Inject,
     forwardRef,
     NotFoundException,
+    StreamableFile,
 } from "@nestjs/common";
 import { FilterMovieDto } from "./dto/filter-movie.dto";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
@@ -22,6 +23,9 @@ import { PaginationMovieDto } from "./dto/pagination-movie.dto ";
 import { StreamsService } from "src/streams/streams.service";
 import { OptionalJwtAuthGuard } from "src/auth/guards/optional-jwt-auth.guard";
 import { OptionalVerifiedGuard } from "src/auth/guards/optional-verified.guard";
+import { createReadStream } from "fs";
+import path from "path";
+import fsPromises from "fs/promises";
 
 @Controller("movies")
 export class MoviesController {
@@ -86,10 +90,31 @@ export class MoviesController {
 
     @UseGuards(JwtAuthGuard, VerifiedGuard)
     @Get("subtitle_file/:imdbId")
-    getSubtitleFile(@Param("imdbId") imdbId: string, @Query("language") language: string) {
-        return this.moviesService.getDownloadedFileLink(imdbId, language);
+    async getSubtitleFile(@Param("imdbId") imdbId: string, @Query("language") language: string, @Res({ passthrough: true }) res) {
+
+        const filePath = await this.moviesService.getDownloadedFileLink(imdbId, language);
+
+        let rawText = await fsPromises.readFile(filePath, 'utf-8');
+
+        if (rawText.charCodeAt(0) === 0xFEFF) {
+            rawText = rawText.slice(1);
+        }
+
+        if (!rawText.trim().startsWith('WEBVTT')) {
+            const convertedText = rawText.replace(/(\d{2}:\d{2}:\d{2}),(\d{3})/g, '$1.$2');
+            rawText = `WEBVTT\n\n${convertedText}`;
+        }
+
+        const fileBuffer = Buffer.from(rawText, 'utf-8');
+
+        return new StreamableFile(fileBuffer, {
+            type: 'text/vtt; charset=utf-8',
+            disposition: `inline; filename="subtitle_${imdbId}_${language}.vtt"`,
+            length: fileBuffer.length,
+        });
+
     }
-    
+
     @UseGuards(JwtAuthGuard, VerifiedGuard)
     @Get("qualities/:imdbId")
     getQualities(@Param("imdbId") imdbId: string) {
