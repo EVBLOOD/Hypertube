@@ -7,6 +7,9 @@ import styles from "./page.module.css";
 import { useSearchParams } from "next/navigation";
 import WatchPartySection from "../../../components/layout/watchPartySection";
 import { useMovieQualities, useMovieSubtitles } from "@/lib/dataHooks/movieWatch";
+import LoadingPage from "@/app/components/layout/loading";
+import { AxiosError } from "axios";
+import ErrorPage from "@/app/components/layout/error";
 
 export default function WatchPageMoviePage({
     params,
@@ -27,16 +30,29 @@ export default function WatchPageMoviePage({
         if (token) {
             setWatchAlone(false);
         } else {
-                setWatchAlone(true);
-            }
-        }, [token]);
-    if (isPending || isQualitiesPending || isSubtitlesPending) return <div>Loading...</div>;
-    if (error || qualitiesError || subtitlesError) return <div>Error..</div>;
+            setWatchAlone(true);
+        }
+    }, [token]);
+    if (isPending || isQualitiesPending || isSubtitlesPending) return <LoadingPage />;
 
-    console.log("Qualities data:", qualitiesData);
-    console.log("Subtitles data:", subtitlesData);
+    if (!data || error) {
+        const axiosErr = error as AxiosError<any>;
+        const errorMessage =
+            axiosErr.response?.data?.message || "Something went wrong";
+        const errorCode = axiosErr?.response?.status || 404;
+        return <ErrorPage errorCode={errorCode} errorMessage={errorMessage} />;
+    }
 
-    if (watchAlone === true) 
+    if (qualitiesError || subtitlesError) {
+        const axiosErr = (qualitiesError as AxiosError<any>) || (subtitlesError as AxiosError<any>);
+        const errorMessage =
+            axiosErr.response?.data?.message || "Something went wrong";
+        const errorCode = axiosErr?.response?.status || 404;
+        return <ErrorPage errorCode={errorCode} errorMessage={errorMessage} />;
+    }
+
+
+    if (watchAlone === true)
         return (
             <div className={styles.watchContent}>
                 <VideoSection
@@ -52,12 +68,12 @@ export default function WatchPageMoviePage({
     return (
         <div className={styles.watchContent}>
             <WatchPartySection
-                    movieId={id}
-                    roomToken={token}
-                    movie={data.data.movie}
-                    qualities={qualitiesData?.data}
-                    subtitles={subtitlesData?.data}
-                />
+                movieId={id}
+                roomToken={token}
+                movie={data.data.movie}
+                qualities={qualitiesData?.data}
+                subtitles={subtitlesData?.data}
+            />
         </div>);
 
 }

@@ -93,6 +93,9 @@ export default {
     async getMovieSubtitles(imdbId: string) {
         return await api.get(`/movies/subtitles/${imdbId}`);
     },
+    async checkMovieError(imdbId: string) {
+        return await api.get(`/movies/watch/${imdbId}`);
+    }
     // async getMovieStream(imdbId: string, quality: string, subtitle?: string) {
     //     return await api.get(`/movies/watch/${imdbId}`, {
     //         params: {

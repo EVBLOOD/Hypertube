@@ -1,6 +1,10 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import styles from "./videoSection.module.css";
+import { checkMovieError } from "@/lib/dataHooks/movieWatch";
+import ErrorPage from "./error";
+import { AxiosError } from "axios";
+import api from "@/lib/api";
 
 export default function VideoSection(props: {
     id: string;
@@ -16,10 +20,11 @@ export default function VideoSection(props: {
     subtitles?: { lang: string, language: string, urlLink: string }[];
 }) {
     const isRemoteUpdate = useRef(false);
-    const IP = process.env.NEXT_PUBLIC_BACK_API_URL || "";
     const refVideo = useRef<HTMLVideoElement>(null);
     const [currentQuality, setCurrentQuality] = useState(props.qualities?.find((q) => q === '720p') ?
         '720p' : props.qualities?.[0]);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const videoUrl = `${process.env.NEXT_PUBLIC_BACK_API_URL}/movies/watch/${props.id}?quality=${currentQuality}`;
 
     const handleQualityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const newQuality = e.target.value;
@@ -73,6 +78,19 @@ export default function VideoSection(props: {
         }
     }
 
+    const handleVideoError = async () => {
+        try {
+            await api.get(`/movies/watch/${props.id}?quality=${currentQuality}`);
+        } catch (err) {
+            const axiosErr = err as AxiosError<any>;
+
+            const errorMessage =
+                axiosErr.response?.data?.message || "Unable to connect to the video streaming server.";
+
+            setErrorMessage(errorMessage);
+        }
+    };
+
     useEffect(() => {
         if (!refVideo.current || !props.isPlaying) return;
 
@@ -93,6 +111,13 @@ export default function VideoSection(props: {
         }
     }, [props.time]);
 
+
+    if (errorMessage) {
+        return (
+            <ErrorPage errorCode={404} errorMessage={errorMessage} />
+        );
+    }
+
     return (
         <div className={styles.videoSection}>
             {props.qualities && (
@@ -109,7 +134,7 @@ export default function VideoSection(props: {
             )}
             <video
                 key={props.id}
-                src={`${IP}/movies/watch/${props.id}?quality=${currentQuality}`}
+                src={videoUrl}
                 controls
                 preload="metadata"
                 poster={props.thumbnail || "thumbnail.jpg"}
@@ -118,7 +143,7 @@ export default function VideoSection(props: {
                 ref={refVideo}
                 onSeeked={handleSeek}
                 onSeeking={handleSeeking}
-                crossOrigin="anonymous"
+                onError={handleVideoError}
             >
 
                 {props.subtitles && props.subtitles.map((s, index) =>
