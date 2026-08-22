@@ -138,7 +138,7 @@ export default function MoviePage({
         void load();
     }, [id, data, commentsData]);
 
-    if (isPending) return <LoadingPage></LoadingPage>;
+    if (isPending) return <LoadingPage />;
     if (!data || error) {
         const axiosErr = error as AxiosError<any>;
         const errorMessage =
@@ -146,8 +146,6 @@ export default function MoviePage({
         const errorCode = axiosErr?.response?.status || 404;
         return <ErrorPage errorCode={errorCode} errorMessage={errorMessage} />;
     }
-
-    console.log(data);
 
     return (
         <div>

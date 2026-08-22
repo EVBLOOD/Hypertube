@@ -84,7 +84,7 @@ services:
 
   redis:
     image: redis:latest
-    container_name: matcha_redis
+    container_name: hypertube_redis
     command: redis-server --appendonly yes
     restart: on-failure
     # volumes:
