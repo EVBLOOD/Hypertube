@@ -1,6 +1,7 @@
 import { Injectable, RequestMethod } from "@nestjs/common";
 import { METHOD_METADATA, PATH_METADATA, PARAMTYPES_METADATA, ROUTE_ARGS_METADATA } from "@nestjs/common/constants";
 import { DiscoveryService } from "@nestjs/core";
+import { getMetadataStorage } from "class-validator";
 
 import { API_DOC_METADATA, type ApiDoc, type Params } from "./decorators/api-doc.decorator";
 
@@ -100,9 +101,9 @@ export class DocsService {
         const routeArgs = Reflect.getMetadata(ROUTE_ARGS_METADATA, controller, handlerName) ?? {};
         const paramTypes = Reflect.getMetadata(PARAMTYPES_METADATA, controller.prototype, handlerName) ?? [];
 
-        console.log("handlerName", handlerName);
-        console.log("routeArgs", routeArgs);
-        console.log("paramTypes", paramTypes);
+        // console.log("handlerName", handlerName);
+        // console.log("routeArgs", routeArgs);
+        // console.log("paramTypes", paramTypes);
 
         return Object.entries(routeArgs).filter(([key]) => {
                 const [type] = key.split(":");
@@ -114,14 +115,42 @@ export class DocsService {
                 const paramIndex = Number(index);
                 const paramType = paramTypes[paramIndex];
                 const name = metadata?.data ?? `param${paramIndex}`;
+                const parameterLocation = this.getParamterLocal(Number(type));
+                const dtoFields = (parameterLocation === "body" || parameterLocation === "query" ) && metadata?.data === undefined
+                    ? this.getDtoFields(paramType)
+                    : [];
 
                 return {
                     name,
-                    in: this.getParamterLocal(Number(type)),
-                    type: paramType?.name ?? "unknown",
+                    in: parameterLocation,
+                    type: dtoFields.length ? dtoFields : paramType?.name ?? "unknown",
                     required: true,
                 };
             });
+    }
+
+    private getDtoFields(dtoType: any): [string, string][] {
+        if (typeof dtoType !== "function" || !dtoType.prototype) {
+            return [];
+        }
+
+        const validationMetadata = getMetadataStorage().getTargetValidationMetadatas(
+            dtoType,
+            "",
+            true,
+            false,
+        );
+        const propertyNames = [...new Set(validationMetadata.map(({ propertyName }) => propertyName))];
+
+        return propertyNames.map((propertyName) => {
+            const propertyType = Reflect.getMetadata(
+                "design:type",
+                dtoType.prototype,
+                propertyName,
+            );
+
+            return [propertyName, propertyType?.name ?? "unknown"];
+        });
     }
 
 }

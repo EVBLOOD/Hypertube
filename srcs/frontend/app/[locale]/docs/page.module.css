@@ -77,6 +77,44 @@
     line-height: 1.6;
 }
 
+.authentication {
+    max-width: 720px;
+    margin-top: 24px;
+}
+
+.authenticationDescription {
+    margin: 0 0 16px;
+    color: color-mix(in srgb, var(--font-color-white), transparent 20%);
+    font-size: 14px;
+    line-height: 1.55;
+}
+
+.authentication h4 {
+    margin: 0 0 12px;
+    color: #938b72;
+    font-family: var(--label-font);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 1px;
+}
+
+.authentication pre {
+    box-sizing: border-box;
+    margin: 0;
+    border: 1px solid #3c3c3c;
+    background: #0c0c0c;
+    padding: 16px;
+    overflow-x: auto;
+}
+
+.authentication code {
+    color: #d0c6ab;
+    font-family: monospace;
+    font-size: 11px;
+    line-height: 1.6;
+    white-space: pre;
+}
+
 .apiSection {
     margin-top: 72px;
 }
@@ -187,6 +225,10 @@
     background: #e0dcd8;
 }
 
+.methodPOST .method {
+    background: #e0dcd8;
+}
+
 .endpointPath {
     margin: 0;
     color: var(--font-color-white);
@@ -202,7 +244,8 @@
     flex: 0 0 auto;
     align-items: center;
     gap: 9px;
-    color: #766f59;
+    /* color: #766f59; */
+    color: var(--font-color-white);
     font-family: var(--label-font);
     font-size: 10px;
     letter-spacing: 0.4px;
@@ -226,10 +269,11 @@
 
 .parameters h4,
 .responseLabel {
-    margin: 0 0 12px;
+    margin: 0;
+    /* margin-bottom: 10px; */
     color: #938b72;
     font-family: var(--label-font);
-    font-size: 10px;
+    font-size: 13px;
     font-weight: 500;
     letter-spacing: 1px;
 }
@@ -241,9 +285,9 @@
 .parameter {
     display: flex;
     justify-content: space-between;
-    gap: 16px;
+    /* gap: 16px; */
     border-bottom: 1px solid #252525;
-    padding: 10px 4px;
+    padding: 6px 4px;
 }
 
 .parameter dt {
@@ -252,11 +296,34 @@
     font-size: 12px;
 }
 
+.in {
+    color: #938b72;
+    font-family: var(--label-font);
+    font-size: 9px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+}
+
+.parameterLocation {
+    display: block;
+    margin-bottom: 4px;
+    color: #938b72;
+    font-family: var(--label-font);
+    font-size: 9px;
+    letter-spacing: 0.8px;
+}
+
 .parameter dd {
     margin: 0;
     color: #938b72;
     font-size: 11px;
     text-align: right;
+}
+
+.parameterTypes {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
 .responseFull {

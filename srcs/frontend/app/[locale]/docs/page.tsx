@@ -18,14 +18,6 @@ const sections = [
     "Webhooks",
 ];
 
-const resourceLabels: Record<string, string> = {
-    users: "PROFILE & AUTHENTICATION",
-    movies: "CATALOG & STREAMING",
-    auth: "AUTHENTICATION",
-    comments: "COMMUNITY & DISCUSSION",
-    docs: "DOCUMENTATION",
-};
-
 function detailsEndpoint(endpoint: Docs, resource: string): ApiCardProps {
     return {
         title: endpoint.summary || `${endpoint.method} ${endpoint.path}`,
@@ -35,6 +27,7 @@ function detailsEndpoint(endpoint: Docs, resource: string): ApiCardProps {
         access: resource === "users" ? "private" : "public",
         parameters: endpoint.params?.map((parameter) => ({
             name: parameter.name,
+            in: parameter.in,
             type: parameter.type || parameter.in,
             required: parameter.required,
         })),
@@ -80,11 +73,20 @@ export default function DocsPage() {
                 <TitleCustom title={Docs("title")} />
                 <DescriptionComponent text={Docs("decription")} className={styles.docsDescription} />
 
+                <div className={styles.authentication}>
+                    <p className={styles.authenticationDescription}>
+                        To access private endpoints, include the following header in your request:
+                    </p>
+                    <h4>HEADERS</h4>
+                    <pre>
+                        <code>{"Authorization: Bearer 'token'"}</code>
+                    </pre>
+                </div>
+
                 {docs && docs.map(([doc, endpoints]) => (
                     <section className={styles.apiSection} id={doc} key={doc} >
                         <div className={styles.sectionHeading}>
                             <h2>{doc.toUpperCase()}</h2>
-                            <span>{resourceLabels[doc] || "API ENDPOINTS"}</span>
                         </div>
                         <div className={styles.apiCards}>
                             {endpoints.map((endpoint, i) => (

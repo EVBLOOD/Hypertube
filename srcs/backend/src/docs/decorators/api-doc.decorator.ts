@@ -2,10 +2,12 @@ import { SetMetadata } from "@nestjs/common";
 
 export const API_DOC_METADATA = "api-doc";
 
+export type ParamType = string | [field: string, type: string][];
+
 export interface Params {
     name: string;
     in: "body" | "query" | "param" | "header" | "unknown";
-    type?: string;
+    type?: ParamType;
     required: boolean;
 }
 

@@ -1,9 +1,11 @@
 import api from "@/lib/api";
 
+export type DocParamType = string | [field: string, type: string][];
+
 export type DocParams = {
     name: string;
     in: "body" | "query" | "param" | "header" | "unknown";
-    type?: string;
+    type?: DocParamType;
     required: boolean;
 };
 

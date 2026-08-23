@@ -7,10 +7,6 @@ export class DocsController {
     constructor(private readonly docsService: DocsService) {}
 
     @Get("/")
-    @ApiDoc({
-        summary: "Get API documentation",
-        description: "Returns the API routes discovered by the application.",
-    })
     getJson() {
         return this.docsService.getDocumentation();
     }
