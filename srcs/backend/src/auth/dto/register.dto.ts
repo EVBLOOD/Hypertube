@@ -4,6 +4,7 @@ import {
     IsString,
     MinLength,
     Matches,
+    IsOptional,
 } from "class-validator";
 
 export class RegisterDto {
@@ -34,9 +35,13 @@ export class RegisterDto {
 
 export class RegisterWithOauthDto extends RegisterDto {
     @IsString()
-    @IsNotEmpty()
-    fortyTwoId!: string;
+    @IsOptional()
+    fortyTwoId?: string;
 
     @IsString()
-    profilePicture!: string;
+    @IsOptional()
+    externalStrategyId?: string;
+
+    @IsString()
+    profilePicture?: string;
 }

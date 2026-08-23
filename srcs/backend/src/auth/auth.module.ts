@@ -10,6 +10,8 @@ import { MailModule } from "src/mails/mails.module";
 import { LocalStrategy } from "./strategies/local.strategy";
 import { FortyTwoStrategy } from "./strategies/42.strategy";
 import { WsJwtGuard } from "./guards/ws-jwt.guard";
+import { GoogleStrategy } from "./strategies/google.strategy";
+import { GithubStrategy } from "./strategies/github.strategy";
 
 @Module({
     imports: [
@@ -25,6 +27,6 @@ import { WsJwtGuard } from "./guards/ws-jwt.guard";
         }),
     ],
     controllers: [AuthController],
-    providers: [AuthService, JwtStrategy, LocalStrategy, FortyTwoStrategy, WsJwtGuard],
+    providers: [AuthService, JwtStrategy, LocalStrategy, FortyTwoStrategy, WsJwtGuard, GoogleStrategy, GithubStrategy],
 })
 export class AuthModule {}

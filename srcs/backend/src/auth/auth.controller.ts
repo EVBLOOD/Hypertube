@@ -21,7 +21,7 @@ import { ResetPasswordDto } from "./dto/reset-password.dto";
 
 @Controller("auth")
 export class AuthController {
-    constructor(private authService: AuthService) {}
+    constructor(private authService: AuthService) { }
 
     @Post("register")
     register(@Body() dto: RegisterDto) {
@@ -50,6 +50,56 @@ export class AuthController {
     @Post("reset-password")
     async resetPassword(@Body() dto: ResetPasswordDto) {
         return this.authService.resetPassword(dto.token, dto.newPassword);
+    }
+
+    @Get("login/google")
+    @UseGuards(AuthGuard("google"))
+    async loginGoogle() {
+        return { message: "Redirecting to google login page..." };
+    }
+
+    @Get("login/google/callback")
+    @UseGuards(AuthGuard("google"))
+    async loginGoogleCallback(@Request() req, @Res() res: Response) {
+        console.log("google Callback User:", req.user);
+        if (!req.user) {
+            return { message: "User not found" };
+        }
+        const token = (await this.authService.login(req.user)).access_token;
+        res.cookie("AUTH_TOKEN", token, {
+            // httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
+            path: "/",
+        });
+
+        res.redirect(`${process.env.FRONTEND_URL}/auth/callback`);
+    }
+
+    @Get("login/github")
+    @UseGuards(AuthGuard("github"))
+    async loginGithub() {
+        return { message: "Redirecting to github login page..." };
+    }
+
+    @Get("login/github/callback")
+    @UseGuards(AuthGuard("github"))
+    async loginGithubCallback(@Request() req, @Res() res: Response) {
+        console.log("github Callback User:", req.user);
+        if (!req.user) {
+            return { message: "User not found" };
+        }
+        const token = (await this.authService.login(req.user)).access_token;
+        res.cookie("AUTH_TOKEN", token, {
+            // httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
+            path: "/",
+        });
+
+        res.redirect(`${process.env.FRONTEND_URL}/auth/callback`);
     }
 
     @Get("login/42")

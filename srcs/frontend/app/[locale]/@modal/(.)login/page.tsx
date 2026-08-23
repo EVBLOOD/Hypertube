@@ -21,7 +21,7 @@ export default function Login() {
     const Login = useTranslations("Login");
     const router = useRouter();
 
-    const emailRef = useRef<HTMLInputElement>(null);
+    const emailOrUserNameRef = useRef<HTMLInputElement>(null);
     const passwordRef = useRef<HTMLInputElement>(null);
 
     const handleLogin42 = () => {
@@ -70,12 +70,105 @@ export default function Login() {
         }, 1000);
     };
 
+
+    const handleLoginGoogle = () => {
+        const backendUrl = process.env.NEXT_PUBLIC_BACK_API_URL || "";
+
+        const targetOrigin = new URL(backendUrl).origin;
+
+        const childWindow = window.open(
+            `${backendUrl}/auth/login/google`,
+            "_blank",
+            "width=500,height=600",
+        );
+
+        const messageListener = (event: MessageEvent) => {
+            if (event.origin !== targetOrigin) return;
+            console.log("Received message:", event.data);
+
+            if (event.data?.type === "login_success") {
+                console.log("User data:", event.data);
+
+                useUserStore.getState().userLogged({
+                    username: event.data.username,
+                    language: event.data.preferredLanguage,
+                    avatar: event.data.profilePicture,
+                    isPublic: event.data.isPublic,
+                });
+
+                cleanup();
+                childWindow?.close();
+                router.push("/");
+                console.log("Login successful:", event.data);
+            }
+        };
+
+        const cleanup = () => {
+            window.removeEventListener("message", messageListener);
+            clearInterval(checkClosedInterval);
+        };
+
+        window.addEventListener("message", messageListener);
+
+        const checkClosedInterval = setInterval(() => {
+            if (childWindow?.closed) {
+                cleanup();
+            }
+        }, 1000);
+    };
+
+    const handleLoginGithub = () => {
+        const backendUrl = process.env.NEXT_PUBLIC_BACK_API_URL || "";
+
+        const targetOrigin = new URL(backendUrl).origin;
+
+        const childWindow = window.open(
+            `${backendUrl}/auth/login/github`,
+            "_blank",
+            "width=500,height=600",
+        );
+
+        const messageListener = (event: MessageEvent) => {
+            if (event.origin !== targetOrigin) return;
+            console.log("Received message:", event.data);
+
+            if (event.data?.type === "login_success") {
+                console.log("User data:", event.data);
+
+                useUserStore.getState().userLogged({
+                    username: event.data.username,
+                    language: event.data.preferredLanguage,
+                    avatar: event.data.profilePicture,
+                    isPublic: event.data.isPublic,
+                });
+
+                cleanup();
+                childWindow?.close();
+                router.push("/");
+                console.log("Login successful:", event.data);
+            }
+        };
+
+        const cleanup = () => {
+            window.removeEventListener("message", messageListener);
+            clearInterval(checkClosedInterval);
+        };
+
+        window.addEventListener("message", messageListener);
+
+        const checkClosedInterval = setInterval(() => {
+            if (childWindow?.closed) {
+                cleanup();
+            }
+        }, 1000);
+    };
+
     async function handelLogin() {
-        const email = emailRef.current?.value;
+        const emailOrUserName = emailOrUserNameRef.current?.value;
         const password = passwordRef.current?.value;
 
-        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            alert("Please enter a valid email address.");
+        if (!emailOrUserName || emailOrUserName.trim() === "") {
+            alert("Please enter a valid emailOrUserName address.");
             return;
         }
         if (!password || password.length < 6) {
@@ -84,7 +177,7 @@ export default function Login() {
         }
         try {
             const result = (
-                await AuthService.login({ username: email, password })
+                await AuthService.login({ username: emailOrUserName, password })
             )?.data;
             if (!result || !result.user) {
                 alert("Login failed. Please check your credentials.");
@@ -144,7 +237,18 @@ export default function Login() {
                             <ButtonCustom
                                 textButton={Login.raw("integrations")[1]}
                                 buttonImage="/costumIcons/42icon.svg"
-                                onClick={handleLogin42}
+                                onClick={handleLoginGithub}
+                                style={{
+                                    display: "flex",
+                                    justifyContent: "start",
+                                    alignItems: "center",
+                                    paddingLeft: "10px",
+                                }}
+                            ></ButtonCustom>
+                            <ButtonCustom
+                                textButton={Login.raw("integrations")[2]}
+                                buttonImage="/costumIcons/42icon.svg"
+                                onClick={handleLoginGoogle}
                                 style={{
                                     display: "flex",
                                     justifyContent: "start",
@@ -164,7 +268,7 @@ export default function Login() {
 
                         <div className={styles.loginInfos}>
                             <InputCustom
-                                ref={emailRef}
+                                ref={emailOrUserNameRef}
                                 lableName={Login("label_address")}
                                 placeHolder={Login("label_address")}
                             />
