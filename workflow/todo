@@ -42,4 +42,4 @@
 * [ ] Build MediaStream / MSE browser API integration for dynamic video chunking.
 * [x] Implement dynamic multi-resolution streaming (480p, 720p, 1080p dynamically piped through `ffmpeg`).
 * [ ] Add playback state retention ("Resume watching where you left off").
-* [ ] Add extra OAuth2 strategies (Discord, Spotify, Twitch).
+* [x] Add extra OAuth2 strategies (Discord, Spotify, Twitch).
