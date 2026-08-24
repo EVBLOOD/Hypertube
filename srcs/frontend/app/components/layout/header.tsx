@@ -6,15 +6,13 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useUserStore } from "@/stores/user";
 import AuthService from "@/lib/services/AuthService";
-import { useEffect, useState } from "react";
-import InputCustom from "../ui/inputCustom";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
 
 export default function Header() {
     const header = useTranslations("Header");
     const user = useUserStore((state) => state.user);
-    const [openSearch, setOpenSearch] = useState(false);
+    const router = useRouter();
 
     async function handleLogout() {
         try {
@@ -27,7 +25,7 @@ export default function Header() {
         }
     }
     function handleSearch() {
-        setOpenSearch(!openSearch);
+        router.push("/search");
     }
     const pathname = usePathname();
 

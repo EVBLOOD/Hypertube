@@ -49,7 +49,7 @@ export default async function RootLayout({
             >
                 <NextIntlClientProvider messages={messages}>
                     <UseQueryProvider>
-                    <AuthProvider>
+                    {/* <AuthProvider> */}
                         <SocketProvider>
 
                             <LanguageSwitcher local={locale} />
@@ -59,7 +59,7 @@ export default async function RootLayout({
                             <Footer />
 
                         </SocketProvider>
-                    </AuthProvider>
+                    {/* </AuthProvider> */}
                     </UseQueryProvider>
                 </NextIntlClientProvider>
             </body>

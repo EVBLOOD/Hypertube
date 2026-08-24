@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException, Query } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Movie } from "./entities/movie.entity";
@@ -75,26 +75,29 @@ export class MoviesService {
     ) { }
 
     TMDB_GENRE_MAP = {
-        28: "Action",
-        12: "Adventure",
-        16: "Animation",
-        35: "Comedy",
-        80: "Crime",
-        99: "Documentary",
-        18: "Drama",
-        10751: "Family",
-        14: "Fantasy",
-        36: "History",
-        27: "Horror",
-        10402: "Music",
-        9648: "Mystery",
-        10749: "Romance",
-        878: "Sci-Fi",
-        10770: "TV Movie",
-        53: "Thriller",
-        10752: "War",
-        37: "Western",
-    };
+        "action": 28,
+        "adventure": 12,
+        "animation": 16,
+        "biography": 27,
+        "comedy": 35,
+        "crime": 80,
+        "documentary": 99,
+        "drama": 18,
+        "family": 10751,
+        "fantasy": 14,
+        "film-noir": 17,
+        "history": 36,
+        "horror": 27,
+        "music": 10402,
+        "musical": 10749,
+        "mystery": 9648,
+        "romance": 10749,
+        "sci-fi": 878,
+        "sport": 10770,
+        "thriller": 53,
+        "war": 10752,
+        "western": 37
+    }
 
     normalizeMovie(movie: any, source: string): MovieInfos {
         if (source == "YTS") {
@@ -220,53 +223,55 @@ export class MoviesService {
             page = 1,
             limit = 20,
             sortBy,
+            order = "asc"
         } = filters;
-        const cacheKey = `search:${userId}:${query || "all"}:${genre || "all"}`;
-        const cachedCount = await this.redisservice.lenZSet(cacheKey);
+        const cacheKey = `search:${userId}:${query || "all"}:${genre || "all"}:${minRating || "0"}:${minYear || "1900"}:${maxYear || "2100"}:${sortBy || "popularity"}:${order || "asc"}`;
+        const pageTrackerKey = `${cacheKey}:next_tmdb_page`;
+        const LimitTrackerKey = `${cacheKey}:keep_tmdb_limit`;
 
-        if (!query)
-            filters = {
-                genre,
-                limit,
-                minRating,
-                maxYear,
-                minYear,
-                page,
-                sortBy,
-            };
+        const activeFilters: FilterMovieDto = { ...filters };
+        if (!query || query.trim() === "") {
+            delete activeFilters.query;
+        }
 
         const needed = page * limit;
+        const cachedCount = await this.redisservice.lenZSet(cacheKey);
 
         if (cachedCount <= needed) {
-            const tmdbMovies = await this.fetchFromTMDB(filters);
-            const imdbData = (
-                await Promise.all(
-                    tmdbMovies?.map(
-                        async (movie: any) => await this.imdbIdFromTMDB(movie),
-                    ),
-                )
-            ).filter((m) => m.id);
-            const yts_movies = await Promise.all(
-                imdbData.map(async (movie) => await this.getMovieYTS(movie)),
-            );
+            const currentTmdbPage = Number(await this.redisservice.get(pageTrackerKey)) || page;
+            const currentTmdbLimit = Number(await this.redisservice.get(LimitTrackerKey)) || limit;
+            console.log(`Fetching from TMDB: page ${currentTmdbPage}, 
+                limit ${currentTmdbLimit}`);
 
-            if (yts_movies.length > 0) {
-                await this.redisservice.pushMovies(cacheKey, yts_movies);
+            const tmdbFilters = { ...activeFilters, page: currentTmdbPage, limit: currentTmdbLimit };
+            const { movies, page: nextTmdbPage } = await this.fetchFromTMDB(tmdbFilters);
+            console.log(`Fetched ${movies.length} movies from TMDB for filters:`, tmdbFilters);
+
+
+            const ytsMovies = (await Promise.all(
+                movies.map(async (movie) => await this.getMovieYTS(movie)),
+            )).filter(Boolean);
+
+
+
+            if (ytsMovies.length > 0) {
+                await this.redisservice.pushMovies(cacheKey, ytsMovies);
             }
+            await this.redisservice.set(pageTrackerKey, nextTmdbPage.toString(), 86400);
+            await this.redisservice.set(LimitTrackerKey, currentTmdbLimit.toString(), 86400);
         }
 
         const start = (page - 1) * limit;
-        const movies = await this.redisservice.getMovies(
+        const cachedMovies = await this.redisservice.getMovies(
             cacheKey,
             start,
             limit,
         );
         let processedMovies: any[] = await Promise.all(
-            movies.map((m) => this.dataUserIMDB(m, userId)),
+            cachedMovies.map((m) => this.dataUserIMDB(m, userId)),
         );
-        const total = await this.redisservice.lenZSet(cacheKey);
 
-        if (userId) {
+        if (userId && processedMovies.length > 0) {
             const moviesWithUserData = await Promise.all(
                 processedMovies.map((m: MovieInfos) =>
                     this.extractUserMovieDetails(m.id, userId),
@@ -279,6 +284,7 @@ export class MoviesService {
                 }),
             );
         }
+        const total = await this.redisservice.lenZSet(cacheKey);
 
         return {
             data: processedMovies,
@@ -483,57 +489,85 @@ export class MoviesService {
 
     private async fetchFromTMDB(
         filters: FilterMovieDto,
-    ): Promise<MovieInfos[]> {
-        let results: MovieInfos[] = [];
-        const sortMap = {
-            title: "original_title",
-            popularity: "popularity.desc",
-            date: "primary_release_date.desc",
-            rating: "vote_average.desc",
-        };
+    ): Promise<{ movies: MovieInfos[], page: number }> {
+        let resultResponse: any = [];
 
-        const pagesToFetch = Math.ceil(((filters.limit || 20) + 1) / 20);
-        console.log(pagesToFetch);
+        const sortMap = {
+            title: "title",
+            popularity: "popularity",
+            date: "primary_release_date",
+            rating: "vote_average",
+        };
+        let currentPage = filters.page || 1;
+        const limit = filters.limit || 20;
+        const pagesToFetch = Math.ceil(((filters.limit || 20) + 1) / (filters.limit || 20));
+
         try {
             const isSearch = !!filters.query;
             const endpoint = isSearch ? "search/movie" : "discover/movie";
             const params: any = {
                 api_key: process.env.TMDB_KEY,
-                page: filters.page || 1,
                 language: "en-US",
             };
 
-            if (isSearch) {
-                params.query = filters.query;
-            } else {
-                params.sort_by = sortMap[filters.sortBy || "popularity"];
+
+            if (isSearch)
+                params["query"] = filters.query;
+            if (filters.minYear)
                 params["primary_release_date.gte"] = `${filters.minYear}-01-01`;
+            if (filters.maxYear)
                 params["primary_release_date.lte"] = `${filters.maxYear}-12-31`;
 
-                if (filters.genre && filters.genre !== "all") {
-                    params.with_genres = filters.genre;
-                }
-                if (filters.minRating) {
-                    params["vote_average.gte"] = filters.minRating;
-                }
+            params["sort_by"] = `${sortMap[filters.sortBy || "title"]}.${filters.order || "asc"}`;
+
+            if (filters.genre && filters.genre !== "all") {
+                if (this.TMDB_GENRE_MAP[filters.genre])
+                    params["with_genres"] = this.TMDB_GENRE_MAP[filters.genre];
             }
-            const requests: any = [];
-            for (let i = 0; i < pagesToFetch; i++) {
-                requests.push(
-                    axios.get(`${process.env.TMDB_API}${endpoint}`, {
-                        params: { ...params, page: params.page + i },
-                    }),
+            if (filters.minRating) {
+                params["vote_average.gte"] = filters.minRating;
+            }
+
+
+
+
+            while (resultResponse.length <= limit) {
+                const requests: any = [];
+
+                for (let i = 0; i < pagesToFetch; i++) {
+                    requests.push(
+                        axios.get(`${process.env.TMDB_API}${endpoint}`, {
+                            params: { ...params, page: currentPage + i },
+                        }),
+                    );
+                }
+                const responses = await Promise.all(requests);
+                const data = responses.flatMap((res) => res.data.results || []);
+                if (data.length === 0) break;
+
+                const results: MovieInfos[] = (data || [])?.map((m: any) =>
+                    this.normalizeMovie(m, "TMDB"),
                 );
+
+                const imdbData = (
+                    await Promise.all(
+                        results?.map(
+                            async (movie: any) => await this.imdbIdFromTMDB(movie),
+                        ),
+                    )
+                ).filter((m) => m && m.id);
+
+                resultResponse.push(...imdbData)
+
+                resultResponse = resultResponse.filter((m) => m.id);
+                resultResponse = [...new Map(resultResponse.map(item => [item.id, item])).values()]
+                currentPage += pagesToFetch;
             }
-            const responses = await Promise.all(requests);
-            const data = responses.flatMap((res) => res.data.results || []);
-            results = (data || [])?.map((m: any) =>
-                this.normalizeMovie(m, "TMDB"),
-            );
+
         } catch (err) {
             console.error(err);
         }
-        return results;
+        return { movies: resultResponse, page: currentPage };
     }
 
     private async fetchFromYts(filters: FilterMovieDto) {

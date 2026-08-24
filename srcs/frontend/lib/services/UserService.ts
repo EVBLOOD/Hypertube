@@ -18,4 +18,15 @@ export default {
     async updateMe(payload: UpdateUserPayload) {
         return (await api.patch("/users/me", payload)).data;
     },
+    async getUserList({ pageParam = 1, username }: { pageParam: number; queryKey: any, username: string }) {
+        return (
+            await api.get("/users/find/users", {
+                params: {
+                    page: pageParam,
+                    limit: 20,
+                    username: username,
+                },
+            })
+        ).data;
+    },
 };

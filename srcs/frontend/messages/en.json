@@ -13,7 +13,11 @@
         "title": "THE BACKLOT",
         "sub_title": "INDEXED ASSETS // GLOBAL REPOSITORY",
         "resolution": "RESOLUTION",
-        "seen": "SEEN"
+        "seen": "SEEN",
+        "filter_search": "SEARCH",
+        "filter_search_placeholder": "SEARCH FOR A MOVIE...",
+        "filter_sort_popularity": "POPULARITY",
+        "filter_sort_rating": "RATING"
     },
     "Genres": {
         "action": "Action",
@@ -68,7 +72,11 @@
             }
         ],
         "integration": "Integrate with secure providers",
-        "integrations": ["CONTINUE WITH 42 NETWORK", "CONTINUE WITH GITHUB", "CONTINUE WITH GOOGLE"],
+        "integrations": [
+            "CONTINUE WITH 42 NETWORK",
+            "CONTINUE WITH GITHUB",
+            "CONTINUE WITH GOOGLE"
+        ],
         "second_title": "IDENTIFICATION",
         "second_discreption": "Please provide credentials to enter the vault.",
         "label_address": "EMAIL_ADDRESS",
@@ -127,7 +135,6 @@
         "sign_in": "SIGN IN",
         "sign_out": "SIGN OUT"
     },
-
     "Watch": {
         "start_button": "Start WatchTogether",
         "invite_copied": "Invite link copied to clipboard.",

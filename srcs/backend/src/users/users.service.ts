@@ -14,6 +14,7 @@ import { MoviesService } from "src/movies/movies.service";
 import { RedisService } from "src/common/redis/redis.service";
 import { MailsService } from "src/mails/mails.service";
 import { v4 as uuidv4 } from "uuid";
+import { PaginationFindUserDto } from "./dto/find-user.dto";
 
 @Injectable()
 export class UsersService {
@@ -24,7 +25,7 @@ export class UsersService {
         private readonly moviesService: MoviesService,
         private readonly redisService: RedisService,
         private readonly emailsService: MailsService,
-    ) {}
+    ) { }
 
     async findById(id: number, requestorId: number): Promise<User> {
         const query = this.userRepo
@@ -150,4 +151,31 @@ export class UsersService {
             history: history,
         };
     }
+
+    async findUsers(paging: PaginationFindUserDto, requestorId: number) {
+        console.log("findUsers called with paging:", paging, "requestorId:", requestorId);
+        const { page = 1, limit = 20, username } = paging;
+        const query = this.userRepo
+            .createQueryBuilder("user")
+            .select(["user.id", "user.username", "user.firstName", "user.lastName", "user.profilePicture"])
+            .where("user.username LIKE :username", {
+                username: `%${username}%`,
+            })
+            .andWhere("user.id != :requestorId", { requestorId })
+            .andWhere("user.privacy = :privacy", { privacy: "public" })
+            .orderBy("user.username", "ASC")
+            .skip((page - 1) * limit)
+            .take(limit);
+
+        const [users, total] = await query.getManyAndCount();
+
+        return {
+            data: users,
+            metadata: {
+                nextPage: page + 1,
+                hasMore: total > page * limit,
+            },
+        }
+    }
 }
+

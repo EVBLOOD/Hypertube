@@ -26,16 +26,14 @@ export default function Library() {
         minYear: 2017,
         maxYear: 2026,
         minRating: 8,
-        sortBy: "alpha",
-        // odder: 'asc'
+        sortBy: "title",
+        query: "",
+        order: 'asc'
     });
 
     function OnChange(newFilters: typeof filters) {
         setFilters(newFilters);
     }
-    //   const OnChange = React.useCallback((newFilters: typeof filters) => {
-    //   setFilters(newFilters);
-    // }, []);
 
     const debouncedSearch = useDebounce(filters, 500);
 

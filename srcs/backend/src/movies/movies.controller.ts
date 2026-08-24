@@ -23,8 +23,6 @@ import { PaginationMovieDto } from "./dto/pagination-movie.dto ";
 import { StreamsService } from "src/streams/streams.service";
 import { OptionalJwtAuthGuard } from "src/auth/guards/optional-jwt-auth.guard";
 import { OptionalVerifiedGuard } from "src/auth/guards/optional-verified.guard";
-import { createReadStream } from "fs";
-import path from "path";
 import fsPromises from "fs/promises";
 
 @Controller("movies")

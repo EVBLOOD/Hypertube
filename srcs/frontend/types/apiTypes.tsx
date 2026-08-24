@@ -40,3 +40,12 @@ export interface CommentType {
         lastName?: string;
     };
 }
+
+// User Search
+export interface UserSearchType {
+    id: string;
+    username: string;
+    firstName: string;
+    lastName: string;
+    profilePicture: string;
+}
