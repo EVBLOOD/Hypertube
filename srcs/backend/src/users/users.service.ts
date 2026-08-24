@@ -1,7 +1,4 @@
-import {
-    Injectable,
-    NotFoundException,
-} from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { User } from "./entities/user.entity";
@@ -25,7 +22,7 @@ export class UsersService {
         private readonly moviesService: MoviesService,
         private readonly redisService: RedisService,
         private readonly emailsService: MailsService,
-    ) { }
+    ) {}
 
     async findById(id: number, requestorId: number): Promise<User> {
         const query = this.userRepo
@@ -153,11 +150,22 @@ export class UsersService {
     }
 
     async findUsers(paging: PaginationFindUserDto, requestorId: number) {
-        console.log("findUsers called with paging:", paging, "requestorId:", requestorId);
+        console.log(
+            "findUsers called with paging:",
+            paging,
+            "requestorId:",
+            requestorId,
+        );
         const { page = 1, limit = 20, username } = paging;
         const query = this.userRepo
             .createQueryBuilder("user")
-            .select(["user.id", "user.username", "user.firstName", "user.lastName", "user.profilePicture"])
+            .select([
+                "user.id",
+                "user.username",
+                "user.firstName",
+                "user.lastName",
+                "user.profilePicture",
+            ])
             .where("user.username LIKE :username", {
                 username: `%${username}%`,
             })
@@ -175,7 +183,6 @@ export class UsersService {
                 nextPage: page + 1,
                 hasMore: total > page * limit,
             },
-        }
+        };
     }
 }
-

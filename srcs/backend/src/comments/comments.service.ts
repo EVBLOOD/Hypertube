@@ -10,9 +10,10 @@ import { CommentCommentInteraction } from "./entities/user-comment.entity";
 export class CommentsService {
     constructor(
         @InjectRepository(Comment) private commentRepo: Repository<Comment>,
-        @InjectRepository(CommentCommentInteraction) private interactionRepo: Repository<CommentCommentInteraction>,
+        @InjectRepository(CommentCommentInteraction)
+        private interactionRepo: Repository<CommentCommentInteraction>,
         private readonly movieService: MoviesService,
-    ) { }
+    ) {}
 
     async create(userId: number, imdbId: string, content: string) {
         let movie = await this.movieService.findByImdbId(imdbId);
@@ -38,7 +39,11 @@ export class CommentsService {
         });
     }
 
-    async findByMovie(imdbId: string, paging: PaginationCommentDto, userId: number) {
+    async findByMovie(
+        imdbId: string,
+        paging: PaginationCommentDto,
+        userId: number,
+    ) {
         const { page = 1, limit = 20, sort = "createdAt" } = paging;
 
         const query = this.commentRepo
@@ -47,8 +52,10 @@ export class CommentsService {
             .leftJoin("comment.movie", "movie")
             .where("movie.imdbId = :imdbId", { imdbId })
             .orderBy(
-                sort === "interactionCount" ? "comment.userReaction" : `comment.${sort}`,
-                "DESC"
+                sort === "interactionCount"
+                    ? "comment.userReaction"
+                    : `comment.${sort}`,
+                "DESC",
             )
             .skip((page - 1) * limit)
             .take(limit);
@@ -58,7 +65,7 @@ export class CommentsService {
                 "comment.commentCommentInteractions",
                 "userInteraction",
                 "userInteraction.userId = :userId",
-                { userId }
+                { userId },
             );
         }
 
@@ -66,7 +73,8 @@ export class CommentsService {
 
         return comments.map((comment) => {
             const interaction = comment.commentCommentInteractions?.[0];
-            const userReaction = userId !== -1 && interaction ? interaction.interaction : 0;
+            const userReaction =
+                userId !== -1 && interaction ? interaction.interaction : 0;
 
             return {
                 ...comment,
@@ -75,7 +83,11 @@ export class CommentsService {
         });
     }
 
-    async addInteraction(commentId: number, interaction: number, userId: number) {
+    async addInteraction(
+        commentId: number,
+        interaction: number,
+        userId: number,
+    ) {
         const comment = await this.commentRepo.findOne({
             where: { id: commentId },
         });
@@ -84,7 +96,9 @@ export class CommentsService {
             throw new Error(`Comment with ID ${commentId} not found.`);
         }
         if (interaction !== 1 && interaction !== 2) {
-            throw new Error(`Invalid interaction value: ${interaction}. Must be 1 or 2.`);
+            throw new Error(
+                `Invalid interaction value: ${interaction}. Must be 1 or 2.`,
+            );
         }
 
         let interactionToAdd = interaction;
@@ -97,8 +111,8 @@ export class CommentsService {
 
         if (existingInteraction?.interaction === interaction) {
             interactionToAdd = 0;
-            comment.userReaction += interaction === 2 ? +1 : interaction === 1 ? -1 : 0;
-
+            comment.userReaction +=
+                interaction === 2 ? +1 : interaction === 1 ? -1 : 0;
         } else {
             comment.userReaction = interaction === 2 ? -1 : 1;
         }

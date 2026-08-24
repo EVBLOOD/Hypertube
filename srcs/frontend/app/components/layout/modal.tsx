@@ -12,8 +12,9 @@ export default function Modal({ children }: { children: ReactNode }) {
         pathname.includes("/register") ||
         pathname.includes("/reset-password") ||
         pathname.includes("/reset-password-email");
-    
-    const alwaysOpenRoutes =  pathname.includes("/search") && !pathname.includes("/search/users");
+
+    const alwaysOpenRoutes =
+        pathname.includes("/search") && !pathname.includes("/search/users");
 
     useEffect(() => {
         const currentPath = sessionStorage.getItem("currentPath");

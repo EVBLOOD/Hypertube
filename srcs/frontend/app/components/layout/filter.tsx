@@ -3,15 +3,15 @@
 import { useTranslations } from "next-intl";
 import DescriptionComponent from "../ui/descriptionComponent";
 import styles from "./filter.module.css";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import genreMessages from "@/messages/en.json";
-import InputCustom from "../ui/inputCustom";
+import { useSearchParams } from "next/navigation";
 
 export default function Filter({ onChange }: { onChange: Function }) {
     const Library = useTranslations("Library");
     const geners = useTranslations("Genres");
     const genreKeys = Object.keys(genreMessages.Genres);
-    
+    const searchParams = useSearchParams();
 
     const [gender, setGender] = useState("all");
     const [minYear, setMinYear] = useState(2017);
@@ -19,7 +19,11 @@ export default function Filter({ onChange }: { onChange: Function }) {
     const [rating, setRating] = useState(8);
     const [sortBy, setSortBy] = useState("title");
     const [order, setOrder] = useState("asc");
-    const [searchValue, setSearchValue] = useState("");
+    const query = searchParams.get("search") || "";
+
+    console.log("Query from searchParams:", query);
+
+    const [searchValue, setSearchValue] = useState(query);
     const sortOptions = [
         { id: "popularity", label: "filter_sort_popularity" },
         { id: "date", label: "filter_sort_add_date" },
@@ -38,6 +42,10 @@ export default function Filter({ onChange }: { onChange: Function }) {
             query: searchValue,
         });
     }, [gender, minYear, maxYear, rating, sortBy, order, searchValue]);
+
+    useEffect(() => {
+        setSearchValue(query);
+    }, [query]);
 
     return (
         <div className={styles.filterWraper}>
@@ -140,7 +148,11 @@ export default function Filter({ onChange }: { onChange: Function }) {
                             className={
                                 styles.noneSelectedSort +
                                 " " +
-                                (sortBy === elem.id && order === "asc" ? styles.selectedSortAsc : sortBy === elem.id && order === "desc" ? styles.selectedSortDesc : "")
+                                (sortBy === elem.id && order === "asc"
+                                    ? styles.selectedSortAsc
+                                    : sortBy === elem.id && order === "desc"
+                                      ? styles.selectedSortDesc
+                                      : "")
                             }
                         >
                             {Library(elem.label)}

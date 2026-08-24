@@ -16,15 +16,18 @@ import { OptionalJwtAuthGuard } from "src/auth/guards/optional-jwt-auth.guard";
 @Controller("comments")
 export class CommentsController {
     constructor(private readonly commentService: CommentsService) {}
-    
-    
+
     @UseGuards(OptionalJwtAuthGuard)
     @Get(":imdbId")
-    async getMovieComments(@Param("imdbId") imdbId: string, @Query() paging: PaginationCommentDto, @Req() req) {
+    async getMovieComments(
+        @Param("imdbId") imdbId: string,
+        @Query() paging: PaginationCommentDto,
+        @Req() req,
+    ) {
         const userId = req.user?.id || -1;
         return this.commentService.findByMovie(imdbId, paging, userId);
     }
-    
+
     @UseGuards(JwtAuthGuard)
     @Post(":imdbId")
     async createMovieComment(
@@ -42,6 +45,10 @@ export class CommentsController {
         @Body("interaction") interaction: number,
         @Req() req,
     ) {
-        return this.commentService.addInteraction(commentId, interaction, req.user?.id);
+        return this.commentService.addInteraction(
+            commentId,
+            interaction,
+            req.user?.id,
+        );
     }
 }

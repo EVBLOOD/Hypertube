@@ -6,7 +6,10 @@ import { use, useEffect, useState } from "react";
 import styles from "./page.module.css";
 import { useSearchParams } from "next/navigation";
 import WatchPartySection from "../../../components/layout/watchPartySection";
-import { useMovieQualities, useMovieSubtitles } from "@/lib/dataHooks/movieWatch";
+import {
+    useMovieQualities,
+    useMovieSubtitles,
+} from "@/lib/dataHooks/movieWatch";
 import LoadingPage from "@/app/components/layout/loading";
 import { AxiosError } from "axios";
 import ErrorPage from "@/app/components/layout/error";
@@ -23,8 +26,16 @@ export default function WatchPageMoviePage({
 
     const id = resolvedParams.id;
     const { data, isPending, error } = useMovieDetails(id);
-    const { data: qualitiesData, isPending: isQualitiesPending, error: qualitiesError } = useMovieQualities(id);
-    const { data: subtitlesData, isPending: isSubtitlesPending, error: subtitlesError } = useMovieSubtitles(id);
+    const {
+        data: qualitiesData,
+        isPending: isQualitiesPending,
+        error: qualitiesError,
+    } = useMovieQualities(id);
+    const {
+        data: subtitlesData,
+        isPending: isSubtitlesPending,
+        error: subtitlesError,
+    } = useMovieSubtitles(id);
 
     useEffect(() => {
         if (token) {
@@ -33,7 +44,8 @@ export default function WatchPageMoviePage({
             setWatchAlone(true);
         }
     }, [token]);
-    if (isPending || isQualitiesPending || isSubtitlesPending) return <LoadingPage />;
+    if (isPending || isQualitiesPending || isSubtitlesPending)
+        return <LoadingPage />;
 
     if (!data || error) {
         const axiosErr = error as AxiosError<any>;
@@ -44,13 +56,14 @@ export default function WatchPageMoviePage({
     }
 
     if (qualitiesError || subtitlesError) {
-        const axiosErr = (qualitiesError as AxiosError<any>) || (subtitlesError as AxiosError<any>);
+        const axiosErr =
+            (qualitiesError as AxiosError<any>) ||
+            (subtitlesError as AxiosError<any>);
         const errorMessage =
             axiosErr.response?.data?.message || "Something went wrong";
         const errorCode = axiosErr?.response?.status || 404;
         return <ErrorPage errorCode={errorCode} errorMessage={errorMessage} />;
     }
-
 
     if (watchAlone === true)
         return (
@@ -74,6 +87,6 @@ export default function WatchPageMoviePage({
                 qualities={qualitiesData?.data}
                 subtitles={subtitlesData?.data}
             />
-        </div>);
-
+        </div>
+    );
 }

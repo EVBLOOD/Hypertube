@@ -20,7 +20,6 @@ export default function SearchUsers() {
 
     const { ref: viewRef, inView } = useInView({ threshold: 0.1 });
 
-
     const username = useParams().id as string;
 
     const {
@@ -60,7 +59,10 @@ export default function SearchUsers() {
                 {data?.pages.map((page, pageIndex) => (
                     <React.Fragment key={pageIndex}>
                         {page?.data?.map((user: UserSearchType) => (
-                            <UserSearchCard key={user.id} user={user}></UserSearchCard>
+                            <UserSearchCard
+                                key={user.id}
+                                user={user}
+                            ></UserSearchCard>
                         ))}
                     </React.Fragment>
                 ))}

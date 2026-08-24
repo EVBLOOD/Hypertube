@@ -26,7 +26,7 @@ export class Comment {
 
     @Column("int", { default: 0 })
     dislikeCount!: number;
-    
+
     @Column("int", { default: 0 })
     userReaction!: number;
 
@@ -36,11 +36,9 @@ export class Comment {
     )
     commentCommentInteractions!: CommentCommentInteraction[];
 
-
     @ManyToOne(() => User, (user) => user.comments, { onDelete: "CASCADE" })
     user!: User;
 
     @ManyToOne(() => Movie, { onDelete: "CASCADE" })
     movie!: Movie;
-
 }

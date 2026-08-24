@@ -16,10 +16,14 @@ import LoadingPage from "@/app/components/layout/loading";
 import ErrorPage from "@/app/components/layout/error";
 import { AxiosError } from "axios";
 import ScrollLoading from "@/app/components/ui/scrollLoading";
+import { useSearchParams } from "next/navigation";
 
 export default function Library() {
     const Library = useTranslations("Library");
     const { ref: viewRef, inView } = useInView({ threshold: 0.1 });
+    const searchParams = useSearchParams();
+
+    const query = searchParams.get("search") || "";
 
     const [filters, setFilters] = useState({
         genre: "all",
@@ -27,8 +31,8 @@ export default function Library() {
         maxYear: 2026,
         minRating: 8,
         sortBy: "title",
-        query: "",
-        order: 'asc'
+        query: query,
+        order: "asc",
     });
 
     function OnChange(newFilters: typeof filters) {
@@ -45,6 +49,10 @@ export default function Library() {
         error,
         isPending,
     } = useSuggestionsList(debouncedSearch);
+
+    useEffect(() => {
+        setFilters({ ...filters, query });
+    }, [query]);
 
     useEffect(() => {
         if (inView && hasNextPage && !isFetchingNextPage) {

@@ -70,7 +70,6 @@ export default function Login() {
         }, 1000);
     };
 
-
     const handleLoginGoogle = () => {
         const backendUrl = process.env.NEXT_PUBLIC_BACK_API_URL || "";
 

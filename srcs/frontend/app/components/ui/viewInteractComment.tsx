@@ -14,28 +14,43 @@ export default function ViewInteractComment({
 }: {
     comment: CommentType;
 }) {
-
     const t = useTranslations("Comments");
     const author = comment.user?.username || comment.user?.firstName || "USER";
-    const timeAgo = formatDistance(new Date(comment.createdAt), new Date(), { addSuffix: true });
+    const timeAgo = formatDistance(new Date(comment.createdAt), new Date(), {
+        addSuffix: true,
+    });
     const likeRef = useRef<HTMLImageElement>(null);
     const dislikeRef = useRef<HTMLImageElement>(null);
 
     const [likeCount, setLikeCount] = useState<number>(comment.likeCount);
-    const [dislikeCount, setDislikeCount] = useState<number>(comment.dislikeCount);
+    const [dislikeCount, setDislikeCount] = useState<number>(
+        comment.dislikeCount,
+    );
 
     const handleLike = async () => {
         try {
-            const result = await MovieService.addCommentInteraction(comment.id, 1);
+            const result = await MovieService.addCommentInteraction(
+                comment.id,
+                1,
+            );
             if (result && result.data) {
                 console.log(result);
 
                 if (result.data.likeCount > likeCount) {
                     likeRef.current?.style.setProperty("filter", "");
-                    dislikeRef.current?.style.setProperty("filter", "brightness(0.253)");
+                    dislikeRef.current?.style.setProperty(
+                        "filter",
+                        "brightness(0.253)",
+                    );
                 } else if (result.data.likeCount < likeCount) {
-                    likeRef.current?.style.setProperty("filter", "brightness(0.253)");
-                    dislikeRef.current?.style.setProperty("filter", "brightness(0.253)");
+                    likeRef.current?.style.setProperty(
+                        "filter",
+                        "brightness(0.253)",
+                    );
+                    dislikeRef.current?.style.setProperty(
+                        "filter",
+                        "brightness(0.253)",
+                    );
                 }
                 setLikeCount(result.data.likeCount);
                 setDislikeCount(result.data.dislikeCount);
@@ -47,16 +62,28 @@ export default function ViewInteractComment({
 
     const handleDislike = async () => {
         try {
-            const result = await MovieService.addCommentInteraction(comment.id, 2);
+            const result = await MovieService.addCommentInteraction(
+                comment.id,
+                2,
+            );
             if (result && result.data) {
                 console.log(result);
 
                 if (result.data.dislikeCount > dislikeCount) {
-                    likeRef.current?.style.setProperty("filter", "brightness(0.253)");
+                    likeRef.current?.style.setProperty(
+                        "filter",
+                        "brightness(0.253)",
+                    );
                     dislikeRef.current?.style.setProperty("filter", "");
                 } else if (result.data.dislikeCount < dislikeCount) {
-                    likeRef.current?.style.setProperty("filter", "brightness(0.253)");
-                    dislikeRef.current?.style.setProperty("filter", "brightness(0.253)");
+                    likeRef.current?.style.setProperty(
+                        "filter",
+                        "brightness(0.253)",
+                    );
+                    dislikeRef.current?.style.setProperty(
+                        "filter",
+                        "brightness(0.253)",
+                    );
                 }
                 setLikeCount(result.data.likeCount);
                 setDislikeCount(result.data.dislikeCount);
@@ -69,13 +96,19 @@ export default function ViewInteractComment({
     useEffect(() => {
         if (comment.userReaction === 1) {
             likeRef.current?.style.setProperty("filter", "");
-            dislikeRef.current?.style.setProperty("filter", "brightness(0.253)");
+            dislikeRef.current?.style.setProperty(
+                "filter",
+                "brightness(0.253)",
+            );
         } else if (comment.userReaction === 2) {
             likeRef.current?.style.setProperty("filter", "brightness(0.253)");
             dislikeRef.current?.style.setProperty("filter", "");
         } else {
             likeRef.current?.style.setProperty("filter", "brightness(0.253)");
-            dislikeRef.current?.style.setProperty("filter", "brightness(0.253)");
+            dislikeRef.current?.style.setProperty(
+                "filter",
+                "brightness(0.253)",
+            );
         }
     }, [comment.userReaction]);
 

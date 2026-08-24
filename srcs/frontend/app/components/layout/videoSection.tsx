@@ -17,12 +17,15 @@ export default function VideoSection(props: {
     time?: number;
     isPlaying?: boolean;
     qualities?: string[];
-    subtitles?: { lang: string, language: string, urlLink: string }[];
+    subtitles?: { lang: string; language: string; urlLink: string }[];
 }) {
     const isRemoteUpdate = useRef(false);
     const refVideo = useRef<HTMLVideoElement>(null);
-    const [currentQuality, setCurrentQuality] = useState(props.qualities?.find((q) => q === '720p') ?
-        '720p' : props.qualities?.[0]);
+    const [currentQuality, setCurrentQuality] = useState(
+        props.qualities?.find((q) => q === "720p")
+            ? "720p"
+            : props.qualities?.[0],
+    );
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const videoUrl = `${process.env.NEXT_PUBLIC_BACK_API_URL}/movies/watch/${props.id}?quality=${currentQuality}`;
 
@@ -76,16 +79,19 @@ export default function VideoSection(props: {
         if (refVideo.current) {
             props.handleSeekStream?.(refVideo.current.currentTime);
         }
-    }
+    };
 
     const handleVideoError = async () => {
         try {
-            await api.get(`/movies/watch/${props.id}?quality=${currentQuality}`);
+            await api.get(
+                `/movies/watch/${props.id}?quality=${currentQuality}`,
+            );
         } catch (err) {
             const axiosErr = err as AxiosError<any>;
 
             const errorMessage =
-                axiosErr.response?.data?.message || "Unable to connect to the video streaming server.";
+                axiosErr.response?.data?.message ||
+                "Unable to connect to the video streaming server.";
 
             setErrorMessage(errorMessage);
         }
@@ -96,7 +102,7 @@ export default function VideoSection(props: {
 
         isRemoteUpdate.current = true;
         if (props.isPlaying) {
-            refVideo.current.play().catch(() => { });
+            refVideo.current.play().catch(() => {});
         } else {
             refVideo.current.pause();
         }
@@ -111,11 +117,8 @@ export default function VideoSection(props: {
         }
     }, [props.time]);
 
-
     if (errorMessage) {
-        return (
-            <ErrorPage errorCode={404} errorMessage={errorMessage} />
-        );
+        return <ErrorPage errorCode={404} errorMessage={errorMessage} />;
     }
 
     return (
@@ -127,7 +130,9 @@ export default function VideoSection(props: {
                         onChange={handleQualityChange}
                     >
                         {props.qualities.map((q, index) => (
-                            <option key={index} value={q}>{q}</option>
+                            <option key={index} value={q}>
+                                {q}
+                            </option>
                         ))}
                     </select>
                 </div>
@@ -145,16 +150,16 @@ export default function VideoSection(props: {
                 onSeeking={handleSeeking}
                 onError={handleVideoError}
             >
-
-                {props.subtitles && props.subtitles.map((s, index) =>
-                    <track
-                        key={index}
-                        kind="subtitles"
-                        src={s.urlLink}
-                        srcLang={s.language}
-                        label={s.lang}
-                    ></track>
-                )}
+                {props.subtitles &&
+                    props.subtitles.map((s, index) => (
+                        <track
+                            key={index}
+                            kind="subtitles"
+                            src={s.urlLink}
+                            srcLang={s.language}
+                            label={s.lang}
+                        ></track>
+                    ))}
             </video>
         </div>
     );

@@ -1,29 +1,24 @@
-import {
-    ExecutionContext,
-    Injectable,
-} from "@nestjs/common";
+import { ExecutionContext, Injectable } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import { WsException } from "@nestjs/websockets";
 import { Socket } from "socket.io";
-
 
 @Injectable()
 export class WsJwtGuard extends AuthGuard("jwt") {
     getRequest(context: ExecutionContext) {
         const client: Socket = context.switchToWs().getClient();
-        
+
         const rawToken =
             client.handshake.auth?.token ||
             client.handshake.headers?.authorization;
 
-
         const authorization = rawToken?.startsWith("Bearer ")
             ? rawToken
             : rawToken
-            ? `Bearer ${rawToken}`
-            : undefined;        
+              ? `Bearer ${rawToken}`
+              : undefined;
 
-            return {
+        return {
             headers: {
                 authorization,
             },
@@ -46,7 +41,7 @@ export class WsJwtGuard extends AuthGuard("jwt") {
             client.data.user = user.id;
             client.handshake.headers.userId = (user.id as number).toString();
         } else {
-            console.log(user)
+            console.log(user);
         }
 
         return user;

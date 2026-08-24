@@ -2,7 +2,7 @@
 
 import DescriptionComponent from "./descriptionComponent";
 import styles from "./interactionProfileCard.module.css";
-import { formatDistance } from 'date-fns';
+import { formatDistance } from "date-fns";
 
 export default function InteractionProfileCard({
     movie,
@@ -19,12 +19,11 @@ export default function InteractionProfileCard({
     console.log("movie", movie);
 
     const getInteractionTime = (actionDate: Date) => {
-        const timeAgo = formatDistance(new Date(actionDate), new Date(), { addSuffix: true });
+        const timeAgo = formatDistance(new Date(actionDate), new Date(), {
+            addSuffix: true,
+        });
         return timeAgo;
-
     };
-
-
 
     const mapActionsToIcons = (action: string) => {
         switch (action) {

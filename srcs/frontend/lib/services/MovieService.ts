@@ -82,7 +82,9 @@ export default {
     },
 
     async addCommentInteraction(commentId: number, interaction: number) {
-        return await api.post(`/comments/interaction/${commentId}`, { interaction });
+        return await api.post(`/comments/interaction/${commentId}`, {
+            interaction,
+        });
     },
     async sendInvite(imdbId: string, title: string, userInput: string) {
         return await api.post(`/movies/invite/${imdbId}`, { title, userInput });
@@ -95,7 +97,7 @@ export default {
     },
     async checkMovieError(imdbId: string) {
         return await api.get(`/movies/watch/${imdbId}`);
-    }
+    },
     // async getMovieStream(imdbId: string, quality: string, subtitle?: string) {
     //     return await api.get(`/movies/watch/${imdbId}`, {
     //         params: {

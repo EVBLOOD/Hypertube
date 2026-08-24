@@ -30,7 +30,7 @@ export class MoviesController {
     constructor(
         private readonly moviesService: MoviesService,
         private readonly streamService: StreamsService,
-    ) { }
+    ) {}
 
     @UseGuards(OptionalJwtAuthGuard, OptionalVerifiedGuard)
     @Get()
@@ -88,29 +88,37 @@ export class MoviesController {
 
     @UseGuards(JwtAuthGuard, VerifiedGuard)
     @Get("subtitle_file/:imdbId")
-    async getSubtitleFile(@Param("imdbId") imdbId: string, @Query("language") language: string, @Res({ passthrough: true }) res) {
+    async getSubtitleFile(
+        @Param("imdbId") imdbId: string,
+        @Query("language") language: string,
+        @Res({ passthrough: true }) res,
+    ) {
+        const filePath = await this.moviesService.getDownloadedFileLink(
+            imdbId,
+            language,
+        );
 
-        const filePath = await this.moviesService.getDownloadedFileLink(imdbId, language);
+        let rawText = await fsPromises.readFile(filePath, "utf-8");
 
-        let rawText = await fsPromises.readFile(filePath, 'utf-8');
-
-        if (rawText.charCodeAt(0) === 0xFEFF) {
+        if (rawText.charCodeAt(0) === 0xfeff) {
             rawText = rawText.slice(1);
         }
 
-        if (!rawText.trim().startsWith('WEBVTT')) {
-            const convertedText = rawText.replace(/(\d{2}:\d{2}:\d{2}),(\d{3})/g, '$1.$2');
+        if (!rawText.trim().startsWith("WEBVTT")) {
+            const convertedText = rawText.replace(
+                /(\d{2}:\d{2}:\d{2}),(\d{3})/g,
+                "$1.$2",
+            );
             rawText = `WEBVTT\n\n${convertedText}`;
         }
 
-        const fileBuffer = Buffer.from(rawText, 'utf-8');
+        const fileBuffer = Buffer.from(rawText, "utf-8");
 
         return new StreamableFile(fileBuffer, {
-            type: 'text/vtt; charset=utf-8',
+            type: "text/vtt; charset=utf-8",
             disposition: `inline; filename="subtitle_${imdbId}_${language}.vtt"`,
             length: fileBuffer.length,
         });
-
     }
 
     @UseGuards(JwtAuthGuard, VerifiedGuard)
@@ -194,22 +202,32 @@ export class MoviesController {
         @Body("userInput") userInput: string,
         @Req() req,
     ) {
-        return await this.moviesService.sendInvite(imdbId, title, userInput, req.user?.id);
+        return await this.moviesService.sendInvite(
+            imdbId,
+            title,
+            userInput,
+            req.user?.id,
+        );
     }
 
     @UseGuards(JwtAuthGuard, VerifiedGuard)
     @Get("invite/:uuid")
     async handelInvite(
         @Param("uuid") uuid: string,
-        @Query('accept') accept: boolean,
+        @Query("accept") accept: boolean,
         @Req() req,
-        @Res() res
+        @Res() res,
     ) {
-        const result = await this.moviesService.handleInvite(uuid, req.user?.id, accept);
+        const result = await this.moviesService.handleInvite(
+            uuid,
+            req.user?.id,
+            accept,
+        );
         if (result) {
-            res.redirect(`${process.env.FRONTEND_URL}/watch/${result.imdbId}?token=${result.roomId}`);
+            res.redirect(
+                `${process.env.FRONTEND_URL}/watch/${result.imdbId}?token=${result.roomId}`,
+            );
         }
         return result;
     }
-
 }

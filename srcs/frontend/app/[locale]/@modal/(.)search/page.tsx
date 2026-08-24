@@ -31,14 +31,18 @@ export default function Search() {
                 router.push(`/search/users/${searchValue}`);
             }
         }
-    }
-
+    };
 
     return (
         <Modal>
             <div className={styles.searchContainer}>
-
-                <InputCustom typeInput="text" lableName="Search" ref={searchRef} placeHolder="Search Here" className={styles.input}></InputCustom>
+                <InputCustom
+                    typeInput="text"
+                    lableName="Search"
+                    ref={searchRef}
+                    placeHolder="Search Here"
+                    className={styles.input}
+                ></InputCustom>
                 <ButtonCustom
                     onClick={handleSearch}
                     buttonImage="/costumIcons/icon.svg"

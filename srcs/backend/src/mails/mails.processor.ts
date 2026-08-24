@@ -86,9 +86,7 @@ export class MailProcessor {
     }
     @Process("send-invite")
     async handleSendInvite(job: Job) {
-        this.logger.log(
-            `Sending movie invite email to ${job.data.email}...`,
-        );
+        this.logger.log(`Sending movie invite email to ${job.data.email}...`);
         try {
             await this.mailerService.sendMail({
                 to: job.data.email,

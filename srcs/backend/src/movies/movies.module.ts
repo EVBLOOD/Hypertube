@@ -19,10 +19,10 @@ import { MovieGateway } from "./movies.gateway";
             Subtitle,
             UserMovieProgress,
             UserMovieHistory,
-            User
+            User,
         ]),
         forwardRef(() => StreamsModule),
-        MailModule
+        MailModule,
     ],
     controllers: [MoviesController],
     providers: [MoviesService, RedisModule, MovieGateway],

@@ -5,10 +5,7 @@ import { UsersService } from "src/users/users.service";
 import { VerifyCallback } from "passport-google-oauth20";
 import { Strategy } from "passport-google-oauth20";
 @Injectable()
-export class GoogleStrategy extends PassportStrategy(
-    Strategy,
-    "google",
-) {
+export class GoogleStrategy extends PassportStrategy(Strategy, "google") {
     constructor(
         private readonly authService: AuthService,
         private readonly userService: UsersService,
@@ -29,10 +26,7 @@ export class GoogleStrategy extends PassportStrategy(
         profile: any,
         cb: VerifyCallback,
     ): Promise<any> {
-
         console.log("Google Profile:", profile);
-
-
 
         const {
             sub: id,
@@ -40,9 +34,9 @@ export class GoogleStrategy extends PassportStrategy(
             given_name: first_name,
             family_name: last_name,
             picture: photo,
-        } =  profile._json ;
+        } = profile._json;
 
-        const username = email?.split('@')[0];
+        const username = email?.split("@")[0];
 
         const userByEmail = await this.userService.findbyEmail(email);
         const userByUsername = await this.userService.findbyEmail(username);
@@ -76,7 +70,7 @@ export class GoogleStrategy extends PassportStrategy(
             firstName: first_name,
             lastName: last_name,
             profilePicture: photo,
-        }
+        };
         cb(null, user);
 
         return user;

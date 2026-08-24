@@ -764,10 +764,9 @@ export class StreamsService implements OnModuleInit, OnModuleDestroy {
         tracker.on("warning", (err: Error) =>
             console.debug(`Warning from Tracker: ${err.message}`),
         );
-        tracker.on("update", (d: any) =>
-            console.log(
-                ``,
-            ),
+        tracker.on(
+            "update",
+            (d: any) => console.log(``),
             // console.log(
             //     `Update from Tracker: ${d.complete} seeds / ${d.incomplete} leechers`,
             // ),

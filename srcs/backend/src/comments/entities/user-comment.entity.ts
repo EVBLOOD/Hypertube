@@ -28,5 +28,4 @@ export class CommentCommentInteraction {
         onDelete: "CASCADE",
     })
     comment!: Comment;
-
 }

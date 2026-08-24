@@ -85,8 +85,6 @@
     cursor: pointer;
 }
 
-
-
 .selectedSortAsc {
     background-color: var(--popup-background);
     color: var(--primary-color);

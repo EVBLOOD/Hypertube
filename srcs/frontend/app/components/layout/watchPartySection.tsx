@@ -17,7 +17,7 @@ interface WatchPartyProps {
         poster: string;
     };
     qualities?: string[];
-    subtitles?: { lang: string, language: string, urlLink: string }[];
+    subtitles?: { lang: string; language: string; urlLink: string }[];
 }
 
 interface Message {
@@ -26,13 +26,20 @@ interface Message {
     // timestamp: string;
 }
 
-export default function WatchPartySection({ movieId, roomToken, movie, qualities, subtitles }: WatchPartyProps) {
+export default function WatchPartySection({
+    movieId,
+    roomToken,
+    movie,
+    qualities,
+    subtitles,
+}: WatchPartyProps) {
     const { socket, isConnected } = useSocket();
     const [isRoomJoined, setIsRoomJoined] = useState(false);
 
-
     const [isPlaying, setIsPlaying] = useState(false);
-    const [currentTime, setCurrentTime] = useState<number | undefined>(undefined);
+    const [currentTime, setCurrentTime] = useState<number | undefined>(
+        undefined,
+    );
 
     const [messages, setMessages] = useState<Message[]>([]);
     const messageInputRef = useRef<HTMLInputElement>(null);
@@ -48,7 +55,10 @@ export default function WatchPartySection({ movieId, roomToken, movie, qualities
 
         if (socket && isConnected) {
             socket.emit("send_message", message);
-            setMessages((prev) => [...prev, { content: message.content, sender: "You" }]);
+            setMessages((prev) => [
+                ...prev,
+                { content: message.content, sender: "You" },
+            ]);
         }
         if (messageInputRef.current) messageInputRef.current.value = "";
     };
@@ -79,7 +89,10 @@ export default function WatchPartySection({ movieId, roomToken, movie, qualities
         });
 
         socket.on("MESSAGE", (message) => {
-            setMessages((prev) => [...prev, { content: message.content, sender: "Other" }]);
+            setMessages((prev) => [
+                ...prev,
+                { content: message.content, sender: "Other" },
+            ]);
         });
 
         socket.on("START_STREAM", (params: { time?: number }) => {
@@ -122,7 +135,6 @@ export default function WatchPartySection({ movieId, roomToken, movie, qualities
 
     return (
         <div className={styles.watchPartySection}>
-
             <VideoSection
                 id={movieId}
                 title={movie.title}
@@ -137,18 +149,34 @@ export default function WatchPartySection({ movieId, roomToken, movie, qualities
                 subtitles={subtitles}
             />
             <div className={styles.chatSection}>
-                <span>Status: {isConnected ? "Connected to Room" : "Connecting..."}</span>
+                <span>
+                    Status:{" "}
+                    {isConnected ? "Connected to Room" : "Connecting..."}
+                </span>
                 {messages.map((message, index) => (
-                    <div key={index} className={`${styles.message} ${message.sender === "You" ? styles.yourMessage : styles.otherMessage}`}>
-                        <strong>{message.sender === "You" ? "" : "Other: "}</strong> {message.content}
+                    <div
+                        key={index}
+                        className={`${styles.message} ${message.sender === "You" ? styles.yourMessage : styles.otherMessage}`}
+                    >
+                        <strong>
+                            {message.sender === "You" ? "" : "Other: "}
+                        </strong>{" "}
+                        {message.content}
                     </div>
                 ))}
                 <div className={styles.chatInput}>
-                    <InputCustom lableName="" placeHolder="" ref={messageInputRef}></InputCustom>
-                    <ButtonCustom onClick={HandleSendMessage} buttonImage={undefined} textButton="Send Message"></ButtonCustom>
+                    <InputCustom
+                        lableName=""
+                        placeHolder=""
+                        ref={messageInputRef}
+                    ></InputCustom>
+                    <ButtonCustom
+                        onClick={HandleSendMessage}
+                        buttonImage={undefined}
+                        textButton="Send Message"
+                    ></ButtonCustom>
                 </div>
             </div>
-
         </div>
     );
 }

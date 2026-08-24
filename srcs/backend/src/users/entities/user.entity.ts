@@ -73,7 +73,10 @@ export class User {
     @OneToMany(() => UserMovieHistory, (history) => history.user)
     userMovieHistories!: UserMovieHistory[];
 
-    @OneToMany(() => CommentCommentInteraction, (interaction) => interaction.user)
+    @OneToMany(
+        () => CommentCommentInteraction,
+        (interaction) => interaction.user,
+    )
     commentCommentInteractions!: CommentCommentInteraction[];
 
     @BeforeInsert()

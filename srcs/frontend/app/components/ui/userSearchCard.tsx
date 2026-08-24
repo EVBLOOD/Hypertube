@@ -21,11 +21,11 @@ export default function UserSearchCard({
             className={styles.bodyCard}
         >
             <div
-                style={{ backgroundImage: `url(${user.profilePicture || "avatar.png"})` }}
+                style={{
+                    backgroundImage: `url(${user.profilePicture || "avatar.png"})`,
+                }}
                 className={styles.cardImage}
-            >
-
-            </div>
+            ></div>
             <div className={styles.titleRatingWraper}>
                 <TitleCustom
                     isMovie={true}

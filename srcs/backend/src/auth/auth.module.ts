@@ -27,6 +27,14 @@ import { GithubStrategy } from "./strategies/github.strategy";
         }),
     ],
     controllers: [AuthController],
-    providers: [AuthService, JwtStrategy, LocalStrategy, FortyTwoStrategy, WsJwtGuard, GoogleStrategy, GithubStrategy],
+    providers: [
+        AuthService,
+        JwtStrategy,
+        LocalStrategy,
+        FortyTwoStrategy,
+        WsJwtGuard,
+        GoogleStrategy,
+        GithubStrategy,
+    ],
 })
 export class AuthModule {}

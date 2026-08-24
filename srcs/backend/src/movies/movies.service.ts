@@ -1,4 +1,10 @@
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException, Query } from "@nestjs/common";
+import {
+    BadRequestException,
+    Injectable,
+    InternalServerErrorException,
+    NotFoundException,
+    Query,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Movie } from "./entities/movie.entity";
@@ -14,8 +20,8 @@ import { User } from "src/users/entities/user.entity";
 import { MovieGateway } from "./movies.gateway";
 import path from "path";
 import { existsSync } from "fs";
-import fsPromises from 'node:fs/promises';
-import AdmZip from 'adm-zip';
+import fsPromises from "node:fs/promises";
+import AdmZip from "adm-zip";
 
 export interface MovieInfos {
     id: string;
@@ -71,33 +77,33 @@ export class MoviesService {
         private userRepo: Repository<User>,
         private redisservice: RedisService,
         private readonly emailsService: MailsService,
-        private readonly movieGateway: MovieGateway
-    ) { }
+        private readonly movieGateway: MovieGateway,
+    ) {}
 
     TMDB_GENRE_MAP = {
-        "action": 28,
-        "adventure": 12,
-        "animation": 16,
-        "biography": 27,
-        "comedy": 35,
-        "crime": 80,
-        "documentary": 99,
-        "drama": 18,
-        "family": 10751,
-        "fantasy": 14,
+        action: 28,
+        adventure: 12,
+        animation: 16,
+        biography: 27,
+        comedy: 35,
+        crime: 80,
+        documentary: 99,
+        drama: 18,
+        family: 10751,
+        fantasy: 14,
         "film-noir": 17,
-        "history": 36,
-        "horror": 27,
-        "music": 10402,
-        "musical": 10749,
-        "mystery": 9648,
-        "romance": 10749,
+        history: 36,
+        horror: 27,
+        music: 10402,
+        musical: 10749,
+        mystery: 9648,
+        romance: 10749,
         "sci-fi": 878,
-        "sport": 10770,
-        "thriller": 53,
-        "war": 10752,
-        "western": 37
-    }
+        sport: 10770,
+        thriller: 53,
+        war: 10752,
+        western: 37,
+    };
 
     normalizeMovie(movie: any, source: string): MovieInfos {
         if (source == "YTS") {
@@ -195,7 +201,7 @@ export class MoviesService {
             if (ytsMovie) {
                 const best = ytsMovie.torrents.reduce((prev, curr) =>
                     this.getQualityScore(curr.quality) >
-                        this.getQualityScore(prev.quality)
+                    this.getQualityScore(prev.quality)
                         ? curr
                         : prev,
                 );
@@ -223,7 +229,7 @@ export class MoviesService {
             page = 1,
             limit = 20,
             sortBy,
-            order = "asc"
+            order = "asc",
         } = filters;
         const cacheKey = `search:${userId}:${query || "all"}:${genre || "all"}:${minRating || "0"}:${minYear || "1900"}:${maxYear || "2100"}:${sortBy || "popularity"}:${order || "asc"}`;
         const pageTrackerKey = `${cacheKey}:next_tmdb_page`;
@@ -238,27 +244,44 @@ export class MoviesService {
         const cachedCount = await this.redisservice.lenZSet(cacheKey);
 
         if (cachedCount <= needed) {
-            const currentTmdbPage = Number(await this.redisservice.get(pageTrackerKey)) || page;
-            const currentTmdbLimit = Number(await this.redisservice.get(LimitTrackerKey)) || limit;
+            const currentTmdbPage =
+                Number(await this.redisservice.get(pageTrackerKey)) || page;
+            const currentTmdbLimit =
+                Number(await this.redisservice.get(LimitTrackerKey)) || limit;
             console.log(`Fetching from TMDB: page ${currentTmdbPage}, 
                 limit ${currentTmdbLimit}`);
 
-            const tmdbFilters = { ...activeFilters, page: currentTmdbPage, limit: currentTmdbLimit };
-            const { movies, page: nextTmdbPage } = await this.fetchFromTMDB(tmdbFilters);
-            console.log(`Fetched ${movies.length} movies from TMDB for filters:`, tmdbFilters);
+            const tmdbFilters = {
+                ...activeFilters,
+                page: currentTmdbPage,
+                limit: currentTmdbLimit,
+            };
+            const { movies, page: nextTmdbPage } =
+                await this.fetchFromTMDB(tmdbFilters);
+            console.log(
+                `Fetched ${movies.length} movies from TMDB for filters:`,
+                tmdbFilters,
+            );
 
-
-            const ytsMovies = (await Promise.all(
-                movies.map(async (movie) => await this.getMovieYTS(movie)),
-            )).filter(Boolean);
-
-
+            const ytsMovies = (
+                await Promise.all(
+                    movies.map(async (movie) => await this.getMovieYTS(movie)),
+                )
+            ).filter(Boolean);
 
             if (ytsMovies.length > 0) {
                 await this.redisservice.pushMovies(cacheKey, ytsMovies);
             }
-            await this.redisservice.set(pageTrackerKey, nextTmdbPage.toString(), 86400);
-            await this.redisservice.set(LimitTrackerKey, currentTmdbLimit.toString(), 86400);
+            await this.redisservice.set(
+                pageTrackerKey,
+                nextTmdbPage.toString(),
+                86400,
+            );
+            await this.redisservice.set(
+                LimitTrackerKey,
+                currentTmdbLimit.toString(),
+                86400,
+            );
         }
 
         const start = (page - 1) * limit;
@@ -489,7 +512,7 @@ export class MoviesService {
 
     private async fetchFromTMDB(
         filters: FilterMovieDto,
-    ): Promise<{ movies: MovieInfos[], page: number }> {
+    ): Promise<{ movies: MovieInfos[]; page: number }> {
         let resultResponse: any = [];
 
         const sortMap = {
@@ -500,7 +523,9 @@ export class MoviesService {
         };
         let currentPage = filters.page || 1;
         const limit = filters.limit || 20;
-        const pagesToFetch = Math.ceil(((filters.limit || 20) + 1) / (filters.limit || 20));
+        const pagesToFetch = Math.ceil(
+            ((filters.limit || 20) + 1) / (filters.limit || 20),
+        );
 
         try {
             const isSearch = !!filters.query;
@@ -510,15 +535,14 @@ export class MoviesService {
                 language: "en-US",
             };
 
-
-            if (isSearch)
-                params["query"] = filters.query;
+            if (isSearch) params["query"] = filters.query;
             if (filters.minYear)
                 params["primary_release_date.gte"] = `${filters.minYear}-01-01`;
             if (filters.maxYear)
                 params["primary_release_date.lte"] = `${filters.maxYear}-12-31`;
 
-            params["sort_by"] = `${sortMap[filters.sortBy || "title"]}.${filters.order || "asc"}`;
+            params["sort_by"] =
+                `${sortMap[filters.sortBy || "title"]}.${filters.order || "asc"}`;
 
             if (filters.genre && filters.genre !== "all") {
                 if (this.TMDB_GENRE_MAP[filters.genre])
@@ -527,9 +551,6 @@ export class MoviesService {
             if (filters.minRating) {
                 params["vote_average.gte"] = filters.minRating;
             }
-
-
-
 
             while (resultResponse.length <= limit) {
                 const requests: any = [];
@@ -552,18 +573,22 @@ export class MoviesService {
                 const imdbData = (
                     await Promise.all(
                         results?.map(
-                            async (movie: any) => await this.imdbIdFromTMDB(movie),
+                            async (movie: any) =>
+                                await this.imdbIdFromTMDB(movie),
                         ),
                     )
                 ).filter((m) => m && m.id);
 
-                resultResponse.push(...imdbData)
+                resultResponse.push(...imdbData);
 
                 resultResponse = resultResponse.filter((m) => m.id);
-                resultResponse = [...new Map(resultResponse.map(item => [item.id, item])).values()]
+                resultResponse = [
+                    ...new Map(
+                        resultResponse.map((item) => [item.id, item]),
+                    ).values(),
+                ];
                 currentPage += pagesToFetch;
             }
-
         } catch (err) {
             console.error(err);
         }
@@ -856,15 +881,12 @@ export class MoviesService {
             where: { user: { id: userId }, movie: { id: movie.id } },
         });
 
-
-
         if (!progress) {
             progress = this.progressRepo.create({
                 user: { id: userId },
                 movie,
             });
         } else {
-
             if (progress.likedOrDisliked === interaction) {
                 progress.likedOrDisliked = 0;
                 const result = this.progressRepo.save(progress);
@@ -1112,52 +1134,77 @@ export class MoviesService {
         };
     }
 
-    async sendInvite(imdbId: string, title: string, userInput: string, currentUserId: number) {
-        const findUser = await this.userRepo.findOne({ where: [{ email: userInput }, { username: userInput }] });
+    async sendInvite(
+        imdbId: string,
+        title: string,
+        userInput: string,
+        currentUserId: number,
+    ) {
+        const findUser = await this.userRepo.findOne({
+            where: [{ email: userInput }, { username: userInput }],
+        });
         if (!findUser) {
-            throw new NotFoundException("user Not Found")
+            throw new NotFoundException("user Not Found");
         }
         if (findUser.id === currentUserId) {
-            throw new BadRequestException("You cannot send a watch invite to yourself.");
+            throw new BadRequestException(
+                "You cannot send a watch invite to yourself.",
+            );
         }
 
-        const checkRedis = await this.redisservice.get(`invite:${findUser.id}:${imdbId}:${currentUserId}`);
+        const checkRedis = await this.redisservice.get(
+            `invite:${findUser.id}:${imdbId}:${currentUserId}`,
+        );
         if (checkRedis) {
-            return { message: "Invite already sent recently.", inviteLink: `${process.env.PUBLIC_API_URL}/movies/invite/${checkRedis}?accept=true`, token: checkRedis };
+            return {
+                message: "Invite already sent recently.",
+                inviteLink: `${process.env.PUBLIC_API_URL}/movies/invite/${checkRedis}?accept=true`,
+                token: checkRedis,
+            };
         }
         const uuid = uuidv4();
-        await this.redisservice.set(`invite:${findUser.id}:${imdbId}:${currentUserId}`, uuid, 900);
+        await this.redisservice.set(
+            `invite:${findUser.id}:${imdbId}:${currentUserId}`,
+            uuid,
+            900,
+        );
 
         const inviteLink = `${process.env.PUBLIC_API_URL}/movies/invite/${uuid}`;
         await this.emailsService.sendInviteEmail(findUser, title, inviteLink);
 
-        return { message: "Invite sent successfully.", inviteLink: `${inviteLink}?accept=true`, token: uuid };
+        return {
+            message: "Invite sent successfully.",
+            inviteLink: `${inviteLink}?accept=true`,
+            token: uuid,
+        };
     }
 
     async handleInvite(uuid: string, currentUserId: number, status: boolean) {
         const keys = await this.redisservice.getKeysByPattern("invite:*");
         for (const key of keys) {
-
             const storedToken = await this.redisservice.get(key);
 
             if (storedToken === uuid) {
                 const [_, storedId, imdbId, hostId] = key.split(":");
 
                 if (storedId === currentUserId.toString()) {
-
                     await this.redisservice.del(key);
                     if (status == true) {
                         const roomId = `${uuid}`;
-                        this.movieGateway.notifyHostInviteAccepted(hostId, roomId, storedId)
+                        this.movieGateway.notifyHostInviteAccepted(
+                            hostId,
+                            roomId,
+                            storedId,
+                        );
                         return {
                             message: "Invite accepted successfully!",
                             roomId,
-                            imdbId: imdbId
+                            imdbId: imdbId,
                         };
                     }
                     return { message: "Invite declined successfully." };
                 }
-                break
+                break;
             }
         }
         throw new NotFoundException("The invite isn't valid!");
@@ -1165,43 +1212,58 @@ export class MoviesService {
 
     async getQualitiesAvailable(imdbId: string) {
         const qualities = await this.getTorrentMagnetsFromYTS(imdbId);
-        const availableQualitiesSeeds = qualities?.filter((q) => q.seeds > 0) || [];
+        const availableQualitiesSeeds =
+            qualities?.filter((q) => q.seeds > 0) || [];
         return availableQualitiesSeeds?.map((q) => q.quality) || [];
     }
 
     async searchSubtitles(imdbId: string) {
-        let redisValue: any = await this.redisservice.get(`subtitles:${imdbId}`);
+        let redisValue: any = await this.redisservice.get(
+            `subtitles:${imdbId}`,
+        );
         if (redisValue) {
             redisValue = JSON.parse(redisValue).map((s: any) => {
                 const { url, ...rest } = s;
                 return rest;
             });
-            return [...new Map((redisValue || []).map(item => [item.language, item])).values()];
+            return [
+                ...new Map(
+                    (redisValue || []).map((item) => [item.language, item]),
+                ).values(),
+            ];
         }
         try {
             const response = await axios.get(`${process.env.SUBDL_API_URL}`, {
-                params:
-                {
+                params: {
                     api_key: process.env.SUBDL_API_KEY,
-                    imdb_id: imdbId
+                    imdb_id: imdbId,
                 },
             });
 
-            let reformedData = (response.data?.subtitles || []).map((subtitle: any) => ({
-                lang: subtitle.lang,
-                language: subtitle.language,
-                url: subtitle.url,
-                urlLink: `${process.env.PUBLIC_API_URL}/movies/subtitle_file/${imdbId}?language=${subtitle.lang}`,
-            }));
+            let reformedData = (response.data?.subtitles || []).map(
+                (subtitle: any) => ({
+                    lang: subtitle.lang,
+                    language: subtitle.language,
+                    url: subtitle.url,
+                    urlLink: `${process.env.PUBLIC_API_URL}/movies/subtitle_file/${imdbId}?language=${subtitle.lang}`,
+                }),
+            );
 
-            this.redisservice.set(`subtitles:${imdbId}`, JSON.stringify(reformedData), 36000);
-
+            this.redisservice.set(
+                `subtitles:${imdbId}`,
+                JSON.stringify(reformedData),
+                36000,
+            );
 
             reformedData = reformedData.map((s: any) => {
                 const { url, ...rest } = s;
                 return rest;
             });
-            const uniqueByLangs = [...new Map(reformedData.map(item => [item.language, item])).values()];
+            const uniqueByLangs = [
+                ...new Map(
+                    reformedData.map((item) => [item.language, item]),
+                ).values(),
+            ];
             return uniqueByLangs;
         } catch (error) {
             console.error(`Error fetching subtitles for ${imdbId}:`, error);
@@ -1218,24 +1280,34 @@ export class MoviesService {
         }
         const redisValue = await this.redisservice.get(`subtitles:${imdbId}`);
         if (!redisValue) {
-            throw new NotFoundException(`No subtitles found for language ${language}`);
+            throw new NotFoundException(
+                `No subtitles found for language ${language}`,
+            );
         }
         const subtitles = JSON.parse(redisValue);
         const subtitle = subtitles.find((s: any) => s.lang === language);
         if (!subtitle) {
-            throw new NotFoundException(`No subtitles found for language ${language}`);
+            throw new NotFoundException(
+                `No subtitles found for language ${language}`,
+            );
         }
 
-        const response = await axios.get(`${process.env.SUBDL_DWN_URL}${subtitle.url}`, { responseType: 'arraybuffer' });
+        const response = await axios.get(
+            `${process.env.SUBDL_DWN_URL}${subtitle.url}`,
+            { responseType: "arraybuffer" },
+        );
         const zip = new AdmZip(Buffer.from(response.data));
         const zipEntries = zip.getEntries();
 
-        const subFile = zipEntries.find(entry =>
-            !entry.isDirectory && /\.(srt|vtt|ass)$/i.test(entry.entryName)
+        const subFile = zipEntries.find(
+            (entry) =>
+                !entry.isDirectory && /\.(srt|vtt|ass)$/i.test(entry.entryName),
         );
 
         if (!subFile) {
-            throw new InternalServerErrorException("Archive downloaded, but no valid subtitle file was found inside.");
+            throw new InternalServerErrorException(
+                "Archive downloaded, but no valid subtitle file was found inside.",
+            );
         }
 
         const extractedBuffer = subFile.getData();

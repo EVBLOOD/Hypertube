@@ -18,7 +18,7 @@ import { PaginationFindUserDto } from "./dto/find-user.dto";
 @Controller("users")
 @UseGuards(JwtAuthGuard, WhitelistGuard)
 export class UsersController {
-    constructor(private readonly userService: UsersService) { }
+    constructor(private readonly userService: UsersService) {}
 
     @Get()
     async getAllUsers() {

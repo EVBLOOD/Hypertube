@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { io, Socket } from 'socket.io-client';
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { io, Socket } from "socket.io-client";
 
 interface SocketContextType {
     socket: Socket | null;
@@ -19,25 +19,27 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 
     const getCookie = (name: string) => {
         const parts = `; ${document.cookie}`.split(`; ${name}=`);
-        if (parts && parts.length === 2) return parts.pop()?.split(';').shift();
+        if (parts && parts.length === 2) return parts.pop()?.split(";").shift();
     };
 
     useEffect(() => {
-        const token = getCookie('AUTH_TOKEN');
-        console.log('AUTH_TOKEN:', token);
+        const token = getCookie("AUTH_TOKEN");
+        console.log("AUTH_TOKEN:", token);
 
-        if (!token)
-            return
+        if (!token) return;
 
-        const socketInstance = io(`${process.env.NEXT_PUBLIC_SOCKET_URL}/movie`, {
-            path: '/api/socket.io',
-            extraHeaders: {
-                authorization: `Bearer ${token}`
+        const socketInstance = io(
+            `${process.env.NEXT_PUBLIC_SOCKET_URL}/movie`,
+            {
+                path: "/api/socket.io",
+                extraHeaders: {
+                    authorization: `Bearer ${token}`,
+                },
             },
-        });
+        );
 
-        socketInstance.on('connect', () => setIsConnected(true));
-        socketInstance.on('disconnect', () => setIsConnected(false));
+        socketInstance.on("connect", () => setIsConnected(true));
+        socketInstance.on("disconnect", () => setIsConnected(false));
 
         setSocket(socketInstance);
 

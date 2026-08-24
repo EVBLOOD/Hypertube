@@ -25,11 +25,15 @@ export default function MoviePage({
     const id = resolvedParams.id;
     const { data, isPending, error } = useMovieDetails(id);
     const [commentSort, setCommentSort] = useState<string>("createdAt");
-    const { data: commentsData, isPending: commentsPending, error: commentsError } = useMovieComments(id, 1, commentSort);
+    const {
+        data: commentsData,
+        isPending: commentsPending,
+        error: commentsError,
+    } = useMovieComments(id, 1, commentSort);
     const [comments, setComments] = useState<CommentType[]>([]);
     const [wishlisted, setWishlisted] = useState(false);
     const [reaction, setReaction] = useState<number>(0);
-    
+
     const createCommentRef = useRef<HTMLDivElement>(null);
     const interactionCountRef = useRef<HTMLDivElement>(null);
 
@@ -60,7 +64,7 @@ export default function MoviePage({
                 return;
             }
 
-                const response = await MovieService.postComment(id, content);
+            const response = await MovieService.postComment(id, content);
             const created = response.data || response;
             setComments((current) => {
                 if (current.some((item) => item.id === created.id))
@@ -71,7 +75,6 @@ export default function MoviePage({
             console.error(err);
         }
     };
-
 
     const handleLike = async () => {
         try {
@@ -110,12 +113,20 @@ export default function MoviePage({
         if (sort === commentSort) return;
         if (sort !== "createdAt" && sort !== "interactionCount") return;
         setCommentSort(sort);
-        createCommentRef.current?.classList.remove(styles.commentSelectedFilter);
-        interactionCountRef.current?.classList.remove(styles.commentSelectedFilter);
+        createCommentRef.current?.classList.remove(
+            styles.commentSelectedFilter,
+        );
+        interactionCountRef.current?.classList.remove(
+            styles.commentSelectedFilter,
+        );
         if (sort === "createdAt") {
-            createCommentRef.current?.classList.add(styles.commentSelectedFilter);
+            createCommentRef.current?.classList.add(
+                styles.commentSelectedFilter,
+            );
         } else {
-            interactionCountRef.current?.classList.add(styles.commentSelectedFilter);
+            interactionCountRef.current?.classList.add(
+                styles.commentSelectedFilter,
+            );
         }
     };
 
@@ -192,17 +203,41 @@ export default function MoviePage({
                     nb_color={-1}
                 />
                 <div className={styles.commentInfos}>
-                    <DescriptionComponent text={`${comments ? comments.length : 0} COMMENT${comments && comments.length !== 1 ? 'S' : ''} IN THREAD`} />
+                    <DescriptionComponent
+                        text={`${comments ? comments.length : 0} COMMENT${comments && comments.length !== 1 ? "S" : ""} IN THREAD`}
+                    />
                     <div className={styles.commentInfosFilter}>
-                        <span onClick={() => {handleSort("createdAt")}} ref={createCommentRef} className={styles.commentSelectedFilter}>
+                        <span
+                            onClick={() => {
+                                handleSort("createdAt");
+                            }}
+                            ref={createCommentRef}
+                            className={styles.commentSelectedFilter}
+                        >
                             LATEST
                         </span>
-                        <span onClick={() => {handleSort("interactionCount")}} ref={interactionCountRef}>TOP RATED</span>
+                        <span
+                            onClick={() => {
+                                handleSort("interactionCount");
+                            }}
+                            ref={interactionCountRef}
+                        >
+                            TOP RATED
+                        </span>
                     </div>
-                </div> {
-                    commentsPending ? <LoadingPage></LoadingPage> : 
-                    (commentsError ? <ErrorPage errorCode={(commentsError as AxiosError<any>).status} errorMessage={(commentsError as AxiosError<any>).response?.data?.message || "Something went wrong"} />
-                    : <div>
+                </div>{" "}
+                {commentsPending ? (
+                    <LoadingPage></LoadingPage>
+                ) : commentsError ? (
+                    <ErrorPage
+                        errorCode={(commentsError as AxiosError<any>).status}
+                        errorMessage={
+                            (commentsError as AxiosError<any>).response?.data
+                                ?.message || "Something went wrong"
+                        }
+                    />
+                ) : (
+                    <div>
                         <CommentInput onSubmit={handleSubmitComment} />
                         <div className={styles.viewCommentSection}>
                             {comments.map((comment) => (
@@ -213,8 +248,7 @@ export default function MoviePage({
                             ))}
                         </div>
                     </div>
-                    )
-                }
+                )}
             </div>
         </div>
     );

@@ -46,29 +46,34 @@ export default function HeroSectionMovie({
 }) {
     const router = useRouter();
 
-
     const [openShare, setOpenShare] = useState(false);
     const [openWatch, setOpenWatch] = useState(false);
     const { socket, isConnected } = useSocket();
-    const [inviteSentAndWaitingRoomId, setInviteSentAndWaitingRoomId] = useState("");
+    const [inviteSentAndWaitingRoomId, setInviteSentAndWaitingRoomId] =
+        useState("");
 
     useEffect(() => {
         if (!socket || !isConnected) return;
 
         socket.on("INVITE_ACCEPTED", (params: any) => {
-            console.log(`Received INVITE_ACCEPTED event with params: ${JSON.stringify(params)}`);
+            console.log(
+                `Received INVITE_ACCEPTED event with params: ${JSON.stringify(params)}`,
+            );
             setInviteSentAndWaitingRoomId("");
             router.push(`/watch/${obj.id}?token=${params.roomId}`);
         });
 
         return () => {
             socket.emit("abort_stream", { roomId: obj.id });
-            socket.off('INVITE_ACCEPTED');
+            socket.off("INVITE_ACCEPTED");
             setInviteSentAndWaitingRoomId("");
         };
     }, [socket]);
 
-    if (inviteSentAndWaitingRoomId.length > 0) return <LoadingPage message="Waiting for friends to join..."></LoadingPage>;
+    if (inviteSentAndWaitingRoomId.length > 0)
+        return (
+            <LoadingPage message="Waiting for friends to join..."></LoadingPage>
+        );
 
     if (obj)
         return (
@@ -78,7 +83,7 @@ export default function HeroSectionMovie({
                 }}
                 className={styles.heroSectionWrap}
             >
-                    <div className={`container ${styles.heroSection}`}>
+                <div className={`container ${styles.heroSection}`}>
                     <div className={`${styles.heroSectionTitle}`}>
                         <div className={styles.topTitleElement}>
                             <ButtonCustom
@@ -146,7 +151,9 @@ export default function HeroSectionMovie({
                                 style={{
                                     border: "var(--popup-background-second) 1px solid",
                                 }}
-                                onClick={() => { setOpenWatch(!openWatch) }}
+                                onClick={() => {
+                                    setOpenWatch(!openWatch);
+                                }}
                             />
                         </div>
                         <div className={styles.reactOnMovie}>
@@ -184,8 +191,12 @@ export default function HeroSectionMovie({
                                 <WatchWith
                                     imdbId={obj.id}
                                     title={obj.title}
-                                    onClose={() => { setOpenWatch(false) }}
-                                    setInviteSentAndWaitingRoomId={setInviteSentAndWaitingRoomId}
+                                    onClose={() => {
+                                        setOpenWatch(false);
+                                    }}
+                                    setInviteSentAndWaitingRoomId={
+                                        setInviteSentAndWaitingRoomId
+                                    }
                                 ></WatchWith>
                             )}
                         </div>
