@@ -56,7 +56,7 @@ export class UsersService {
         let tmpDto: UpdateUserDto = { ...dto };
         const actions: string[] = [];
 
-        const user = await this.userRepo.findOne({ where: { id } });
+        let user = await this.userRepo.findOne({ where: { id } });
         if (!user) throw new NotFoundException("User not found");
         if (dto.email && dto.email !== user.email) {
             const existingUser = await this.userRepo.findOne({
@@ -110,7 +110,12 @@ export class UsersService {
             tmpDto = { ...lol };
         }
 
-        actions.push("updated successfully");
+        if (tmpDto.password) {
+            delete tmpDto.password;
+        }
+
+        user = Object.assign(user, tmpDto);
+
         return { user: await this.userRepo.save(user), actions: actions };
     }
 

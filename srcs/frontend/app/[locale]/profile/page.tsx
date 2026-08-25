@@ -70,6 +70,7 @@ export default function ProfilePage() {
 
     const handleSave = async () => {
         if (!userNameRef.current || !userEmailRef.current) return;
+        console.log("Saving user profile...");
         const form = {
             username: userNameRef.current?.value,
             email: userEmailRef.current?.value,
@@ -80,6 +81,7 @@ export default function ProfilePage() {
             password: userPasswordRef.current?.value,
             profilePicture: user?.avatar || null,
         };
+        console.log("Form data:", form);
         const updated = await UserService.updateMe(form);
         const updatedUser = updated?.user;
         const actions = updated?.actions || [];
@@ -87,6 +89,7 @@ export default function ProfilePage() {
         actions.forEach((action: string) => {
             alert(`Action: ${action}`);
         });
+        console.log("Updated user:", updatedUser);
         if (updatedUser?.preferredLanguage) {
             userLanguageUpdate(updatedUser.preferredLanguage);
         }
