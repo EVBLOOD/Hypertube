@@ -190,4 +190,14 @@ export class UsersService {
             },
         };
     }
+
+    async updateAvatar(userId: number, path: string) {
+        const user = await this.userRepo.findOne({ where: { id: userId } });
+        if (!user) throw new NotFoundException("User not found");
+
+        user.profilePicture = path;
+        await this.userRepo.save(user);
+
+        return { message: "Profile picture updated successfully" };
+    }
 }

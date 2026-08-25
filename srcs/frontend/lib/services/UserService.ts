@@ -36,4 +36,13 @@ export default {
             })
         ).data;
     },
+    async UpdateUserAvatar(file: FormData) {
+        return (
+            await api.post(`/users/avatar_update`, file, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            })
+        ).data;
+    },
 };

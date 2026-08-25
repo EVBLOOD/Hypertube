@@ -8,12 +8,29 @@ import {
     Req,
     ParseIntPipe,
     Query,
+    Put,
+    Post,
+    UseInterceptors,
+    UploadedFile,
+    ParseFilePipe,
+    MaxFileSizeValidator,
+    FileTypeValidator,
+    NotFoundException,
+    Res,
+    StreamableFile,
+    BadRequestException,
 } from "@nestjs/common";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { WhitelistGuard } from "../auth/guards/whitelist.guard";
 import { UsersService } from "./users.service";
 import { PaginationFindUserDto } from "./dto/find-user.dto";
+import { extname, join, normalize } from "path";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { diskStorage, memoryStorage } from "multer";
+import { createReadStream, existsSync, mkdirSync, writeFileSync } from "fs";
+import { get } from "axios";
+import fsPromises from "fs/promises";
 
 @Controller("users")
 @UseGuards(JwtAuthGuard, WhitelistGuard)
@@ -40,8 +57,83 @@ export class UsersController {
         return this.userService.findUsers(paging, req.user.id);
     }
 
+    @Post("avatar_update")
+    @UseInterceptors(FileInterceptor("file", { storage: memoryStorage() }))
+    uploadImage(
+        @UploadedFile(
+            new ParseFilePipe({
+                validators: [
+                    new MaxFileSizeValidator({
+                        maxSize: 5 * 1024 * 1024,
+                    }),
+                    new FileTypeValidator({
+                        fileType: /^image\/(jpeg|jpg|png)$/,
+                        skipMagicNumbersValidation: true,
+                    }),
+                ],
+            }),
+        )
+        file: Express.Multer.File,
+        @Req() req,
+    ) {
+        const uploadedFile = file;
+        if (!uploadedFile) {
+            throw new Error("No file uploaded");
+        }
+        const uploadDir = "uploads";
+        if (!existsSync(uploadDir)) {
+            mkdirSync(uploadDir, { recursive: true });
+        }
+
+        const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+        const ext = extname(file.originalname);
+        const filename = `${file.fieldname}-${uniqueSuffix}${ext}`;
+        const filePath = join(uploadDir, filename);
+
+        writeFileSync(filePath, file.buffer);
+
+        this.userService.updateAvatar(req.user.id, filename);
+
+        return {
+            message: "Image uploaded successfully",
+            filename: filename,
+        };
+    }
+
+    @Get("avatar/:filename")
+    async getAvatar(@Param("filename") filename: string) {
+        const safeFilename = normalize(filename).replace(/^(\.\.[\/\\])+/, "");
+        const filePath = join("uploads", safeFilename);
+
+        if (!filePath.startsWith("uploads")) {
+            throw new BadRequestException("Invalid filename");
+        }
+        if (!existsSync(filePath)) {
+            throw new NotFoundException("Avatar not found");
+        }
+
+        const ext = extname(safeFilename).toLowerCase();
+        const mimeTypes: Record<string, string> = {
+            ".png": "image/png",
+            ".jpg": "image/jpeg",
+            ".jpeg": "image/jpeg",
+        };
+
+        const contentType = mimeTypes[ext] || "application/octet-stream";
+        const fileStream = createReadStream(filePath);
+
+        return new StreamableFile(fileStream, {
+            type: contentType,
+        });
+    }
+
     @Get(":id")
     async getProfile(@Param("id", ParseIntPipe) targetId: number, @Req() req) {
         return this.userService.findById(targetId, req.user.id);
     }
+
+    // @Put("avatar_update")
+    // async updateAvatar(@Req() req, @Body("path") path: string) {
+    //     return this.userService.updateAvatar(req.user.id, path);
+    // }
 }

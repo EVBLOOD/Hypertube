@@ -43,6 +43,14 @@
     border-color: #d0c6ab;
     border-style: dashed;
     border-width: 2px;
+    width: 128px;
+    height: 128px;
+
+    display: block;
+    background-position: center;
+    background-size: cover;
+
+    cursor: pointer;
 }
 
 .inputsholder {
@@ -129,6 +137,7 @@
         justify-content: center;
         align-items: center;
     }
+
     .browseContent {
         margin-top: 0px;
         margin-bottom: 70px;

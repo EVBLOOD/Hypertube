@@ -32,6 +32,18 @@ export default function ProfilePage() {
     const [userPrivacy, setUserPrivacy] = useState<"public" | "private">(
         "public",
     );
+    const ifSavedInServer = (path: string | undefined) => {
+        if (path) {
+            return path.includes("/")
+                ? path
+                : process.env.NEXT_PUBLIC_BACK_API_URL +
+                      `/users/avatar/${path}`;
+        }
+        return "/hero.png";
+    };
+    const [profilePicture, setProfilePicture] = useState<string>(
+        ifSavedInServer(user?.avatar),
+    );
 
     useEffect(() => {
         if (!data?.user) return;
@@ -48,6 +60,7 @@ export default function ProfilePage() {
             avatar: data.user.profilePicture || "/hero.png",
             isPublic: data.user.privacy === "public",
         });
+        setProfilePicture(ifSavedInServer(data.user.profilePicture));
     }, [data, userLogged]);
 
     if (!data && isPending) return <LoadingPage />;
@@ -70,7 +83,7 @@ export default function ProfilePage() {
 
     const handleSave = async () => {
         if (!userNameRef.current || !userEmailRef.current) return;
-        console.log("Saving user profile...");
+
         const form = {
             username: userNameRef.current?.value,
             email: userEmailRef.current?.value,
@@ -81,7 +94,7 @@ export default function ProfilePage() {
             password: userPasswordRef.current?.value,
             profilePicture: user?.avatar || null,
         };
-        console.log("Form data:", form);
+
         const updated = await UserService.updateMe(form);
         const updatedUser = updated?.user;
         const actions = updated?.actions || [];
@@ -92,6 +105,27 @@ export default function ProfilePage() {
         console.log("Updated user:", updatedUser);
         if (updatedUser?.preferredLanguage) {
             userLanguageUpdate(updatedUser.preferredLanguage);
+        }
+    };
+
+    const handleFileChange = async (
+        event: React.ChangeEvent<HTMLInputElement>,
+    ) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+            const updated = await UserService.UpdateUserAvatar(formData);
+            console.log("Updated avatar:", updated);
+            setProfilePicture(ifSavedInServer(updated.filename));
+            if (!updated) return;
+
+            // userLogged({ ...user, avatar: img });
+        } catch (error) {
+            console.error("Error updating profile picture:", error);
         }
     };
 
@@ -119,13 +153,28 @@ export default function ProfilePage() {
                         </div>
                         <div className={styles.personalInfosField}>
                             <div className={styles.profilePicture}>
-                                <img
+                                <input
+                                    hidden
+                                    id="fileInput"
+                                    type="file"
+                                    accept="image/jpeg, image/png"
+                                    className={styles.fileInput}
+                                    onChange={handleFileChange}
+                                />
+                                <label
+                                    htmlFor="fileInput"
+                                    className={styles.avatarProfile}
+                                    style={{
+                                        backgroundImage: `url(${profilePicture})`,
+                                    }}
+                                ></label>
+                                {/* <img
                                     className={styles.avatarProfile}
                                     src={user?.avatar || "/hero.png"}
                                     alt=""
                                     width="128px"
                                     height="128px"
-                                />
+                                /> */}
                             </div>
                             <div className={styles.inputsholder}>
                                 <InputCustom
