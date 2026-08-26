@@ -75,7 +75,7 @@
     [x] Build password reset flow sending link/token via email for forgotten passwords.
     [x] Allow users to update email, name, password, and profile picture.
     [ ] Build public user profile page (avatar and details visible, email strictly private).
-    [ ] Add language switcher (default language: English).
+    [x] Add language switcher (default language: English).
 
 [x] External API Integration
     [x] Query at least 2 external video sources (e.g., YTS, TMDb, OMDb).

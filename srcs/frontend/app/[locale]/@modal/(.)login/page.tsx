@@ -34,39 +34,40 @@ export default function Login() {
 
         const targetOrigin = new URL(backendUrl).origin;
 
-        const childWindow = window.open(
+        const childWindow = open(
             `${backendUrl}/auth/login/42`,
             "_blank",
             "width=500,height=600",
         );
 
-        const messageListener = (event: MessageEvent) => {
+        const messageListener = async (event: MessageEvent) => {
             if (event.origin !== targetOrigin) return;
             console.log("Received message:", event.data);
 
             if (event.data?.type === "login_success") {
                 console.log("User data:", event.data);
 
+                const userData = (await AuthService.whois())?.data;
+
                 useUserStore.getState().userLogged({
-                    username: event.data.username,
-                    language: event.data.preferredLanguage,
-                    avatar: event.data.profilePicture,
-                    isPublic: event.data.isPublic,
+                    username: userData.user.username,
+                    language: userData.user.preferredLanguage,
+                    avatar: userData.user.profilePicture,
+                    isPublic: userData.user.isPublic,
                 });
 
+                changeLanguage(userData.user.preferredLanguage || "en");
                 cleanup();
                 childWindow?.close();
-                changeLanguage(event.data.preferredLanguage || "en");
-                console.log("Login successful:", event.data);
             }
         };
 
         const cleanup = () => {
-            window.removeEventListener("message", messageListener);
+            removeEventListener("message", messageListener);
             clearInterval(checkClosedInterval);
         };
 
-        window.addEventListener("message", messageListener);
+        addEventListener("message", messageListener);
 
         const checkClosedInterval = setInterval(() => {
             if (childWindow?.closed) {
@@ -80,39 +81,41 @@ export default function Login() {
 
         const targetOrigin = new URL(backendUrl).origin;
 
-        const childWindow = window.open(
+        const childWindow = open(
             `${backendUrl}/auth/login/google`,
             "_blank",
             "width=500,height=600",
         );
 
-        const messageListener = (event: MessageEvent) => {
+        const messageListener = async (event: MessageEvent) => {
             if (event.origin !== targetOrigin) return;
             console.log("Received message:", event.data);
 
             if (event.data?.type === "login_success") {
                 console.log("User data:", event.data);
 
+                const userData = (await AuthService.whois())?.data;
+
                 useUserStore.getState().userLogged({
-                    username: event.data.username,
-                    language: event.data.preferredLanguage,
-                    avatar: event.data.profilePicture,
-                    isPublic: event.data.isPublic,
+                    username: userData.user.username,
+                    language: userData.user.preferredLanguage,
+                    avatar: userData.user.profilePicture,
+                    isPublic: userData.user.isPublic,
                 });
 
+                changeLanguage(userData.user.preferredLanguage || "en");
                 cleanup();
                 childWindow?.close();
-                changeLanguage(event.data.preferredLanguage || "en");
                 console.log("Login successful:", event.data);
             }
         };
 
         const cleanup = () => {
-            window.removeEventListener("message", messageListener);
+            removeEventListener("message", messageListener);
             clearInterval(checkClosedInterval);
         };
 
-        window.addEventListener("message", messageListener);
+        addEventListener("message", messageListener);
 
         const checkClosedInterval = setInterval(() => {
             if (childWindow?.closed) {
@@ -126,39 +129,38 @@ export default function Login() {
 
         const targetOrigin = new URL(backendUrl).origin;
 
-        const childWindow = window.open(
+        const childWindow = open(
             `${backendUrl}/auth/login/github`,
             "_blank",
             "width=500,height=600",
         );
 
-        const messageListener = (event: MessageEvent) => {
+        const messageListener = async (event: MessageEvent) => {
             if (event.origin !== targetOrigin) return;
             console.log("Received message:", event.data);
 
             if (event.data?.type === "login_success") {
-                console.log("User data:", event.data);
+                const userData = (await AuthService.whois())?.data;
 
                 useUserStore.getState().userLogged({
-                    username: event.data.username,
-                    language: event.data.preferredLanguage,
-                    avatar: event.data.profilePicture,
-                    isPublic: event.data.isPublic,
+                    username: userData.user.username,
+                    language: userData.user.preferredLanguage,
+                    avatar: userData.user.profilePicture,
+                    isPublic: userData.user.isPublic,
                 });
 
+                changeLanguage(userData.user.preferredLanguage || "en");
                 cleanup();
                 childWindow?.close();
-                console.log("Login successful:", event.data);
-                changeLanguage(event.data.preferredLanguage || "en");
             }
         };
 
         const cleanup = () => {
-            window.removeEventListener("message", messageListener);
+            removeEventListener("message", messageListener);
             clearInterval(checkClosedInterval);
         };
 
-        window.addEventListener("message", messageListener);
+        addEventListener("message", messageListener);
 
         const checkClosedInterval = setInterval(() => {
             if (childWindow?.closed) {
@@ -199,7 +201,7 @@ export default function Login() {
 
             console.log("Login successful:", user);
             changeLanguage(user.preferredLanguage || "en");
-            // window.location.href = '/';
+            // location.href = '/';
         } catch (err) {
             alert("Login failed. Please check your credentials.");
         }
