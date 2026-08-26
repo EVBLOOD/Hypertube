@@ -1320,7 +1320,7 @@ export class MoviesService {
 
     async createMovieEntry(imdbId: string) {
         const existingMovie = await this.movieRepo.findOne({
-            where: { imdbId },
+            where: { imdbId: imdbId },
         });
         if (existingMovie) {
             return existingMovie;
@@ -1363,18 +1363,34 @@ export class MoviesService {
         currentTime: number,
         imdbId: string,
     ) {
+        if (!userId) return;
+
+        let movie = await this.movieRepo.findOne({ where: { imdbId } });
+        if (!movie) {
+            try {
+                movie = await this.createMovieEntry(imdbId);
+            } catch (err) {
+                movie = await this.movieRepo.findOneByOrFail({ imdbId });
+            }
+        }
+        const numericUserId = Number(userId);
         const progress = await this.progressRepo.findOne({
-            where: { user: { id: Number(userId) }, movie: { imdbId: imdbId } },
+            where: { user: { id: numericUserId }, movie: { id: movie.id } },
         });
 
         if (!progress) {
-            const movie = await this.createMovieEntry(imdbId);
-
-            await this.progressRepo.save({
-                user: { id: Number(userId) },
-                movie,
-                lastMinute: currentTime,
-            });
+            try {
+                await this.progressRepo.save({
+                    user: { id: numericUserId },
+                    movie: { id: movie.id },
+                    lastMinute: currentTime,
+                });
+            } catch {
+                await this.progressRepo.update(
+                    { user: { id: numericUserId }, movie: { id: movie.id } },
+                    { lastMinute: currentTime }
+                );
+            }
         } else {
             await this.progressRepo.update(progress.id, {
                 lastMinute: currentTime,
