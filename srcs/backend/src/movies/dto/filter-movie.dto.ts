@@ -46,4 +46,8 @@ export class FilterMovieDto {
     @IsOptional()
     @IsString()
     order?: string = "asc"; // asc, desc
+
+    @IsOptional()
+    @IsString()
+    language?: string = "en";
 }

@@ -1,10 +1,12 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState, useEffect } from "react";
 import styles from "./languageSwitcher.module.css";
 import { usePathname, useRouter } from "next/navigation";
 
 export default function LanguageSwitcher({ local }: { local: string }) {
+    const t = useTranslations("Language");
     const [isAtTop, setIsAtTop] = useState(true);
     const [isOpen, setIsOpen] = useState(false);
     const [choose, setChoice] = useState(local);
@@ -40,8 +42,9 @@ export default function LanguageSwitcher({ local }: { local: string }) {
             <div
                 onClick={() => setIsOpen(!isOpen)}
                 className={styles.languageStyleOverView}
+                aria-label={t("ariaLabel")}
             >
-                <img src="/costumIcons/play.svg" alt="lang" />
+                <img src="/costumIcons/play.svg" alt={t("ariaLabel")} />
                 <span>{choose.toUpperCase()}</span>
             </div>
             <ul

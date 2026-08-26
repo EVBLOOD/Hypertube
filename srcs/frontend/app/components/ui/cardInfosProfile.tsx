@@ -1,17 +1,24 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import styles from "./cardInfosProfile.module.css";
 import DescriptionComponent from "./descriptionComponent";
 
 export default function CardInfosProfile() {
+    const t = useTranslations("Profile");
+
     return (
         <div className={styles.cardInfos}>
-            <span className={styles.cardTitle}>Accumulated Exposure</span>
+            <span className={styles.cardTitle}>
+                {t("stats.accumulatedExposure")}
+            </span>
             <div className={styles.cardMain}>
                 <h1>1,428</h1>
-                <h2>Hours</h2>
+                <h2>{t("stats.hours")}</h2>
             </div>
-            <DescriptionComponent text="Your consumption of metadata across the HyperTube network exceeds 84% of active directors in this sector."></DescriptionComponent>
+            <DescriptionComponent
+                text={t("stats.exposureDescription")}
+            ></DescriptionComponent>
         </div>
     );
 }

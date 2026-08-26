@@ -1,20 +1,23 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import styles from "./footer.module.css";
 
 export default function Footer() {
+    const t = useTranslations("Footer");
+
     return (
         <div
             className={styles.footerAll}
             style={{ backgroundColor: "var(--popup-background)" }}
         >
             <div className={`container ${styles.borderWrap}`}>
-                <span className={styles.logo}>HYPERTUBE</span>
-                <span>© 2026 HYPERTUBE FILM VAULT. ALL RIGHTS RESERVED.</span>
+                <span className={styles.logo}>{t("brand")}</span>
+                <span>{t("rights")}</span>
                 <div className={styles.borderInfos}>
-                    <span>Technical Specs</span>
-                    <span>Privacy Protocol</span>
-                    <span>API Documentation</span>
+                    <span>{t("links.technicalSpecs")}</span>
+                    <span>{t("links.privacyProtocol")}</span>
+                    <span>{t("links.apiDocumentation")}</span>
                 </div>
             </div>
         </div>

@@ -27,7 +27,7 @@ export default function CommentInput({
             <img
                 className={styles.commentPublishingAvatar}
                 src="/hero.png"
-                alt="avatar"
+                alt={t("avatarAlt")}
             />
             <div className={styles.commentAndButton}>
                 <textarea

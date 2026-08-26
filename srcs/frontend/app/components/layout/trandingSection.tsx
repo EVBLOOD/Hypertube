@@ -15,17 +15,17 @@ export default function TrandingSection({ movies }: { movies: any }) {
                 <div>
                     <h1 style={{ marginBottom: 0 }}>{Home("tranding")}</h1>
                     <span className={styles.subTitleTranding}>
-                        Curated Technical Selection
+                        {Home("selection")}
                     </span>
                 </div>
                 <div
                     className={styles.tradingViewMore}
                     onClick={() => router.push("/trending")}
                 >
-                    <p>SEE ALL ENTRIES</p>
+                    <p>{Home("see_all")}</p>
                     <img
                         src="/costumIcons/go_in.svg"
-                        alt="Next"
+                        alt={Home("see_all")}
                         height="10px"
                     />
                 </div>

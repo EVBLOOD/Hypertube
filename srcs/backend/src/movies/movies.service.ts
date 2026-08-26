@@ -1,9 +1,10 @@
 import {
     BadRequestException,
+    forwardRef,
+    Inject,
     Injectable,
     InternalServerErrorException,
     NotFoundException,
-    Query,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
@@ -22,6 +23,7 @@ import path from "path";
 import { existsSync } from "fs";
 import fsPromises from "node:fs/promises";
 import AdmZip from "adm-zip";
+import type { DefaultLanguage } from "src/common/decorators/language.decorator";
 
 export interface MovieInfos {
     id: string;
@@ -77,8 +79,15 @@ export class MoviesService {
         private userRepo: Repository<User>,
         private redisservice: RedisService,
         private readonly emailsService: MailsService,
+        @Inject(forwardRef(() => MovieGateway))
         private readonly movieGateway: MovieGateway,
     ) {}
+
+    LANGS = {
+        en: "en-US",
+        fr: "fr-FR",
+        ar: "ar-SA",
+    };
 
     TMDB_GENRE_MAP = {
         action: 28,
@@ -105,64 +114,30 @@ export class MoviesService {
         western: 37,
     };
 
-    normalizeMovie(movie: any, source: string): MovieInfos {
-        if (source == "YTS") {
-            return {
-                id: movie.imdb_code,
-                title: movie.title,
-                year: movie.year,
-                rating: movie.rating,
-                genres: movie.genres,
-                quality: "N/A",
-                standard_audio_format: "N/A",
-                poster: "N/A",
-                isWatched: false,
-            };
-        } else if (source == "TMDB") {
-            return {
-                id: movie.id,
-                title: movie.title,
-                year: movie.release_date
-                    ? movie.release_date.split("-")[0]
-                    : "N/A",
-                rating: movie.vote_average,
-                genres: movie.genres,
-                quality: "N/A",
-                standard_audio_format: "N/A",
-                poster: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
-                isWatched: false,
-            };
-        }
+    normalizeMovie(movie: any): MovieInfos {
         return {
-            id: movie.imdbId,
+            id: movie.id,
             title: movie.title,
-            year: movie.year,
-            rating: movie.ratingTmdb,
+            year: movie.release_date ? movie.release_date.split("-")[0] : "N/A",
+            rating: movie.vote_average,
             genres: movie.genres,
             quality: "N/A",
             standard_audio_format: "N/A",
-            poster: "N/A",
+            poster: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
             isWatched: false,
         };
     }
 
-    // public async getMoviePosterFromTMDB(imdbId: string): Promise<string | null> {
-    //   try {
-    //     const { data } = await axios.get(`${process.env.TMDB_API}movie/${imdbId}?api_key=${process.env.TMDB_KEY}&external_source=${imdbId}`);
-    //     return data.poster_path ? `https://image.tmdb.org/t/p/w500${data.poster_path}` : null;
-    //   } catch (err) {
-    //     console.error(err);
-    //     return null;
-    //   }
-    // }
-
-    private async imdbIdFromTMDB(movie: MovieInfos): Promise<MovieInfos> {
+    private async imdbIdFromTMDB(
+        movie: MovieInfos,
+        lang: DefaultLanguage,
+    ): Promise<MovieInfos> {
         const cache = await this.redisservice.get(`metadata:${movie.id}`);
         if (cache) return JSON.parse(cache);
 
         try {
             const { data } = await axios.get(
-                `${process.env.TMDB_API}movie/${movie.id}?api_key=${process.env.TMDB_KEY}&append_to_response=external_ids`,
+                `${process.env.TMDB_API}movie/${movie.id}?api_key=${process.env.TMDB_KEY}&append_to_response=external_ids&language=${this.LANGS[lang || "en"] || "en-US"}`,
             );
             movie.id = data.imdb_id;
             movie.genres = data.genres.map(
@@ -219,7 +194,11 @@ export class MoviesService {
         return movie;
     }
 
-    async getLibrary(filters: FilterMovieDto, userId: number) {
+    async getLibrary(
+        filters: FilterMovieDto,
+        userId: number,
+        lang: DefaultLanguage,
+    ) {
         const {
             query,
             genre,
@@ -231,9 +210,15 @@ export class MoviesService {
             sortBy,
             order = "asc",
         } = filters;
-        const cacheKey = `search:${userId}:${query || "all"}:${genre || "all"}:${minRating || "0"}:${minYear || "1900"}:${maxYear || "2100"}:${sortBy || "popularity"}:${order || "asc"}`;
-        const pageTrackerKey = `${cacheKey}:next_tmdb_page`;
-        const LimitTrackerKey = `${cacheKey}:keep_tmdb_limit`;
+
+        if (lang === "df") {
+            const user = await this.userRepo.findOne({ where: { id: userId } });
+            lang = user?.preferredLanguage || "en";
+        }
+
+        const cacheKey = `search:${userId}:${query || "all"}:${genre || "all"}:${minRating || "0"}:${minYear || "1900"}:${maxYear || "2100"}:${sortBy || "popularity"}:${order || "asc"}:${lang}`;
+        const pageTrackerKey = `${cacheKey}:next_tmdb_page${lang}`;
+        const LimitTrackerKey = `${cacheKey}:keep_tmdb_limit${lang}`;
 
         const activeFilters: FilterMovieDto = { ...filters };
         if (!query || query.trim() === "") {
@@ -255,6 +240,7 @@ export class MoviesService {
                 ...activeFilters,
                 page: currentTmdbPage,
                 limit: currentTmdbLimit,
+                language: lang,
             };
             const { movies, page: nextTmdbPage } =
                 await this.fetchFromTMDB(tmdbFilters);
@@ -330,7 +316,7 @@ export class MoviesService {
             const params: any = {
                 api_key: process.env.TMDB_KEY,
                 page: paging.page || 1,
-                language: "en-US",
+                language: this.LANGS[paging.language || "en"] || "en-US",
             };
 
             const requests: any = [];
@@ -343,18 +329,20 @@ export class MoviesService {
             }
             const responses = await Promise.all(requests);
             const data = responses.flatMap((res) => res.data.results || []);
-            results = (data || [])?.map((m: any) =>
-                this.normalizeMovie(m, "TMDB"),
-            );
+            results = (data || [])?.map((m: any) => this.normalizeMovie(m));
         } catch (err) {
             console.error(err);
         }
         return results;
     }
 
-    async getWishlist(paging: PaginationMovieDto, userId: number) {
+    async getWishlist(
+        paging: PaginationMovieDto,
+        userId: number,
+        lang: DefaultLanguage,
+    ) {
         const { page = 1, limit = 20 } = paging;
-        const cacheKey = `wishlist:${userId}`;
+        const cacheKey = `wishlist:${userId}:${lang}`;
 
         const start = (page - 1) * limit;
         const movies = await this.redisservice.getMovies(
@@ -375,6 +363,8 @@ export class MoviesService {
                     wishlistMovies?.map(async (m) => {
                         const movieDetails = await this.getMovieDetails(
                             m.movie.imdbId,
+                            lang,
+                            userId,
                         );
                         let movieInfo: MovieInfos;
                         if (movieDetails && "movie" in movieDetails) {
@@ -425,7 +415,7 @@ export class MoviesService {
                                 time: 0,
                             };
                         }
-                        return await this.imdbIdFromTMDB(movieInfo);
+                        return await this.imdbIdFromTMDB(movieInfo, lang);
                     }),
                 )
             ).filter((m) => m.id);
@@ -454,18 +444,32 @@ export class MoviesService {
         };
     }
 
-    async getTrending(paging: PaginationMovieDto, userId?: number) {
-        const { page = 1, limit = 20 } = paging;
-        const cacheKey = `trending`;
+    async getTrending(
+        paging: PaginationMovieDto,
+        lang: DefaultLanguage,
+        userId?: number,
+    ) {
+        const user = userId
+            ? await this.userRepo.findOne({ where: { id: userId } })
+            : null;
+        lang = user?.preferredLanguage || lang || "en";
 
+        const cacheKey = `trending${lang}`;
         const total = await this.redisservice.lenZSet(cacheKey);
+
+        const { page = 1, limit = 20 } = paging;
+        paging.language = lang;
 
         if (total < page * limit) {
             const tmdbTrending = await this.fetchTrendingFromTMDB(paging);
             const imdbDate = (
                 await Promise.all(
                     tmdbTrending?.map(
-                        async (m) => await this.imdbIdFromTMDB(m),
+                        async (m) =>
+                            await this.imdbIdFromTMDB(
+                                m,
+                                (paging.language as DefaultLanguage) || "en",
+                            ),
                     ),
                 )
             ).filter((m) => m.id);
@@ -532,7 +536,7 @@ export class MoviesService {
             const endpoint = isSearch ? "search/movie" : "discover/movie";
             const params: any = {
                 api_key: process.env.TMDB_KEY,
-                language: "en-US",
+                language: this.LANGS[filters.language || "en"],
             };
 
             if (isSearch) params["query"] = filters.query;
@@ -567,14 +571,18 @@ export class MoviesService {
                 if (data.length === 0) break;
 
                 const results: MovieInfos[] = (data || [])?.map((m: any) =>
-                    this.normalizeMovie(m, "TMDB"),
+                    this.normalizeMovie(m),
                 );
 
                 const imdbData = (
                     await Promise.all(
                         results?.map(
                             async (movie: any) =>
-                                await this.imdbIdFromTMDB(movie),
+                                await this.imdbIdFromTMDB(
+                                    movie,
+                                    (filters.language as DefaultLanguage) ||
+                                        "en",
+                                ),
                         ),
                     )
                 ).filter((m) => m && m.id);
@@ -595,34 +603,7 @@ export class MoviesService {
         return { movies: resultResponse, page: currentPage };
     }
 
-    private async fetchFromYts(filters: FilterMovieDto) {
-        try {
-            const params: any = {
-                genre: filters.genre,
-                minimum_rating: filters.minRating,
-                sort_by: filters.query
-                    ? filters.sortBy || "title"
-                    : filters.sortBy || "download_count",
-                order_by: "desc",
-                page: filters.page || 1,
-                limit: filters.limit,
-            };
-            if (filters.query) params.query_term = filters.query;
-
-            const { data } = await axios.get(
-                `${process.env.LINK_API_MOVIES_LIST_YTS}list_movies.json`,
-                { params },
-            );
-            return (data.data.movies || [])?.map((m: any) =>
-                this.normalizeMovie(m, "YTS"),
-            );
-        } catch (err) {
-            console.error(`YTS Fetch Failed: ${err}`);
-            return [];
-        }
-    }
-
-    async getHeroMovie() {
+    async getHeroMovie(lang: DefaultLanguage) {
         const heroInfos: MovieInfos = {
             id: "",
             title: "",
@@ -634,8 +615,10 @@ export class MoviesService {
             poster: "",
             isWatched: false,
         };
+
         try {
-            const hero = await this.redisservice.get(`hero`);
+            if (lang === "df") lang = "en";
+            const hero = await this.redisservice.get(`hero${lang}`);
             if (hero) {
                 const normalData = JSON.parse(hero);
                 const randomItem =
@@ -647,7 +630,7 @@ export class MoviesService {
             const params: any = {
                 api_key: process.env.TMDB_KEY,
                 append_to_response: "external_ids",
-                language: "en-US",
+                language: this.LANGS[lang] || "en-US",
             };
             const { data } = await axios.get(
                 `${process.env.TMDB_API}trending/movie/day`,
@@ -657,13 +640,14 @@ export class MoviesService {
             );
             const allMovies = data.results;
             const herosInfos: MovieInfos[] = allMovies.map((movie: any) => {
-                const el = this.normalizeMovie(movie, "TMDB");
+                const el = this.normalizeMovie(movie);
                 el.poster = `${process.env.TMDB_PICS}${movie.backdrop_path}`;
                 return el;
             });
             const imdbData = await Promise.all(
                 herosInfos?.map(
-                    async (movie: any) => await this.imdbIdFromTMDB(movie),
+                    async (movie: any) =>
+                        await this.imdbIdFromTMDB(movie, lang),
                 ),
             );
             const yts_movies = await Promise.all(
@@ -671,7 +655,7 @@ export class MoviesService {
             );
 
             await this.redisservice.set(
-                `hero`,
+                `hero${lang}`,
                 JSON.stringify(yts_movies),
                 86400,
             );
@@ -695,11 +679,22 @@ export class MoviesService {
             isWishlisted: progress?.isWishlisted || false,
             liked: progress?.likedOrDisliked === 1,
             disliked: progress?.likedOrDisliked === 2,
+            lastWatchedTime: progress?.lastMinute || 0,
+            totalMinutes: progress?.totalMinutes || 0,
         };
     }
 
-    async getMovieDetails(imdbId: string, userId?: number) {
+    async getMovieDetails(
+        imdbId: string,
+        lang?: DefaultLanguage,
+        userId?: number,
+    ) {
+        console.log(
+            `Fetching movie details for imdbId: ${imdbId}, userId: ${userId}, language: ${lang}`,
+        );
+
         let movie: MovieInfos | null = null;
+
         try {
             const { data } = await axios.get(
                 `${process.env.TMDB_API}find/${imdbId}`,
@@ -707,12 +702,12 @@ export class MoviesService {
                     params: {
                         api_key: process.env.TMDB_KEY,
                         external_source: "imdb_id",
-                        language: "en-US",
+                        language: this.LANGS[lang || "en"] || "en-US",
                     },
                 },
             );
             movie = data.movie_results?.[0]
-                ? this.normalizeMovie(data.movie_results?.[0], "TMDB")
+                ? this.normalizeMovie(data.movie_results?.[0])
                 : null;
             if (movie) {
                 movie.id = imdbId;
@@ -723,7 +718,12 @@ export class MoviesService {
             const tmdbId = data.movie_results?.[0].id;
             const creditsRes = await axios.get(
                 `${process.env.TMDB_API}movie/${tmdbId}/credits`,
-                { params: { api_key: process.env.TMDB_KEY } },
+                {
+                    params: {
+                        api_key: process.env.TMDB_KEY,
+                        language: this.LANGS[lang || "en"] || "en-US",
+                    },
+                },
             );
 
             const director =
@@ -762,17 +762,16 @@ export class MoviesService {
         return movie;
     }
 
-    async getCuratedTrending() {
-        const cacheKey = "curated_trending_top_24";
+    async getCuratedTrending(lang: DefaultLanguage) {
+        const cacheKey = `curated_trending_top_24_${lang}`;
         const cached = await this.redisservice.get(cacheKey);
 
         if (cached) return JSON.parse(cached);
-
         try {
             const params: any = {
                 api_key: process.env.TMDB_KEY,
                 append_to_response: "external_ids",
-                language: "en-US",
+                language: this.LANGS[lang] || "en-US",
             };
             const { data } = await axios.get(
                 `${process.env.TMDB_API}trending/movie/week`,
@@ -782,7 +781,7 @@ export class MoviesService {
             );
             const allMovies = data.results;
             const herosInfos: MovieInfos[] = allMovies.map((movie: any) => {
-                const el = this.normalizeMovie(movie, "TMDB");
+                const el = this.normalizeMovie(movie);
                 el.poster = `${process.env.TMDB_PICS}${movie.backdrop_path}`;
                 el.overview = movie.overview;
 
@@ -790,7 +789,8 @@ export class MoviesService {
             });
             const imdbData = await Promise.all(
                 herosInfos?.map(
-                    async (movie: any) => await this.imdbIdFromTMDB(movie),
+                    async (movie: any) =>
+                        await this.imdbIdFromTMDB(movie, lang),
                 ),
             );
             const yts_movies = await Promise.all(
@@ -1314,5 +1314,75 @@ export class MoviesService {
         await fsPromises.writeFile(filePath, extractedBuffer);
 
         return filePath;
+    }
+
+    async createMovieEntry(imdbId: string) {
+        const existingMovie = await this.movieRepo.findOne({
+            where: { imdbId },
+        });
+        if (existingMovie) {
+            return existingMovie;
+        }
+        const movieDetails = await this.getMovieDetails(imdbId);
+        if (!movieDetails) {
+            return await this.movieRepo.save({
+                imdbId,
+                title: "Unknown",
+                year: 0,
+                ratingTmdb: 0,
+                genres: [],
+            });
+        }
+
+        if (typeof movieDetails === "object" && "movie" in movieDetails) {
+            const { movie: movieInfo } = movieDetails;
+            return await this.movieRepo.save({
+                imdbId: movieInfo.id,
+                title: movieInfo.title,
+                year: movieInfo.year,
+                ratingTmdb: movieInfo.rating,
+                genres: movieInfo.genres,
+                totalMinutes: movieInfo.time || 0,
+            });
+        }
+
+        return await this.movieRepo.save({
+            imdbId: movieDetails.id,
+            title: movieDetails.title,
+            year: movieDetails.year,
+            ratingTmdb: movieDetails.rating,
+            genres: movieDetails.genres,
+            totalMinutes: movieDetails.time || 0,
+        });
+    }
+
+    async markMovieCurrentTime(
+        userId: string | undefined,
+        currentTime: number,
+        imdbId: string,
+    ) {
+        const progress = await this.progressRepo.findOne({
+            where: { user: { id: Number(userId) }, movie: { imdbId: imdbId } },
+        });
+
+        if (!progress) {
+            const movie = await this.createMovieEntry(imdbId);
+
+            await this.progressRepo.save({
+                user: { id: Number(userId) },
+                movie,
+                lastMinute: currentTime,
+            });
+        } else {
+            await this.progressRepo.update(progress.id, {
+                lastMinute: currentTime,
+            });
+        }
+    }
+
+    async getMovieCurrentTime(imdbId: string, userId: string) {
+        return await this.progressRepo.findOne({
+            where: { user: { id: Number(userId) }, movie: { imdbId: imdbId } },
+        });
     }
 }

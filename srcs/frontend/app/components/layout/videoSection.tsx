@@ -18,6 +18,10 @@ export default function VideoSection(props: {
     isPlaying?: boolean;
     qualities?: string[];
     subtitles?: { lang: string; language: string; urlLink: string }[];
+    handlePlayMovie?: () => void;
+    handlePauseMovie?: () => void;
+    heartbeatInterval: React.Dispatch<React.SetStateAction<number>>;
+    initialTime?: number;
 }) {
     const isRemoteUpdate = useRef(false);
     const refVideo = useRef<HTMLVideoElement>(null);
@@ -26,7 +30,9 @@ export default function VideoSection(props: {
             ? "720p"
             : props.qualities?.[0],
     );
-    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [errorMessage, setErrorMessage] = useState<string | null>(
+        props.qualities?.length ? null : "No Turrents Found for this Movie !",
+    );
     const videoUrl = `${process.env.NEXT_PUBLIC_BACK_API_URL}/movies/watch/${props.id}?quality=${currentQuality}`;
 
     const handleQualityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -51,6 +57,7 @@ export default function VideoSection(props: {
             return;
         }
         props.handleStartStream?.();
+        props.handlePlayMovie?.();
     };
 
     const handlePause = () => {
@@ -59,6 +66,7 @@ export default function VideoSection(props: {
             return;
         }
         props.handlePauseStream?.();
+        props.handlePauseMovie?.();
     };
 
     const handleSeek = () => {
@@ -117,6 +125,33 @@ export default function VideoSection(props: {
         }
     }, [props.time]);
 
+    // const handleTimeUpdate = () => {
+    //     if (refVideo.current) {
+    //         props.heartbeatInterval(refVideo.current.currentTime);
+    //     }
+    // };
+
+    useEffect(() => {
+        if (props.initialTime !== undefined && refVideo.current) {
+            if (
+                Math.abs(refVideo.current.currentTime - props.initialTime) > 0.5
+            ) {
+                isRemoteUpdate.current = true;
+                refVideo.current.currentTime = props.initialTime;
+            }
+        }
+    }, [props.initialTime]);
+
+    useEffect(() => {
+        const intervalHeartBeat = setInterval(() => {
+            if (refVideo.current) {
+                props.heartbeatInterval(refVideo.current.currentTime);
+            }
+        }, 5000);
+
+        return () => clearInterval(intervalHeartBeat);
+    }, []);
+
     if (errorMessage) {
         return <ErrorPage errorCode={404} errorMessage={errorMessage} />;
     }
@@ -149,6 +184,7 @@ export default function VideoSection(props: {
                 onSeeked={handleSeek}
                 onSeeking={handleSeeking}
                 onError={handleVideoError}
+                // onTimeUpdate={handleTimeUpdate}
             >
                 {props.subtitles &&
                     props.subtitles.map((s, index) => (

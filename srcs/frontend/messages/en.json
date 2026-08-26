@@ -7,13 +7,13 @@
         "filter_production_year": "PRODUCTION YEAR",
         "filter_rating": "MINIMUM RATING (IMDb)",
         "filter_sortby": "SORT BY",
-        "filter_sort_views_count": "SEEDS/PEER COUNT",
         "filter_sort_add_date": "DATE ADDED",
         "filter_sort_alphabit": "ALPHABETICAL",
         "title": "THE BACKLOT",
         "sub_title": "INDEXED ASSETS // GLOBAL REPOSITORY",
         "resolution": "RESOLUTION",
         "seen": "SEEN",
+        "continue": "Continue",
         "filter_search": "SEARCH",
         "filter_search_placeholder": "SEARCH FOR A MOVIE...",
         "filter_sort_popularity": "POPULARITY",
@@ -56,7 +56,8 @@
         "selection": "Curated Technical Selection",
         "see_all": "SEE ALL ENTRIES",
         "minutes": "MIN",
-        "volt_type": "PREMIUM VAULT"
+        "volt_type": "PREMIUM VAULT",
+        "imdb": "IMDb {rating}"
     },
     "Login": {
         "title": "READY TO STREAM?",
@@ -128,12 +129,118 @@
         "access_account": "ACCESS VAULT"
     },
     "Header": {
-        "library": "Library",
-        "trending": "Trending",
-        "watchlist": "Watchlist",
-        "my_vault": "My Vault",
-        "sign_in": "SIGN IN",
-        "sign_out": "SIGN OUT"
+        "navigation": {
+            "library": "Library",
+            "trending": "Trending",
+            "watchlist": "Watchlist",
+            "myVault": "My Vault"
+        },
+        "actions": {
+            "search": "Search",
+            "signIn": "SIGN IN",
+            "signOut": "SIGN OUT"
+        }
+    },
+    "Footer": {
+        "brand": "HYPERTUBE",
+        "rights": "© 2026 HYPERTUBE FILM VAULT. ALL RIGHTS RESERVED.",
+        "links": {
+            "technicalSpecs": "Technical Specs",
+            "privacyProtocol": "Privacy Protocol",
+            "apiDocumentation": "API Documentation"
+        }
+    },
+    "Common": {
+        "status": {
+            "loading": "WAIT FOR LOADING DATA...",
+            "loadingNextPage": "LOADING NEXT PAGE...",
+            "connected": "Connected to Room",
+            "connecting": "Connecting..."
+        },
+        "actions": {
+            "submit": "Submit",
+            "close": "Close",
+            "send": "Send",
+            "cancel": "Cancel"
+        }
+    },
+    "Error": {
+        "recordLabel": "Error Code Detected",
+        "description": "The page you are looking for wasn't recorded yet, rec in future.",
+        "authorizeSession": "AUTHORIZE SESSION",
+        "backToHome": "BACK TO HOME",
+        "reportIssue": "REPORT ISSUE"
+    },
+    "MovieDetail": {
+        "waitingForFriends": "Waiting for friends to join...",
+        "defaultRuntime": "2H 14MIN",
+        "defaultSize": "12.4 GB",
+        "watchNow": "WATCH NOW",
+        "watchLater": "WATCH LATER",
+        "liveInvite": "LIVE INVITE"
+    },
+    "WatchParty": {
+        "status": {
+            "label": "Status",
+            "connected": "Connected to Room",
+            "connecting": "Connecting..."
+        },
+        "messages": {
+            "self": "You",
+            "other": "Other"
+        },
+        "chat": {
+            "placeholder": "Type a message...",
+            "send": "Send Message"
+        }
+    },
+    "WatchWith": {
+        "title": "Watch {title} with your friends!",
+        "imageAlt": "Watch with friends",
+        "input": {
+            "label": "User Name or Email",
+            "placeholder": "User Name or Email"
+        },
+        "button": {
+            "sendInvite": "Send Invite"
+        },
+        "validation": {
+            "emptyInput": "User input is empty."
+        },
+        "success": {
+            "sent": "Invite sent successfully."
+        },
+        "error": {
+            "sendFailed": "Error sending invite."
+        }
+    },
+    "Share": {
+        "title": "Share {title} with your friends!",
+        "platforms": {
+            "facebook": "Share on Facebook",
+            "x": "Share on X",
+            "reddit": "Share on Reddit",
+            "email": "Share on Email"
+        }
+    },
+    "Auth": {
+        "waiting": "Waiting for Auth.."
+    },
+    "Language": {
+        "ariaLabel": "Language selector"
+    },
+    "Profile": {
+        "stats": {
+            "approvedTitles": "Approved Titles",
+            "accumulatedExposure": "Accumulated Exposure",
+            "hours": "Hours",
+            "exposureDescription": "Your consumption of metadata across the HyperTube network exceeds 84% of active directors in this sector.",
+            "unknownTime": "Unknown time",
+            "moviePoster": "Movie poster",
+            "interactionIcon": "Interaction icon",
+            "unknownTitle": "Unknown Title",
+            "unknownOverview": "Unknown Overview"
+        }
     },
     "Watch": {
         "start_button": "Start WatchTogether",
@@ -146,6 +253,7 @@
         "placeholder": "WRITE A TRANSMISSION...",
         "post_button": "POST COMMENT",
         "hours_ago_2": "2 HOURS AGO",
-        "reply": "replay"
+        "reply": "replay",
+        "avatarAlt": "Avatar"
     }
 }

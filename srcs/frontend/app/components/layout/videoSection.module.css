@@ -14,7 +14,7 @@
 .qualityControls {
     position: absolute;
     bottom: 5%;
-    right: 15%;
+    inset-inline-end: 15%;
     background-color: var(--color-primary);
     border-radius: 5px;
     color: var(--color-text);

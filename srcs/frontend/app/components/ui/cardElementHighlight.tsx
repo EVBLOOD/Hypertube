@@ -62,7 +62,7 @@ export default function CardElementHighlight({
             </div>
             {yeExtra && yeIfos ? (
                 <div className={styles.infosCard}>
-                    <p>IMDb {movie.rating}</p>
+                    <p>{Home("imdb", { rating: movie.rating })}</p>
                     <p>
                         {movie.time} {Home("minutes")}
                     </p>

@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import styles from "./shareTo.module.css";
 
 export default function ShareTo({
@@ -9,6 +10,7 @@ export default function ShareTo({
     title: string;
     onClose: () => void;
 }) {
+    const t = useTranslations("Share");
     const encodeURIComponentTitle = encodeURIComponent(title);
     const encodeURIComponentUrl = encodeURIComponent(url);
 
@@ -32,7 +34,7 @@ export default function ShareTo({
                     }}
                 >
                     <div style={{ fontWeight: "bold" }}>
-                        Share {title} with your friends!
+                        {t("title", { title })}
                     </div>
                     <div
                         style={{
@@ -53,7 +55,7 @@ export default function ShareTo({
                     >
                         <img
                             src="/costumIcons/facebook.svg"
-                            alt="Share on Facebook"
+                            alt={t("platforms.facebook")}
                         />
                     </a>
                     <a
@@ -61,7 +63,10 @@ export default function ShareTo({
                         target="_blank"
                         rel="noopener noreferrer"
                     >
-                        <img src="/costumIcons/twitter.svg" alt="Share on X" />
+                        <img
+                            src="/costumIcons/twitter.svg"
+                            alt={t("platforms.x")}
+                        />
                     </a>
                     <a
                         href={shareLinks.reddit}
@@ -70,7 +75,7 @@ export default function ShareTo({
                     >
                         <img
                             src="/costumIcons/reddit.svg"
-                            alt="Share on Reddit"
+                            alt={t("platforms.reddit")}
                         />
                     </a>
                     <a
@@ -80,7 +85,7 @@ export default function ShareTo({
                     >
                         <img
                             src="/costumIcons/email.svg"
-                            alt="Share on Email"
+                            alt={t("platforms.email")}
                         />
                     </a>
                 </div>

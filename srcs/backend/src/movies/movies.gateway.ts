@@ -1,4 +1,4 @@
-import { UseGuards } from "@nestjs/common";
+import { forwardRef, Inject, UseGuards } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import {
     ConnectedSocket,
@@ -10,13 +10,17 @@ import {
 import { Server, Socket } from "socket.io";
 import { WsJwtGuard } from "src/auth/guards/ws-jwt.guard";
 import { RedisService } from "src/common/redis/redis.service";
+import { MoviesService } from "./movies.service";
 
 @UseGuards(WsJwtGuard)
 @WebSocketGateway({ namespace: "movie", cors: { origin: "*" } })
 export class MovieGateway {
     constructor(
         private readonly jwtService: JwtService,
-        private readonly redisService: RedisService,
+        @Inject(forwardRef(() => MoviesService))
+        private readonly moviesService: MoviesService,
+
+        // private readonly redisService: RedisService,
     ) {}
 
     @WebSocketServer()
@@ -186,6 +190,60 @@ export class MovieGateway {
                 });
             }
         }
+    }
+
+    @SubscribeMessage("play")
+    async handlePlayMovie(
+        @ConnectedSocket() client: Socket,
+        @MessageBody() data: { currentTime: number; imdbId: string },
+    ) {
+        const userId = client.handshake.headers.userId;
+        if (!userId || typeof userId !== "string") {
+            console.error("User ID not found in socket handshake headers.");
+            return;
+        }
+
+        await this.moviesService.markMovieCurrentTime(
+            userId,
+            data.currentTime,
+            data.imdbId,
+        );
+    }
+
+    @SubscribeMessage("pause")
+    async handlePauseMovie(
+        @ConnectedSocket() client: Socket,
+        @MessageBody() data: { currentTime: number; imdbId: string },
+    ) {
+        const userId = client.handshake.headers.userId;
+        if (!userId || typeof userId !== "string") {
+            console.error("User ID not found in socket handshake headers.");
+            return;
+        }
+
+        await this.moviesService.markMovieCurrentTime(
+            userId,
+            data.currentTime,
+            data.imdbId,
+        );
+    }
+
+    @SubscribeMessage("heartbeat")
+    async handleHeartbeat(
+        @ConnectedSocket() client: Socket,
+        @MessageBody() data: { currentTime: number; imdbId: string },
+    ) {
+        const userId = client.handshake.headers.userId;
+        if (!userId || typeof userId !== "string") {
+            console.error("User ID not found in socket handshake headers.");
+            return;
+        }
+
+        await this.moviesService.markMovieCurrentTime(
+            userId,
+            data.currentTime,
+            data.imdbId,
+        );
     }
 
     @SubscribeMessage("abort_stream")

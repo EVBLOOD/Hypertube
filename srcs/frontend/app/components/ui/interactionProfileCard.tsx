@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import DescriptionComponent from "./descriptionComponent";
 import styles from "./interactionProfileCard.module.css";
 import { formatDistance } from "date-fns";
@@ -16,6 +17,7 @@ export default function InteractionProfileCard({
         poster: string;
     };
 }) {
+    const t = useTranslations("Profile");
     console.log("movie", movie);
 
     const getInteractionTime = (actionDate: Date) => {
@@ -45,14 +47,14 @@ export default function InteractionProfileCard({
         : "/costumIcons/play.svg";
     const interactionTime = movie?.actionDate
         ? getInteractionTime(movie.actionDate)
-        : "Unknown time";
+        : t("stats.unknownTime");
 
     return (
         <div className={styles.cardBody}>
             <div className={styles.coverTitleInfo}>
                 <img
                     src={movie?.poster || "/hero.png"}
-                    alt=""
+                    alt={t("stats.moviePoster")}
                     width={"48px"}
                     height={"64px"}
                 />
@@ -61,19 +63,19 @@ export default function InteractionProfileCard({
                         {movie?.title?.slice(0, 20) +
                             (movie?.title?.length && movie?.title?.length > 20
                                 ? "..."
-                                : "") || "Unknown Title"}
+                                : "") || t("stats.unknownTitle")}
                     </h3>
                     <DescriptionComponent
                         className={styles.discreptionMarginCorrection}
                         text={
                             movie?.overview?.slice(0, 100) + "..." ||
-                            "Unknown Overview"
+                            t("stats.unknownOverview")
                         }
                     />
                 </div>
             </div>
             <div className={styles.interactionInofs}>
-                <img src={interactionIcon} alt="interact" />
+                <img src={interactionIcon} alt={t("stats.interactionIcon")} />
                 <DescriptionComponent
                     className={styles.discreptionMarginCorrection}
                     text={interactionTime}

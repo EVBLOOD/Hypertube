@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import ButtonCustom from "../ui/buttonCustom";
 import DescriptionComponent from "../ui/descriptionComponent";
 import RecordComponent from "../ui/recordComponent";
@@ -14,28 +15,32 @@ export default function ErrorPage({
     errorCode?: number;
     errorMessage?: string;
 }) {
+    const t = useTranslations("Error");
+
     return (
         <div className={`container ${styles.errorPage}`}>
             <RecordComponent
                 className={styles.recSizeChange}
-                recText="Error Code Detected"
+                recText={t("recordLabel")}
             ></RecordComponent>
             <TitleCustom
                 className={styles.titleJust}
                 title={`${errorMessage} (${errorCode})`}
             ></TitleCustom>
-            <DescriptionComponent text="The page you are looking for wasn't recorded yet, rec in future."></DescriptionComponent>
+            <DescriptionComponent
+                text={t("description")}
+            ></DescriptionComponent>
             {errorCode == 403 || errorCode == 401 ? (
                 <div className={styles.actionsButton}>
                     <ButtonCustom
                         className={styles.buttonStyle}
-                        textButton="AUTHORIZE SESSION"
+                        textButton={t("authorizeSession")}
                         buttonImage={"/costumIcons/play.svg"}
                         color="primary"
                     ></ButtonCustom>
                     <ButtonCustom
                         className={styles.buttonStyle}
-                        textButton="BACK TO HOME"
+                        textButton={t("backToHome")}
                         buttonImage={undefined}
                     ></ButtonCustom>
                 </div>
@@ -43,13 +48,13 @@ export default function ErrorPage({
                 <div className={styles.actionsButton}>
                     <ButtonCustom
                         className={styles.buttonStyle}
-                        textButton="BACK TO HOME"
+                        textButton={t("backToHome")}
                         buttonImage={"/costumIcons/play.svg"}
                         color="primary"
                     ></ButtonCustom>
                     <ButtonCustom
                         className={styles.buttonStyle}
-                        textButton="REPORT ISSUE"
+                        textButton={t("reportIssue")}
                         buttonImage={undefined}
                     ></ButtonCustom>
                 </div>

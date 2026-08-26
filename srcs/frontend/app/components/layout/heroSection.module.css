@@ -30,7 +30,7 @@
 .heroSectionInfos {
     position: absolute;
     background-color: var(--popup-background);
-    right: 0;
+    inset-inline-end: 0;
     padding: 30px;
 }
 

@@ -13,6 +13,7 @@ import {
 import LoadingPage from "@/app/components/layout/loading";
 import { AxiosError } from "axios";
 import ErrorPage from "@/app/components/layout/error";
+import { useSocket } from "@/app/context/SocketContext";
 
 export default function WatchPageMoviePage({
     params,
@@ -21,6 +22,8 @@ export default function WatchPageMoviePage({
 }) {
     const resolvedParams = use(params);
     const searchParams = useSearchParams();
+    const { socket, isConnected } = useSocket();
+
     const token = searchParams.get("token");
     const [watchAlone, setWatchAlone] = useState<boolean | null>(null);
 
@@ -44,6 +47,39 @@ export default function WatchPageMoviePage({
             setWatchAlone(true);
         }
     }, [token]);
+
+    const [currentTime, setCurrentTime] = useState<number>(
+        data?.data.personnel?.lastWatchedTime || 0,
+    );
+
+    const handlePlayMovie = () => {
+        if (socket && isConnected) {
+            socket.emit("play", {
+                currentTime: currentTime || 0,
+                imdbId: id,
+            });
+        }
+    };
+    const handlePauseMovie = () => {
+        if (socket && isConnected) {
+            socket.emit("pause", {
+                currentTime: currentTime || 0,
+                imdbId: id,
+            });
+        }
+    };
+
+    useEffect(() => {
+        if (!socket || !isConnected) return;
+
+        if (socket && isConnected) {
+            socket.emit("heartbeat", {
+                currentTime: currentTime || 0,
+                imdbId: id,
+            });
+        }
+    }, [currentTime]);
+
     if (isPending || isQualitiesPending || isSubtitlesPending)
         return <LoadingPage />;
 
@@ -75,6 +111,10 @@ export default function WatchPageMoviePage({
                     thumbnail={data.data.movie.poster}
                     qualities={qualitiesData?.data}
                     subtitles={subtitlesData?.data}
+                    handlePlayMovie={handlePlayMovie}
+                    handlePauseMovie={handlePauseMovie}
+                    heartbeatInterval={setCurrentTime}
+                    initialTime={data?.data.personnel?.lastWatchedTime || 0}
                 />
             </div>
         );
@@ -86,6 +126,10 @@ export default function WatchPageMoviePage({
                 movie={data.data.movie}
                 qualities={qualitiesData?.data}
                 subtitles={subtitlesData?.data}
+                handlePlayMovie={handlePlayMovie}
+                handlePauseMovie={handlePauseMovie}
+                heartbeatInterval={setCurrentTime}
+                initialTime={data?.data.personnel?.lastWatchedTime || 0}
             />
         </div>
     );

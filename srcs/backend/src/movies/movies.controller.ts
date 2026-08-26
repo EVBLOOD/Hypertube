@@ -9,9 +9,6 @@ import {
     Req,
     Headers,
     Res,
-    HttpStatus,
-    Inject,
-    forwardRef,
     NotFoundException,
     StreamableFile,
 } from "@nestjs/common";
@@ -24,6 +21,8 @@ import { StreamsService } from "src/streams/streams.service";
 import { OptionalJwtAuthGuard } from "src/auth/guards/optional-jwt-auth.guard";
 import { OptionalVerifiedGuard } from "src/auth/guards/optional-verified.guard";
 import fsPromises from "fs/promises";
+import type { DefaultLanguage } from "src/common/decorators/language.decorator";
+import { Language } from "src/common/decorators/language.decorator";
 
 @Controller("movies")
 export class MoviesController {
@@ -34,30 +33,42 @@ export class MoviesController {
 
     @UseGuards(OptionalJwtAuthGuard, OptionalVerifiedGuard)
     @Get()
-    async findAll(@Query() filters: FilterMovieDto, @Req() req) {
-        return this.moviesService.getLibrary(filters, req.user?.id);
+    async findAll(
+        @Query() filters: FilterMovieDto,
+        @Req() req,
+        @Language() lang: DefaultLanguage,
+    ) {
+        return this.moviesService.getLibrary(filters, req.user?.id, lang);
     }
 
     @Get("curated")
-    async getCuratedTrending() {
-        return await this.moviesService.getCuratedTrending();
+    async getCuratedTrending(@Language() lang: DefaultLanguage) {
+        return await this.moviesService.getCuratedTrending(lang);
     }
 
     @UseGuards(OptionalJwtAuthGuard, OptionalVerifiedGuard)
     @Get("trending")
-    async trendingPage(@Query() paging: PaginationMovieDto, @Req() req) {
-        return await this.moviesService.getTrending(paging, req.user?.id);
+    async trendingPage(
+        @Query() paging: PaginationMovieDto,
+        @Req() req,
+        @Language() lang: DefaultLanguage,
+    ) {
+        return await this.moviesService.getTrending(paging, lang, req.user?.id);
     }
 
     @Get("popular_one")
-    async heroPage() {
-        return await this.moviesService.getHeroMovie();
+    async heroPage(@Language() lang: DefaultLanguage) {
+        return await this.moviesService.getHeroMovie(lang);
     }
 
     @UseGuards(JwtAuthGuard, VerifiedGuard)
     @Get("wishlist")
-    async wishlistPage(@Query() paging: PaginationMovieDto, @Req() req) {
-        return await this.moviesService.getWishlist(paging, req.user.id);
+    async wishlistPage(
+        @Query() paging: PaginationMovieDto,
+        @Req() req,
+        @Language() lang: DefaultLanguage,
+    ) {
+        return await this.moviesService.getWishlist(paging, req.user.id, lang);
     }
 
     @UseGuards(JwtAuthGuard, VerifiedGuard)
@@ -181,9 +192,17 @@ export class MoviesController {
 
     @UseGuards(OptionalJwtAuthGuard, OptionalVerifiedGuard)
     @Get(":imdbId")
-    async findOne(@Param("imdbId") imdbId: string, @Req() req) {
+    async findOne(
+        @Param("imdbId") imdbId: string,
+        @Req() req,
+        @Language() lang: DefaultLanguage,
+    ) {
+        console.log(
+            `Fetching movie details for imdbId: ${imdbId}, userId: ${req.user?.id}, language: ${lang}`,
+        );
         const movie = await this.moviesService.getMovieDetails(
             imdbId,
+            lang,
             req.user?.id,
         );
         if (!movie) {

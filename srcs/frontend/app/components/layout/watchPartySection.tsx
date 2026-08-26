@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import styles from "./watchPartySection.module.css";
 import VideoSection from "@/app/components/layout/videoSection";
 import LoadingPage from "@/app/components/layout/loading";
@@ -18,6 +19,10 @@ interface WatchPartyProps {
     };
     qualities?: string[];
     subtitles?: { lang: string; language: string; urlLink: string }[];
+    handlePlayMovie?: () => void;
+    handlePauseMovie?: () => void;
+    heartbeatInterval: React.Dispatch<React.SetStateAction<number>>;
+    initialTime?: number;
 }
 
 interface Message {
@@ -32,8 +37,13 @@ export default function WatchPartySection({
     movie,
     qualities,
     subtitles,
+    handlePlayMovie,
+    handlePauseMovie,
+    heartbeatInterval,
+    initialTime,
 }: WatchPartyProps) {
     const { socket, isConnected } = useSocket();
+    const t = useTranslations("WatchParty");
     const [isRoomJoined, setIsRoomJoined] = useState(false);
 
     const [isPlaying, setIsPlaying] = useState(false);
@@ -57,7 +67,7 @@ export default function WatchPartySection({
             socket.emit("send_message", message);
             setMessages((prev) => [
                 ...prev,
-                { content: message.content, sender: "You" },
+                { content: message.content, sender: t("messages.self") },
             ]);
         }
         if (messageInputRef.current) messageInputRef.current.value = "";
@@ -91,7 +101,7 @@ export default function WatchPartySection({
         socket.on("MESSAGE", (message) => {
             setMessages((prev) => [
                 ...prev,
-                { content: message.content, sender: "Other" },
+                { content: message.content, sender: t("messages.other") },
             ]);
         });
 
@@ -147,6 +157,10 @@ export default function WatchPartySection({
                 time={currentTime}
                 qualities={qualities}
                 subtitles={subtitles}
+                handlePlayMovie={handlePlayMovie}
+                handlePauseMovie={handlePauseMovie}
+                heartbeatInterval={heartbeatInterval}
+                initialTime={initialTime}
             />
             <div className={styles.chatSection}>
                 <span>
@@ -167,13 +181,13 @@ export default function WatchPartySection({
                 <div className={styles.chatInput}>
                     <InputCustom
                         lableName=""
-                        placeHolder=""
+                        placeHolder={t("chat.placeholder")}
                         ref={messageInputRef}
                     ></InputCustom>
                     <ButtonCustom
                         onClick={HandleSendMessage}
                         buttonImage={undefined}
-                        textButton="Send Message"
+                        textButton={t("chat.send")}
                     ></ButtonCustom>
                 </div>
             </div>

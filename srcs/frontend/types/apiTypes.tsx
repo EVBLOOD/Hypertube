@@ -24,6 +24,10 @@ export interface MovieType {
     poster: string;
     isWatched: boolean;
     isWishlisted: boolean;
+    totalMinutes: number;
+    lastWatchedTime: number;
+    liked: boolean;
+    disliked: boolean;
 }
 
 export interface CommentType {

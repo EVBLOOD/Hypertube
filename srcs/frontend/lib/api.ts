@@ -9,6 +9,21 @@ const api = axios.create({
     },
 });
 
+api.interceptors.request.use((config) => {
+    const getCookie = (name: string) => {
+        const match = document.cookie.match(
+            new RegExp("(^| )" + name + "=([^;]*)"),
+        );
+        return match ? decodeURIComponent(match[2]) : null;
+    };
+    if (typeof window !== "undefined") {
+        const lang = getCookie("NEXT_LOCALE") || "en";
+        config.headers["Accept-Language"] = lang;
+        config.headers["x-lang"] = lang;
+    }
+    return config;
+});
+
 // api.interceptors.response.use(
 //     (response) => {
 //         return response;

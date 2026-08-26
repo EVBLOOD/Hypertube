@@ -23,9 +23,10 @@ import { MovieGateway } from "./movies.gateway";
         ]),
         forwardRef(() => StreamsModule),
         MailModule,
+        RedisModule,
     ],
     controllers: [MoviesController],
-    providers: [MoviesService, RedisModule, MovieGateway],
+    providers: [MovieGateway, MoviesService],
     exports: [MoviesService],
 })
 export class MoviesModule {}

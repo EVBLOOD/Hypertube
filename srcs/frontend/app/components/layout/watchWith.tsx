@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import MovieService from "@/lib/services/MovieService";
 import ButtonCustom from "../ui/buttonCustom";
 import InputCustom from "../ui/inputCustom";
@@ -18,12 +19,13 @@ export default function WatchWith({
 }) {
     const inputRef = useRef<HTMLInputElement>(null);
     const router = useRouter();
+    const t = useTranslations("WatchWith");
 
     async function handleSendInvite() {
         try {
             const userInput = inputRef.current?.value;
             if (!userInput) {
-                alert("User input is empty.");
+                alert(t("validation.emptyInput"));
                 return;
             }
             const response = await MovieService.sendInvite(
@@ -33,13 +35,13 @@ export default function WatchWith({
             );
             console.log("Invite sent successfully:", response);
 
-            alert("Invite sent successfully.");
+            alert(t("success.sent"));
             onClose();
             console.log(response.data.token);
             setInviteSentAndWaitingRoomId(response.data.token || "");
         } catch (error) {
             console.error("Error sending invite:", error);
-            alert("Error sending invite.");
+            alert(t("error.sendFailed"));
         }
     }
 
@@ -55,7 +57,7 @@ export default function WatchWith({
                     }}
                 >
                     <div style={{ fontWeight: "bolder" }}>
-                        Watch {title} with your friends!
+                        {t("title", { title })}
                     </div>
                     <div
                         style={{
@@ -73,17 +75,17 @@ export default function WatchWith({
                         width="100"
                         height="100"
                         src="/costumIcons/inviteWatch.svg"
-                        alt="Watch with friends"
+                        alt={t("imageAlt")}
                     />
                     <InputCustom
                         typeInput="Text"
-                        lableName="User Name or Email"
-                        placeHolder="User Name or Email"
+                        lableName={t("input.label")}
+                        placeHolder={t("input.placeholder")}
                         ref={inputRef}
                     ></InputCustom>
                 </div>
                 <ButtonCustom
-                    textButton="Send Invite"
+                    textButton={t("button.sendInvite")}
                     buttonImage={undefined}
                     onClick={handleSendInvite}
                 ></ButtonCustom>

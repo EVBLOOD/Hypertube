@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import ButtonCustom from "../ui/buttonCustom";
 import DescriptionComponent from "../ui/descriptionComponent";
 import RecordComponent from "../ui/recordComponent";
@@ -45,6 +46,7 @@ export default function HeroSectionMovie({
     isDisliked?: boolean;
 }) {
     const router = useRouter();
+    const t = useTranslations("MovieDetail");
 
     const [openShare, setOpenShare] = useState(false);
     const [openWatch, setOpenWatch] = useState(false);
@@ -71,9 +73,7 @@ export default function HeroSectionMovie({
     }, [socket]);
 
     if (inviteSentAndWaitingRoomId.length > 0)
-        return (
-            <LoadingPage message="Waiting for friends to join..."></LoadingPage>
-        );
+        return <LoadingPage message={t("waitingForFriends")}></LoadingPage>;
 
     if (obj)
         return (
@@ -104,7 +104,9 @@ export default function HeroSectionMovie({
                             />
                             <ButtonCustom
                                 className={styles.MovieHeroInfosItems}
-                                textButton={obj.time?.toString() || "2H 14MIN"}
+                                textButton={
+                                    obj.time?.toString() || t("defaultRuntime")
+                                }
                                 buttonImage={undefined}
                                 color={null}
                             />
@@ -116,7 +118,7 @@ export default function HeroSectionMovie({
                             />
                             <ButtonCustom
                                 className={styles.MovieHeroInfosItems}
-                                textButton={obj.size || "12.4 GB"}
+                                textButton={obj.size || t("defaultSize")}
                                 buttonImage={undefined}
                                 color={null}
                             />
@@ -129,14 +131,14 @@ export default function HeroSectionMovie({
 
                     <div className={styles.heroSectionInfos}>
                         <ButtonCustom
-                            textButton="WATCH NOW"
+                            textButton={t("watchNow")}
                             buttonImage="/costumIcons/play.svg"
                             color="primary"
                             onClick={() => router.push(`/watch/${obj.id}`)}
                         />
                         <div className={styles.heroSectionActions}>
                             <ButtonCustom
-                                textButton="WATCH LATER"
+                                textButton={t("watchLater")}
                                 buttonImage={"/costumIcons/watchLater.svg"}
                                 color={isWishlisted ? "primary" : null}
                                 onClick={onWishlist}
@@ -145,7 +147,7 @@ export default function HeroSectionMovie({
                                 }}
                             />
                             <ButtonCustom
-                                textButton="LIVE INVITE"
+                                textButton={t("liveInvite")}
                                 buttonImage={"/costumIcons/inviteWatch.svg"}
                                 color={null}
                                 style={{

@@ -25,7 +25,6 @@ export default function Trending() {
         fetchNextPage,
         hasNextPage,
         isFetchingNextPage,
-        status,
         isPending,
         error,
     } = useMoviesWishList();
@@ -35,6 +34,7 @@ export default function Trending() {
             fetchNextPage();
         }
     }, [inView]);
+
     if (!data && isPending) return <LoadingPage />;
     if (!data && error) {
         const axiosErr = error as AxiosError<any>;
