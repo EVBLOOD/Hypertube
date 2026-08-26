@@ -56,10 +56,12 @@ export default function LanguageSwitcher({ local }: { local: string }) {
                     .map((e, i) => (
                         <li
                             key={i}
-                            onClick={() =>
+                            onClick={() => {
+                                document.cookie = `NEXT_LOCALE=${e.toLowerCase()}; path=/; max-age=31536000`;
                                 router.push(
                                     `/${e.toLowerCase()}/${pathname.slice(4)}`,
                                 )
+                            }
                             }
                         >
                             {e}

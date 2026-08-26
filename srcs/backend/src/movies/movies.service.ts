@@ -81,7 +81,7 @@ export class MoviesService {
         private readonly emailsService: MailsService,
         @Inject(forwardRef(() => MovieGateway))
         private readonly movieGateway: MovieGateway,
-    ) {}
+    ) { }
 
     LANGS = {
         en: "en-US",
@@ -176,7 +176,7 @@ export class MoviesService {
             if (ytsMovie) {
                 const best = ytsMovie.torrents.reduce((prev, curr) =>
                     this.getQualityScore(curr.quality) >
-                    this.getQualityScore(prev.quality)
+                        this.getQualityScore(prev.quality)
                         ? curr
                         : prev,
                 );
@@ -449,10 +449,12 @@ export class MoviesService {
         lang: DefaultLanguage,
         userId?: number,
     ) {
-        const user = userId
-            ? await this.userRepo.findOne({ where: { id: userId } })
-            : null;
-        lang = user?.preferredLanguage || lang || "en";
+        if (lang === "df") {
+            const user = userId
+                ? await this.userRepo.findOne({ where: { id: userId } })
+                : null;
+            lang = user?.preferredLanguage || "en";
+        }
 
         const cacheKey = `trending${lang}`;
         const total = await this.redisservice.lenZSet(cacheKey);
@@ -581,7 +583,7 @@ export class MoviesService {
                                 await this.imdbIdFromTMDB(
                                     movie,
                                     (filters.language as DefaultLanguage) ||
-                                        "en",
+                                    "en",
                                 ),
                         ),
                     )

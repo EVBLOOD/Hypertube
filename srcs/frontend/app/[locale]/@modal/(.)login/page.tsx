@@ -24,6 +24,11 @@ export default function Login() {
     const emailOrUserNameRef = useRef<HTMLInputElement>(null);
     const passwordRef = useRef<HTMLInputElement>(null);
 
+    const changeLanguage = (lang: string) => {
+        document.cookie = `NEXT_LOCALE=${lang}; path=/; max-age=31536000`;
+        router.push(`/${lang}`);
+    }
+
     const handleLogin42 = () => {
         const backendUrl = process.env.NEXT_PUBLIC_BACK_API_URL || "";
 
@@ -51,7 +56,7 @@ export default function Login() {
 
                 cleanup();
                 childWindow?.close();
-                router.push("/");
+                changeLanguage(event.data.preferredLanguage || "en");
                 console.log("Login successful:", event.data);
             }
         };
@@ -97,7 +102,7 @@ export default function Login() {
 
                 cleanup();
                 childWindow?.close();
-                router.push("/");
+                changeLanguage(event.data.preferredLanguage || "en");
                 console.log("Login successful:", event.data);
             }
         };
@@ -143,8 +148,8 @@ export default function Login() {
 
                 cleanup();
                 childWindow?.close();
-                router.push("/");
                 console.log("Login successful:", event.data);
+                changeLanguage(event.data.preferredLanguage || "en");
             }
         };
 
@@ -183,15 +188,17 @@ export default function Login() {
                 return;
             }
             const user = result.user;
+
+
             useUserStore.getState().userLogged({
                 username: user.username,
                 language: user.preferredLanguage,
                 avatar: user.profilePicture,
                 isPublic: user.isPublic,
             });
-            console.log("Login successful:", user);
 
-            router.push("/");
+            console.log("Login successful:", user);
+            changeLanguage(user.preferredLanguage || "en");
             // window.location.href = '/';
         } catch (err) {
             alert("Login failed. Please check your credentials.");

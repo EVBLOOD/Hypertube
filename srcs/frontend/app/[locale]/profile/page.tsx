@@ -18,6 +18,7 @@ import LoadingPage from "@/app/components/layout/loading";
 import { useUserStore } from "@/stores/user";
 import { AxiosError } from "axios";
 import ErrorPage from "@/app/components/layout/error";
+import { useRouter } from "next/navigation";
 
 export default function ProfilePage() {
     const { data, isPending, error } = useProfileSummary();
@@ -32,15 +33,20 @@ export default function ProfilePage() {
     const [userPrivacy, setUserPrivacy] = useState<"public" | "private">(
         "public",
     );
+    const router = useRouter();
     const ifSavedInServer = (path: string | undefined) => {
         if (path) {
             return path.includes("/")
                 ? path
                 : process.env.NEXT_PUBLIC_BACK_API_URL +
-                      `/users/avatar/${path}`;
+                `/users/avatar/${path}`;
         }
         return "/hero.png";
     };
+    const changeLanguage = (lang: string) => {
+        document.cookie = `NEXT_LOCALE=${lang}; path=/; max-age=31536000`;
+        router.push(`/${lang}`);
+    }
     const [profilePicture, setProfilePicture] = useState<string>(
         ifSavedInServer(user?.avatar),
     );
@@ -105,6 +111,7 @@ export default function ProfilePage() {
         console.log("Updated user:", updatedUser);
         if (updatedUser?.preferredLanguage) {
             userLanguageUpdate(updatedUser.preferredLanguage);
+            changeLanguage(updatedUser.preferredLanguage);
         }
     };
 
