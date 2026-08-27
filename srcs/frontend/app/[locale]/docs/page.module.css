@@ -156,7 +156,11 @@
 }
 
 .methodPATCH {
-    border-left-color: #5b5643;
+    border-left-color: #e0dcd8;
+}
+
+.methodPOST {
+    border-left-color: #e0dcd8;
 }
 
 .apiCardHeader {

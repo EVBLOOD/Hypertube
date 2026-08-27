@@ -101,10 +101,6 @@ export class DocsService {
         const routeArgs = Reflect.getMetadata(ROUTE_ARGS_METADATA, controller, handlerName) ?? {};
         const paramTypes = Reflect.getMetadata(PARAMTYPES_METADATA, controller.prototype, handlerName) ?? [];
 
-        // console.log("handlerName", handlerName);
-        // console.log("routeArgs", routeArgs);
-        // console.log("paramTypes", paramTypes);
-
         return Object.entries(routeArgs).filter(([key]) => {
                 const [type] = key.split(":");
                 const numericType = Number(type);
@@ -130,17 +126,16 @@ export class DocsService {
     }
 
     private getDtoFields(dtoType: any): [string, string][] {
+
         if (typeof dtoType !== "function" || !dtoType.prototype) {
             return [];
         }
 
-        const validationMetadata = getMetadataStorage().getTargetValidationMetadatas(
-            dtoType,
-            "",
-            true,
-            false,
-        );
-        const propertyNames = [...new Set(validationMetadata.map(({ propertyName }) => propertyName))];
+        const validationMetadata = getMetadataStorage().getTargetValidationMetadatas(dtoType, "", true, false);
+        
+        const propertyNames = [...new Set(
+            validationMetadata.map(({ propertyName }) => propertyName)
+        )];
 
         return propertyNames.map((propertyName) => {
             const propertyType = Reflect.getMetadata(
