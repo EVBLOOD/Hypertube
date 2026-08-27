@@ -27,7 +27,6 @@ export default function SearchUsers() {
         fetchNextPage,
         hasNextPage,
         isFetchingNextPage,
-        status,
         isPending,
         error,
     } = useUsersList(username);
@@ -36,15 +35,17 @@ export default function SearchUsers() {
         if (inView && hasNextPage && !isFetchingNextPage) {
             fetchNextPage();
         }
-    }, [inView]);
+    }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
     if (!data && isPending) return <LoadingPage />;
 
     if (!data && error) {
-        const axiosErr = error as AxiosError<any>;
         const errorMessage =
-            axiosErr.response?.data?.message || "Something went wrong";
-        const errorCode = axiosErr?.response?.status || 404;
+            (
+                (error as AxiosError).response?.data as
+                    { message: string } | { message: string[] }
+            )?.message?.[0] || "Something went wrong";
+        const errorCode = (error as AxiosError)?.response?.status || 404;
         return <ErrorPage errorCode={errorCode} errorMessage={errorMessage} />;
     }
     return (

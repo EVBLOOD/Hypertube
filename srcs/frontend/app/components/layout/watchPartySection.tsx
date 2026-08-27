@@ -139,7 +139,7 @@ export default function WatchPartySection({
             socket.off("ABORT_STREAM");
             socket.off("disconnect");
         };
-    }, [socket, isConnected, roomToken]);
+    }, [socket, isConnected, roomToken, t]);
 
     if (!isRoomJoined) return <LoadingPage />;
 

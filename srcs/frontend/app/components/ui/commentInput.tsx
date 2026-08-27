@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import ButtonCustom from "./buttonCustom";
 import styles from "./commentInput.module.css";
 import { useTranslations } from "next-intl";
@@ -24,7 +25,9 @@ export default function CommentInput({
 
     return (
         <div className={styles.commentPublishing}>
-            <img
+            <Image
+                height={48}
+                width={48}
                 className={styles.commentPublishingAvatar}
                 src="/hero.png"
                 alt={t("avatarAlt")}

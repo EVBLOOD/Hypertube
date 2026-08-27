@@ -1,6 +1,5 @@
 "use client";
 
-import { useTranslations } from "next-intl";
 import styles from "./userSearch.module.css";
 import TitleCustom from "./titleCustom";
 import { UserSearchType } from "@/types/apiTypes";
@@ -12,7 +11,6 @@ export default function UserSearchCard({
     user: UserSearchType;
     className?: string;
 }) {
-    const Library = useTranslations("Library");
     const router = useRouter();
 
     return (

@@ -55,19 +55,25 @@ export default function Home() {
     if (hero_pending || topFour_pending) return <LoadingPage />;
 
     if (hero_error || topFour_error) {
-        const heroAxiosError = hero_error as AxiosError<any>;
-        const topFourAxiosError = topFour_error as AxiosError<any>;
+        const heroAxiosError = (
+            (hero_error as AxiosError).response?.data as
+                { message: string } | { message: string[] }
+        )?.message?.[0];
+        const topFourAxiosError = (
+            (topFour_error as AxiosError).response?.data as
+                { message: string } | { message: string[] }
+        )?.message?.[0];
 
         return (
             <ErrorPage
                 errorMessage={
-                    heroAxiosError?.response?.data?.message ||
-                    topFourAxiosError?.response?.data?.message ||
+                    heroAxiosError ||
+                    topFourAxiosError ||
                     "Something went wrong"
                 }
                 errorCode={
-                    heroAxiosError?.response?.status ||
-                    topFourAxiosError?.response?.status ||
+                    (hero_error as AxiosError)?.response?.status ||
+                    (topFour_error as AxiosError)?.response?.status ||
                     404
                 }
             ></ErrorPage>

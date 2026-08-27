@@ -25,7 +25,7 @@ export default function WatchPageMoviePage({
     const { socket, isConnected } = useSocket();
 
     const token = searchParams.get("token");
-    const [watchAlone, setWatchAlone] = useState<boolean | null>(null);
+    const watchAlone = token ? false : true;
 
     const id = resolvedParams.id;
     const { data, isPending, error } = useMovieDetails(id);
@@ -39,14 +39,6 @@ export default function WatchPageMoviePage({
         isPending: isSubtitlesPending,
         error: subtitlesError,
     } = useMovieSubtitles(id);
-
-    useEffect(() => {
-        if (token) {
-            setWatchAlone(false);
-        } else {
-            setWatchAlone(true);
-        }
-    }, [token]);
 
     const [currentTime, setCurrentTime] = useState<number>(
         data?.data.personnel?.lastWatchedTime || 0,
@@ -78,26 +70,32 @@ export default function WatchPageMoviePage({
                 imdbId: id,
             });
         }
-    }, [currentTime]);
+    }, [currentTime, socket, isConnected, id]);
 
     if (isPending || isQualitiesPending || isSubtitlesPending)
         return <LoadingPage />;
 
     if (!data || error) {
-        const axiosErr = error as AxiosError<any>;
         const errorMessage =
-            axiosErr.response?.data?.message || "Something went wrong";
-        const errorCode = axiosErr?.response?.status || 404;
+            (
+                (error as AxiosError).response?.data as
+                    { message: string } | { message: string[] }
+            )?.message?.[0] || "Something went wrong";
+        const errorCode = (error as AxiosError)?.response?.status || 404;
         return <ErrorPage errorCode={errorCode} errorMessage={errorMessage} />;
     }
 
     if (qualitiesError || subtitlesError) {
-        const axiosErr =
-            (qualitiesError as AxiosError<any>) ||
-            (subtitlesError as AxiosError<any>);
         const errorMessage =
-            axiosErr.response?.data?.message || "Something went wrong";
-        const errorCode = axiosErr?.response?.status || 404;
+            (
+                (
+                    (qualitiesError as AxiosError) ||
+                    (subtitlesError as AxiosError)
+                ).response?.data as { message: string } | { message: string[] }
+            )?.message?.[0] || "Something went wrong";
+        const errorCode =
+            ((qualitiesError as AxiosError) || (subtitlesError as AxiosError))
+                ?.response?.status || 404;
         return <ErrorPage errorCode={errorCode} errorMessage={errorMessage} />;
     }
 

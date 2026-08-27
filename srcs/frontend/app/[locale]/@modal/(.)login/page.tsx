@@ -16,6 +16,7 @@ import AuthService from "@/lib/services/AuthService";
 import { useUserStore } from "@/stores/user";
 
 import { useRouter } from "next/navigation";
+import { AxiosError } from "axios";
 
 export default function Login() {
     const Login = useTranslations("Login");
@@ -27,7 +28,7 @@ export default function Login() {
     const changeLanguage = (lang: string) => {
         document.cookie = `NEXT_LOCALE=${lang}; path=/; max-age=31536000`;
         router.push(`/${lang}`);
-    }
+    };
 
     const handleLogin42 = () => {
         const backendUrl = process.env.NEXT_PUBLIC_BACK_API_URL || "";
@@ -42,11 +43,8 @@ export default function Login() {
 
         const messageListener = async (event: MessageEvent) => {
             if (event.origin !== targetOrigin) return;
-            console.log("Received message:", event.data);
 
             if (event.data?.type === "login_success") {
-                console.log("User data:", event.data);
-
                 const userData = (await AuthService.whois())?.data;
 
                 useUserStore.getState().userLogged({
@@ -89,11 +87,7 @@ export default function Login() {
 
         const messageListener = async (event: MessageEvent) => {
             if (event.origin !== targetOrigin) return;
-            console.log("Received message:", event.data);
-
             if (event.data?.type === "login_success") {
-                console.log("User data:", event.data);
-
                 const userData = (await AuthService.whois())?.data;
 
                 useUserStore.getState().userLogged({
@@ -106,7 +100,6 @@ export default function Login() {
                 changeLanguage(userData.user.preferredLanguage || "en");
                 cleanup();
                 childWindow?.close();
-                console.log("Login successful:", event.data);
             }
         };
 
@@ -137,7 +130,6 @@ export default function Login() {
 
         const messageListener = async (event: MessageEvent) => {
             if (event.origin !== targetOrigin) return;
-            console.log("Received message:", event.data);
 
             if (event.data?.type === "login_success") {
                 const userData = (await AuthService.whois())?.data;
@@ -191,7 +183,6 @@ export default function Login() {
             }
             const user = result.user;
 
-
             useUserStore.getState().userLogged({
                 username: user.username,
                 language: user.preferredLanguage,
@@ -199,11 +190,19 @@ export default function Login() {
                 isPublic: user.isPublic,
             });
 
-            console.log("Login successful:", user);
             changeLanguage(user.preferredLanguage || "en");
-            // location.href = '/';
         } catch (err) {
-            alert("Login failed. Please check your credentials.");
+            const errorMessage = (
+                (err as AxiosError).response?.data as
+                    { message: string } | { message: string[] }
+            )?.message;
+            if (typeof errorMessage === "string") {
+                alert(errorMessage);
+            } else if (Array.isArray(errorMessage) && errorMessage.length > 0) {
+                alert(errorMessage[0]);
+            } else {
+                alert("Login failed. Please check your credentials.");
+            }
         }
     }
 

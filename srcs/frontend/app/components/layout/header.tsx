@@ -8,6 +8,7 @@ import { useUserStore } from "@/stores/user";
 import AuthService from "@/lib/services/AuthService";
 import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 
 export default function Header() {
     const header = useTranslations("Header");
@@ -19,7 +20,7 @@ export default function Header() {
             await AuthService.logout();
             useUserStore.getState().reset();
         } catch (err) {
-            console.log(err);
+            console.debug(err);
         } finally {
             useUserStore.getState().reset();
         }
@@ -63,7 +64,9 @@ export default function Header() {
                         </Link>
                     </div>
                     <div className={styles.actionsWraper}>
-                        <img
+                        <Image
+                            height={20}
+                            width={20}
                             onClick={handleSearch}
                             style={{ cursor: "pointer" }}
                             src="/costumIcons/icon.svg"
@@ -96,8 +99,9 @@ export default function Header() {
                     href="/library"
                     className={`${`${pathname.split("/")[2] == "library" ? styles.optionSelection : ""} ${styles.optionNotSelection}`}`}
                 >
-                    <img
-                        height={"20px"}
+                    <Image
+                        height={20}
+                        width={20}
                         src="/costumIcons/play.svg"
                         alt={header("navigation.library")}
                     />{" "}
@@ -107,8 +111,9 @@ export default function Header() {
                     href="/trending"
                     className={`${pathname.split("/")[2] == "trending" ? styles.optionSelection : ""} ${styles.optionNotSelection}`}
                 >
-                    <img
-                        height={"20px"}
+                    <Image
+                        height={20}
+                        width={20}
                         src="/costumIcons/play.svg"
                         alt={header("navigation.trending")}
                     />{" "}
@@ -118,8 +123,9 @@ export default function Header() {
                     href="/watchlist"
                     className={`${pathname.split("/")[2] == "watchlist" ? styles.optionSelection : ""} ${styles.optionNotSelection}`}
                 >
-                    <img
-                        height={"20px"}
+                    <Image
+                        height={20}
+                        width={20}
                         src="/costumIcons/play.svg"
                         alt={header("navigation.watchlist")}
                     />
@@ -129,8 +135,9 @@ export default function Header() {
                     href="/profile"
                     className={`${pathname.split("/")[2] == "profile" ? styles.optionSelection : ""} ${styles.optionNotSelection}`}
                 >
-                    <img
-                        height={"20px"}
+                    <Image
+                        height={20}
+                        width={20}
                         src="/costumIcons/play.svg"
                         alt={header("navigation.myVault")}
                     />

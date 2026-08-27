@@ -6,7 +6,6 @@ import styles from "./cardElementHighlight.module.css";
 import DescriptionComponent from "./descriptionComponent";
 import TitleCustom from "./titleCustom";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 
 export default function CardElementHighlight({
     movie,
@@ -15,7 +14,14 @@ export default function CardElementHighlight({
     yeIfos = true,
     classNameTitle,
 }: {
-    movie: any;
+    movie: {
+        id: string;
+        title: string;
+        overview: string;
+        rating: number;
+        time: number;
+        poster: string;
+    };
     className?: string;
     yeExtra?: boolean;
     yeIfos?: boolean;
@@ -23,12 +29,7 @@ export default function CardElementHighlight({
 }) {
     const Home = useTranslations("Home");
     const router = useRouter();
-    const [isClient, setIsClient] = useState(false);
 
-    useEffect(() => {
-        setIsClient(true);
-    }, []);
-    if (!isClient) return <div className="placeholder" />;
     return (
         <div
             onClick={() => router.push(`movie/${movie.id}`)}

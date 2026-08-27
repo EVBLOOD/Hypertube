@@ -7,7 +7,19 @@ import { useEffect, useState } from "react";
 import genreMessages from "@/messages/en.json";
 import { useSearchParams } from "next/navigation";
 
-export default function Filter({ onChange }: { onChange: Function }) {
+export default function Filter({
+    onChange,
+}: {
+    onChange: (newFilters: {
+        genre: string;
+        minYear: number;
+        maxYear: number;
+        minRating: number;
+        sortBy: string;
+        query: string;
+        order: string;
+    }) => void;
+}) {
     const Library = useTranslations("Library");
     const geners = useTranslations("Genres");
     const genreKeys = Object.keys(genreMessages.Genres);
@@ -21,7 +33,7 @@ export default function Filter({ onChange }: { onChange: Function }) {
     const [order, setOrder] = useState("asc");
     const query = searchParams.get("search") || "";
 
-    console.log("Query from searchParams:", query);
+    console.debug("Query from searchParams:", query);
 
     const [searchValue, setSearchValue] = useState(query);
     const sortOptions = [
@@ -31,17 +43,51 @@ export default function Filter({ onChange }: { onChange: Function }) {
         { id: "title", label: "filter_sort_alphabit" },
     ];
 
-    useEffect(() => {
-        onChange({
-            genre: gender,
-            minYear,
-            maxYear,
-            minRating: rating,
-            sortBy,
-            order,
-            query: searchValue,
-        });
-    }, [gender, minYear, maxYear, rating, sortBy, order, searchValue]);
+    // useEffect(() => {
+    //     onChange({
+    //         genre: gender,
+    //         minYear,
+    //         maxYear,
+    //         minRating: rating,
+    //         sortBy,
+    //         order,
+    //         query: searchValue,
+    //     });
+    //     console.log("Filters updated:", {
+    //         genre: gender,
+    //         minYear,
+    //         maxYear,
+    //         minRating: rating,
+    //         sortBy,
+    //         order,
+    //         query: searchValue,
+    //     });
+    // }, [gender, minYear, maxYear, rating, sortBy, order, searchValue]);
+
+    const handleChange = (
+        props: {
+            genre?: string;
+            minYear?: number;
+            maxYear?: number;
+            minRating?: number;
+            sortBy?: string;
+            query?: string;
+            order?: string;
+        } = {},
+    ) => {
+        const newFilters = {
+            genre: props.genre ?? gender,
+            minYear: props.minYear ?? minYear,
+            maxYear: props.maxYear ?? maxYear,
+            minRating: props.minRating ?? rating,
+            sortBy: props.sortBy ?? sortBy,
+            order: props.order ?? order,
+            query: props.query ?? searchValue,
+        };
+
+        onChange(newFilters);
+        console.log("Filters updated:", newFilters);
+    };
 
     useEffect(() => {
         setSearchValue(query);
@@ -60,7 +106,10 @@ export default function Filter({ onChange }: { onChange: Function }) {
                     placeholder={Library("filter_search_placeholder")}
                     type="text"
                     value={searchValue}
-                    onChange={(e) => setSearchValue(e.target.value)}
+                    onChange={(e) => {
+                        setSearchValue(e.target.value);
+                        handleChange({ query: e.target.value });
+                    }}
                 />
             </div>
             <div className={styles.inputHorisantal}>
@@ -72,6 +121,7 @@ export default function Filter({ onChange }: { onChange: Function }) {
                     required
                     onChange={(e) => {
                         setGender(e.target.value);
+                        handleChange({ genre: e.target.value });
                     }}
                 >
                     <option value="all">{Library("filter_allgenre")}</option>
@@ -90,6 +140,7 @@ export default function Filter({ onChange }: { onChange: Function }) {
                     <input
                         onChange={(e) => {
                             setMinYear(parseInt(e.target.value));
+                            handleChange({ minYear: parseInt(e.target.value) });
                         }}
                         type="number"
                         value={minYear}
@@ -97,6 +148,7 @@ export default function Filter({ onChange }: { onChange: Function }) {
                     <input
                         onChange={(e) => {
                             setMaxYear(parseInt(e.target.value));
+                            handleChange({ maxYear: parseInt(e.target.value) });
                         }}
                         type="number"
                         value={maxYear}
@@ -109,6 +161,7 @@ export default function Filter({ onChange }: { onChange: Function }) {
                     className={styles.mobileRating}
                     onChange={(e) => {
                         setRating(parseInt(e.target.value));
+                        handleChange({ minRating: parseInt(e.target.value) });
                     }}
                     type="number"
                     value={rating}
@@ -119,6 +172,7 @@ export default function Filter({ onChange }: { onChange: Function }) {
                     className={styles.desktopRating}
                     onChange={(e) => {
                         setRating(parseInt(e.target.value));
+                        handleChange({ minRating: parseInt(e.target.value) });
                     }}
                     type="range"
                     min={0}
@@ -142,6 +196,15 @@ export default function Filter({ onChange }: { onChange: Function }) {
                                 } else {
                                     setOrder("asc");
                                 }
+                                handleChange({
+                                    sortBy: elem.id,
+                                    order:
+                                        sortBy === elem.id
+                                            ? order === "asc"
+                                                ? "desc"
+                                                : "asc"
+                                            : "asc",
+                                });
                                 setSortBy(elem.id);
                             }}
                             key={elem.id}
@@ -170,6 +233,7 @@ export default function Filter({ onChange }: { onChange: Function }) {
                     required
                     onChange={(e) => {
                         setSortBy(e.target.value);
+                        handleChange({ sortBy: e.target.value });
                     }}
                 >
                     {sortOptions.map((obj) => (

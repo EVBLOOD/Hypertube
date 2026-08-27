@@ -48,7 +48,7 @@ export default function MoviePage({
             });
             return created;
         } catch (err) {
-            console.error(err);
+            console.debug(err);
         }
     };
 
@@ -72,7 +72,7 @@ export default function MoviePage({
                 return [created, ...current];
             });
         } catch (err) {
-            console.error(err);
+            console.debug(err);
         }
     };
 
@@ -84,7 +84,7 @@ export default function MoviePage({
             });
             setReaction(1);
         } catch (err) {
-            console.error(err);
+            console.debug(err);
         }
     };
 
@@ -96,7 +96,7 @@ export default function MoviePage({
             });
             setReaction(2);
         } catch (err) {
-            console.error(err);
+            console.debug(err);
         }
     };
 
@@ -105,7 +105,7 @@ export default function MoviePage({
             await MovieService.toggleWishlist(id);
             setWishlisted((value) => !value);
         } catch (err) {
-            console.error(err);
+            console.debug(err);
         }
     };
 
@@ -142,7 +142,7 @@ export default function MoviePage({
                     else setReaction(0);
                 }
             } catch (err) {
-                console.error(err);
+                console.debug(err);
             }
         };
 
@@ -151,10 +151,13 @@ export default function MoviePage({
 
     if (isPending) return <LoadingPage />;
     if (!data || error) {
-        const axiosErr = error as AxiosError<any>;
         const errorMessage =
-            axiosErr.response?.data?.message || "Something went wrong";
-        const errorCode = axiosErr?.response?.status || 404;
+            (
+                (error as AxiosError).response?.data as
+                    { message: string } | { message: string[] }
+            )?.message?.[0] || "Something went wrong";
+        const errorCode = (error as AxiosError)?.response?.status || 404;
+
         return <ErrorPage errorCode={errorCode} errorMessage={errorMessage} />;
     }
 
@@ -185,14 +188,19 @@ export default function MoviePage({
                             name={data.data.director}
                             role="Director"
                         />
-                        {data.data.actors.map((act: any, index: number) => (
-                            <ProdictionAuthorCard
-                                key={index}
-                                name={act.name}
-                                role="Actor"
-                                overview={act.character}
-                            />
-                        ))}
+                        {data.data.actors.map(
+                            (
+                                act: { name: string; character: string },
+                                index: number,
+                            ) => (
+                                <ProdictionAuthorCard
+                                    key={index}
+                                    name={act.name}
+                                    role="Actor"
+                                    overview={act.character}
+                                />
+                            ),
+                        )}
                     </div>
                 </div>
             </div>
@@ -230,10 +238,12 @@ export default function MoviePage({
                     <LoadingPage></LoadingPage>
                 ) : commentsError ? (
                     <ErrorPage
-                        errorCode={(commentsError as AxiosError<any>).status}
+                        errorCode={(commentsError as AxiosError).status}
                         errorMessage={
-                            (commentsError as AxiosError<any>).response?.data
-                                ?.message || "Something went wrong"
+                            (
+                                (commentsError as AxiosError).response?.data as
+                                    { message: string } | { message: string[] }
+                            )?.message?.[0] || "Something went wrong"
                         }
                     />
                 ) : (

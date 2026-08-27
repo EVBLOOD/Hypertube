@@ -37,7 +37,7 @@ export default function HeroSectionMovie({
     isLiked = false,
     isDisliked = false,
 }: {
-    obj: any;
+    obj: MovieInfos;
     onLike?: () => void;
     onDislike?: () => void;
     onWishlist?: () => void;
@@ -57,8 +57,8 @@ export default function HeroSectionMovie({
     useEffect(() => {
         if (!socket || !isConnected) return;
 
-        socket.on("INVITE_ACCEPTED", (params: any) => {
-            console.log(
+        socket.on("INVITE_ACCEPTED", (params: { roomId: string }) => {
+            console.debug(
                 `Received INVITE_ACCEPTED event with params: ${JSON.stringify(params)}`,
             );
             setInviteSentAndWaitingRoomId("");
@@ -70,7 +70,7 @@ export default function HeroSectionMovie({
             socket.off("INVITE_ACCEPTED");
             setInviteSentAndWaitingRoomId("");
         };
-    }, [socket]);
+    }, [socket, isConnected, obj.id, router]);
 
     if (inviteSentAndWaitingRoomId.length > 0)
         return <LoadingPage message={t("waitingForFriends")}></LoadingPage>;

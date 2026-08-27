@@ -3,6 +3,7 @@
 import Link from "next/link";
 import styles from "./buttonCustom.module.css";
 import type { CSSProperties, MouseEventHandler } from "react";
+import Image from "next/image";
 
 export default function ButtonCustom({
     textButton,
@@ -54,7 +55,9 @@ export default function ButtonCustom({
             style={buttonStyles}
         >
             {buttonImage ? (
-                <img
+                <Image
+                    height={15}
+                    width={15}
                     ref={refImage}
                     className={styles.buttonImage}
                     src={buttonImage}
@@ -74,7 +77,9 @@ export default function ButtonCustom({
             style={buttonStyles}
         >
             {buttonImage ? (
-                <img
+                <Image
+                    height={15}
+                    width={15}
                     className={styles.buttonImage}
                     src={buttonImage}
                     alt={textButton}

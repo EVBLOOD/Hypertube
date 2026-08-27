@@ -1,7 +1,7 @@
 import api from "@/lib/api";
 import type { Login, Register } from "@/types/apiTypes";
 
-export default {
+const authService = {
     async login(loginData: Login) {
         return await api.post("/auth/login", loginData);
     },
@@ -29,3 +29,5 @@ export default {
         );
     },
 };
+
+export default authService;

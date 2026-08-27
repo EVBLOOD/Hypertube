@@ -42,8 +42,6 @@ export default function Register() {
         const email = emailRef.current?.value;
         const password = passwordRef.current?.value;
 
-        console.log(firstname, lastname, username, email, password);
-
         if (!firstname || !lastname || !username || !email || !password) {
             alert("Please fill in all fields.");
             return;
@@ -83,9 +81,10 @@ export default function Register() {
             }
             router.push("/login");
         } catch (err) {
-            console.log((err as AxiosError).response?.data);
-            const errorMessage = ((err as AxiosError).response?.data as any)
-                .message;
+            const errorMessage = (
+                (err as AxiosError).response?.data as
+                    { message: string } | { message: string[] }
+            )?.message;
             if (typeof errorMessage === "string") {
                 alert(errorMessage);
             } else if (Array.isArray(errorMessage) && errorMessage.length > 0) {

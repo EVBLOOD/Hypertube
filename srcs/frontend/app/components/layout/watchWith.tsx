@@ -4,7 +4,7 @@ import ButtonCustom from "../ui/buttonCustom";
 import InputCustom from "../ui/inputCustom";
 import styles from "./watchWith.module.css";
 import { useRef } from "react";
-import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function WatchWith({
     imdbId,
@@ -18,7 +18,6 @@ export default function WatchWith({
     setInviteSentAndWaitingRoomId: (value: string) => void;
 }) {
     const inputRef = useRef<HTMLInputElement>(null);
-    const router = useRouter();
     const t = useTranslations("WatchWith");
 
     async function handleSendInvite() {
@@ -33,14 +32,14 @@ export default function WatchWith({
                 title,
                 userInput,
             );
-            console.log("Invite sent successfully:", response);
+            console.debug("Invite sent successfully:", response);
 
             alert(t("success.sent"));
             onClose();
-            console.log(response.data.token);
+            console.debug(response.data.token);
             setInviteSentAndWaitingRoomId(response.data.token || "");
         } catch (error) {
-            console.error("Error sending invite:", error);
+            console.debug("Error sending invite:", error);
             alert(t("error.sendFailed"));
         }
     }
@@ -71,9 +70,9 @@ export default function WatchWith({
                     </div>
                 </div>
                 <div className={styles.watchWithContainer}>
-                    <img
-                        width="100"
-                        height="100"
+                    <Image
+                        height={100}
+                        width={100}
                         src="/costumIcons/inviteWatch.svg"
                         alt={t("imageAlt")}
                     />

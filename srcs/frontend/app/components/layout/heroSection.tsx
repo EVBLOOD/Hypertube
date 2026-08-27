@@ -9,7 +9,17 @@ import styles from "./heroSection.module.css";
 import { getResolutionLabel } from "@/lib/helper";
 import { useRouter } from "next/navigation";
 
-export default function HeroSection({ movie }: { movie: any }) {
+export default function HeroSection({
+    movie,
+}: {
+    movie: {
+        id: number;
+        title: string;
+        poster: string;
+        quality: string;
+        standard_audio_format: string;
+    };
+}) {
     const Home = useTranslations("Home");
     const router = useRouter();
 

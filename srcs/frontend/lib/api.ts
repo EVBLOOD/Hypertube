@@ -1,5 +1,4 @@
-import axios, { AxiosError } from "axios";
-import { redirect } from "next/navigation";
+import axios from "axios";
 
 const api = axios.create({
     baseURL: process.env.NEXT_PUBLIC_BACK_API_URL || "",

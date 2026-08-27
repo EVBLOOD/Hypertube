@@ -1,16 +1,15 @@
 import api from "@/lib/api";
-import type { Register } from "@/types/apiTypes";
 
 export type UpdateUserPayload = {
-    // firstName?: string;
-    // lastName?: string;
+    firstName?: string;
+    lastName?: string;
     email?: string;
     username?: string;
     preferredLanguage?: "en" | "fr" | "ar";
     privacy?: "public" | "private";
 };
 
-export default {
+const userService = {
     async getProfileSummary() {
         return (await api.get("/users/me/summary")).data;
     },
@@ -46,3 +45,5 @@ export default {
         ).data;
     },
 };
+
+export default userService;

@@ -1,6 +1,6 @@
 import api from "../api";
 
-export default {
+const movieService = {
     async getLibrary({
         pageParam = 1,
         queryKey,
@@ -95,9 +95,6 @@ export default {
     async getMovieSubtitles(imdbId: string) {
         return await api.get(`/movies/subtitles/${imdbId}`);
     },
-    async checkMovieError(imdbId: string) {
-        return await api.get(`/movies/watch/${imdbId}`);
-    },
     // async getMovieStream(imdbId: string, quality: string, subtitle?: string) {
     //     return await api.get(`/movies/watch/${imdbId}`, {
     //         params: {
@@ -107,3 +104,5 @@ export default {
     //     });
     // },
 };
+
+export default movieService;

@@ -12,6 +12,7 @@
     - [x] github or google to add
 * [x] Implement site-wide 1-click logout and language preference switcher (defaulting to English).
 * [x] Build editable user profile settings
+// For Mohcine
 * [ ] public profile views (ensuring emails stay private).
 
 
@@ -74,8 +75,9 @@
 [ ] Password Recovery & Profiles
     [x] Build password reset flow sending link/token via email for forgotten passwords.
     [x] Allow users to update email, name, password, and profile picture.
-    [ ] Build public user profile page (avatar and details visible, email strictly private).
     [x] Add language switcher (default language: English).
+// For Mohcine
+    [ ] Build public user profile page (avatar and details visible, email strictly private).
 
 [x] External API Integration
     [x] Query at least 2 external video sources (e.g., YTS, TMDb, OMDb).

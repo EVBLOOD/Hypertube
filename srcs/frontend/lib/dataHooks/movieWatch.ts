@@ -23,11 +23,4 @@ const useMovieSubtitles = (imdbId: string) => {
     });
 };
 
-const checkMovieError = (imdbId: string) => {
-    return useQuery({
-        queryKey: ["movie", "error", imdbId],
-        queryFn: () => MovieService.checkMovieError(imdbId),
-    });
-};
-
-export { useMovieQualities, useMovieSubtitles, useMovieWatch, checkMovieError };
+export { useMovieQualities, useMovieSubtitles, useMovieWatch };

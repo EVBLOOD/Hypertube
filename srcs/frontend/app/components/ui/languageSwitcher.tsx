@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { useState, useEffect } from "react";
 import styles from "./languageSwitcher.module.css";
 import { usePathname, useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function LanguageSwitcher({ local }: { local: string }) {
     const t = useTranslations("Language");
@@ -44,7 +45,12 @@ export default function LanguageSwitcher({ local }: { local: string }) {
                 className={styles.languageStyleOverView}
                 aria-label={t("ariaLabel")}
             >
-                <img src="/costumIcons/play.svg" alt={t("ariaLabel")} />
+                <Image
+                    height={15}
+                    width={15}
+                    src="/costumIcons/play.svg"
+                    alt={t("ariaLabel")}
+                />
                 <span>{choose.toUpperCase()}</span>
             </div>
             <ul
@@ -60,9 +66,9 @@ export default function LanguageSwitcher({ local }: { local: string }) {
                                 document.cookie = `NEXT_LOCALE=${e.toLowerCase()}; path=/; max-age=31536000`;
                                 router.push(
                                     `/${e.toLowerCase()}/${pathname.slice(4)}`,
-                                )
-                            }
-                            }
+                                );
+                                setChoice(e.toLowerCase());
+                            }}
                         >
                             {e}
                         </li>

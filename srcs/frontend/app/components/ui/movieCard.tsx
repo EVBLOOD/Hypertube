@@ -8,13 +8,7 @@ import TitleCustom from "./titleCustom";
 import { MovieType } from "@/types/apiTypes";
 import { useRouter } from "next/navigation";
 
-export default function MovieCard({
-    movie,
-    className,
-}: {
-    movie: MovieType;
-    className?: string;
-}) {
+export default function MovieCard({ movie }: { movie: MovieType }) {
     const Library = useTranslations("Library");
     const router = useRouter();
     const isWatched = (currentSeconds: number, durationInMinutes: number) => {

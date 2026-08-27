@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import styles from "./videoSection.module.css";
-import { checkMovieError } from "@/lib/dataHooks/movieWatch";
 import ErrorPage from "./error";
 import { AxiosError } from "axios";
 import api from "@/lib/api";
@@ -95,10 +94,11 @@ export default function VideoSection(props: {
                 `/movies/watch/${props.id}?quality=${currentQuality}`,
             );
         } catch (err) {
-            const axiosErr = err as AxiosError<any>;
-
             const errorMessage =
-                axiosErr.response?.data?.message ||
+                (
+                    (err as AxiosError).response?.data as
+                        { message: string } | { message: string[] }
+                )?.message?.[0] ||
                 "Unable to connect to the video streaming server.";
 
             setErrorMessage(errorMessage);
@@ -150,7 +150,7 @@ export default function VideoSection(props: {
         }, 5000);
 
         return () => clearInterval(intervalHeartBeat);
-    }, []);
+    }, [props]);
 
     if (errorMessage) {
         return <ErrorPage errorCode={404} errorMessage={errorMessage} />;

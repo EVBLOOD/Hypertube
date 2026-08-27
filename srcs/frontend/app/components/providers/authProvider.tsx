@@ -17,7 +17,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
             if (!user) {
                 try {
                     const user = (await AuthService.whois()).data?.user;
-                    console.log("User info fetched successfully:", user);
+                    console.debug("User info fetched successfully:", user);
                     userLogged({
                         username: user.username,
                         language: user.preferredLanguage,
@@ -26,24 +26,24 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
                     });
                 } catch (err) {
                     reset();
-                    console.log(
+                    console.debug(
                         "Error fetching user info:",
                         (err as AxiosError).message,
                     );
                     if ((err as AxiosError).response?.status === 401) {
-                        console.log(
+                        console.debug(
                             "Unauthorized, redirecting to login page...",
                         );
                         redirect("/login");
                     }
-                    // console.log(err);
+                    // console.debug(err);
                 } finally {
                     setIsReady(true);
                 }
             }
         };
         initAuth();
-    }, [user, userLogged]);
+    }, [user, userLogged, reset]);
     if (!isReady) return <div>{t("waiting")}</div>;
     return <>{children}</>;
 }

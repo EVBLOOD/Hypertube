@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import DescriptionComponent from "./descriptionComponent";
 import styles from "./interactionProfileCard.module.css";
 import { formatDistance } from "date-fns";
+import Image from "next/image";
 
 export default function InteractionProfileCard({
     movie,
@@ -18,7 +19,7 @@ export default function InteractionProfileCard({
     };
 }) {
     const t = useTranslations("Profile");
-    console.log("movie", movie);
+    console.debug("movie", movie);
 
     const getInteractionTime = (actionDate: Date) => {
         const timeAgo = formatDistance(new Date(actionDate), new Date(), {
@@ -52,11 +53,11 @@ export default function InteractionProfileCard({
     return (
         <div className={styles.cardBody}>
             <div className={styles.coverTitleInfo}>
-                <img
+                <Image
+                    height={64}
+                    width={48}
                     src={movie?.poster || "/hero.png"}
                     alt={t("stats.moviePoster")}
-                    width={"48px"}
-                    height={"64px"}
                 />
                 <div>
                     <h3 className={styles.movieTitle}>
@@ -75,7 +76,12 @@ export default function InteractionProfileCard({
                 </div>
             </div>
             <div className={styles.interactionInofs}>
-                <img src={interactionIcon} alt={t("stats.interactionIcon")} />
+                <Image
+                    height={20}
+                    width={20}
+                    src={interactionIcon}
+                    alt={t("stats.interactionIcon")}
+                />
                 <DescriptionComponent
                     className={styles.discreptionMarginCorrection}
                     text={interactionTime}

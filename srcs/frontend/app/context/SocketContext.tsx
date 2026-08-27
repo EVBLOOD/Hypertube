@@ -24,7 +24,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 
     useEffect(() => {
         const token = getCookie("AUTH_TOKEN");
-        console.log("AUTH_TOKEN:", token);
+        console.debug("AUTH_TOKEN:", token);
 
         if (!token) return;
 

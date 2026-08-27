@@ -4,8 +4,19 @@ import { useTranslations } from "use-intl";
 import CardElementHighlight from "../ui/cardElementHighlight";
 import styles from "./trandingSection.module.css";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
-export default function TrandingSection({ movies }: { movies: any }) {
+export default function TrandingSection({
+    movies,
+}: {
+    movies: {
+        id: number;
+        title: string;
+        poster: string;
+        quality: string;
+        standard_audio_format: string;
+    }[];
+}) {
     const Home = useTranslations("Home");
 
     const router = useRouter();
@@ -23,10 +34,11 @@ export default function TrandingSection({ movies }: { movies: any }) {
                     onClick={() => router.push("/trending")}
                 >
                     <p>{Home("see_all")}</p>
-                    <img
+                    <Image
+                        height={20}
+                        width={20}
                         src="/costumIcons/go_in.svg"
                         alt={Home("see_all")}
-                        height="10px"
                     />
                 </div>
             </div>

@@ -1,5 +1,6 @@
 import { useTranslations } from "next-intl";
 import styles from "./shareTo.module.css";
+import Image from "next/image";
 
 export default function ShareTo({
     url,
@@ -53,7 +54,9 @@ export default function ShareTo({
                         target="_blank"
                         rel="noopener noreferrer"
                     >
-                        <img
+                        <Image
+                            height={1330}
+                            width={23330}
                             src="/costumIcons/facebook.svg"
                             alt={t("platforms.facebook")}
                         />
@@ -63,7 +66,9 @@ export default function ShareTo({
                         target="_blank"
                         rel="noopener noreferrer"
                     >
-                        <img
+                        <Image
+                            height={20}
+                            width={20}
                             src="/costumIcons/twitter.svg"
                             alt={t("platforms.x")}
                         />
@@ -73,7 +78,9 @@ export default function ShareTo({
                         target="_blank"
                         rel="noopener noreferrer"
                     >
-                        <img
+                        <Image
+                            height={20}
+                            width={20}
                             src="/costumIcons/reddit.svg"
                             alt={t("platforms.reddit")}
                         />
@@ -83,7 +90,9 @@ export default function ShareTo({
                         target="_blank"
                         rel="noopener noreferrer"
                     >
-                        <img
+                        <Image
+                            height={20}
+                            width={20}
                             src="/costumIcons/email.svg"
                             alt={t("platforms.email")}
                         />

@@ -3,18 +3,17 @@
 import ButtonCustom from "./buttonCustom";
 import DescriptionComponent from "./descriptionComponent";
 import styles from "./viewInteractComment.module.css";
-import { useTranslations } from "next-intl";
 import { CommentType } from "@/types/apiTypes";
 import { formatDistance } from "date-fns";
 import MovieService from "@/lib/services/MovieService";
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 
 export default function ViewInteractComment({
     comment,
 }: {
     comment: CommentType;
 }) {
-    const t = useTranslations("Comments");
     const author = comment.user?.username || comment.user?.firstName || "USER";
     const timeAgo = formatDistance(new Date(comment.createdAt), new Date(), {
         addSuffix: true,
@@ -34,7 +33,7 @@ export default function ViewInteractComment({
                 1,
             );
             if (result && result.data) {
-                console.log(result);
+                console.debug(result);
 
                 if (result.data.likeCount > likeCount) {
                     likeRef.current?.style.setProperty("filter", "");
@@ -56,7 +55,7 @@ export default function ViewInteractComment({
                 setDislikeCount(result.data.dislikeCount);
             }
         } catch (err) {
-            console.error("Error liking comment:", err);
+            console.debug("Error liking comment:", err);
         }
     };
 
@@ -67,7 +66,7 @@ export default function ViewInteractComment({
                 2,
             );
             if (result && result.data) {
-                console.log(result);
+                console.debug(result);
 
                 if (result.data.dislikeCount > dislikeCount) {
                     likeRef.current?.style.setProperty(
@@ -89,7 +88,7 @@ export default function ViewInteractComment({
                 setDislikeCount(result.data.dislikeCount);
             }
         } catch (err) {
-            console.error("Error disliking comment:", err);
+            console.debug("Error disliking comment:", err);
         }
     };
 
@@ -114,7 +113,9 @@ export default function ViewInteractComment({
 
     return (
         <div className={styles.commentViewing}>
-            <img
+            <Image
+                height={20}
+                width={46}
                 className={styles.commentViewingAvatar}
                 src="/hero.png"
                 alt="avatar"

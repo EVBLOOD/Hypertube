@@ -13,7 +13,6 @@ export default async function middleware(req: NextRequest) {
     const pathname_direction = req.nextUrl.toString();
 
     const token = req.cookies.get("AUTH_TOKEN")?.value;
-    console.log(req.cookies);
 
     if (token) {
         try {
@@ -24,8 +23,8 @@ export default async function middleware(req: NextRequest) {
                 avatar: user.profilePicture,
                 isPublic: user.isPublic,
             });
-        } catch (err) {
-            console.log(err);
+        } catch {
+            console.log("whoisn't logged in");
         }
     }
 

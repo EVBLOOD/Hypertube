@@ -6,9 +6,8 @@ import TitleCustom from "@/app/components/ui/titleCustom";
 import DescriptionComponent from "@/app/components/ui/descriptionComponent";
 import MovieCard from "@/app/components/ui/movieCard";
 import { useTranslations } from "next-intl";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { MovieType } from "@/types/apiTypes";
-import MovieService from "@/lib/services/MovieService";
 import { useSuggestionsList } from "@/lib/dataHooks/moviesSuggestionsList";
 import { useInView } from "react-intersection-observer";
 import useDebounce from "@/lib/dataHooks/useDebounce";
@@ -50,21 +49,24 @@ export default function Library() {
         isPending,
     } = useSuggestionsList(debouncedSearch);
 
-    useEffect(() => {
-        setFilters({ ...filters, query });
-    }, [query]);
+    // useEffect(() => {
+    //     setFilters({ ...filters, query });
+    // }, [query]);
 
     useEffect(() => {
         if (inView && hasNextPage && !isFetchingNextPage) {
             fetchNextPage();
         }
-    }, [inView]);
+    }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
     if (!data && error) {
-        const axiosErr = error as AxiosError<any>;
         const errorMessage =
-            axiosErr.response?.data?.message || "Something went wrong";
-        const errorCode = axiosErr?.response?.status || 404;
+            (
+                (error as AxiosError).response?.data as
+                    { message: string } | { message: string[] }
+            )?.message?.[0] || "An error occurred while fetching data.";
+
+        const errorCode = (error as AxiosError)?.response?.status || 404;
         return <ErrorPage errorCode={errorCode} errorMessage={errorMessage} />;
     }
 
@@ -97,7 +99,6 @@ export default function Library() {
                                 <React.Fragment key={pageIndex}>
                                     {page?.data?.map((movie: MovieType) => (
                                         <MovieCard
-                                            className=""
                                             key={movie.id}
                                             movie={movie}
                                         ></MovieCard>

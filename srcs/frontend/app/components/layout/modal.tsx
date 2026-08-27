@@ -23,12 +23,12 @@ export default function Modal({ children }: { children: ReactNode }) {
             currentPath?.includes("/register") ||
             currentPath?.includes("/reset-password");
 
-        console.log("perv Path:", currentPath);
-        console.log("isPrevPathAuthRoute:", isPrevPathAuthRoute);
-        console.log("isAuthRoute:", isAuthRoute);
+        console.debug("perv Path:", currentPath);
+        console.debug("isPrevPathAuthRoute:", isPrevPathAuthRoute);
+        console.debug("isAuthRoute:", isAuthRoute);
 
         if (!isAuthRoute && isPrevPathAuthRoute && !alwaysOpenRoutes) {
-            console.log("Not an auth route, navigating back");
+            console.debug("Not an auth route, navigating back");
             router.replace("/");
         }
 

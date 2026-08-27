@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import styles from "./titleSectionProfile.module.css";
 
 export default function TitleSectionProfile({
@@ -10,7 +11,7 @@ export default function TitleSectionProfile({
 }) {
     return (
         <div className={styles.sectionTitle}>
-            <img src={icon} alt={title} />
+            <Image height={20} width={20} src={icon} alt={title} />
             <h2>{title}</h2>
         </div>
     );
