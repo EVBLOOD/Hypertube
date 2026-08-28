@@ -24,6 +24,7 @@ import { UpdateUserDto } from "./dto/update-user.dto";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { WhitelistGuard } from "../auth/guards/whitelist.guard";
 import { UsersService } from "./users.service";
+import { ApiDoc } from "../docs/decorators/api-doc.decorator";
 import { PaginationFindUserDto } from "./dto/find-user.dto";
 import { extname, join, normalize } from "path";
 import { FileInterceptor } from "@nestjs/platform-express";
@@ -38,6 +39,10 @@ export class UsersController {
     constructor(private readonly userService: UsersService) {}
 
     @Get()
+    @ApiDoc({
+        summary: "Get all users",
+        description: "Returns a list of all users",
+    })
     async getAllUsers() {
         return this.userService.findAll();
     }

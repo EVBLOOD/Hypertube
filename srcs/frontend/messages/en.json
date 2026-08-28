@@ -255,5 +255,9 @@
         "hours_ago_2": "2 HOURS AGO",
         "reply": "replay",
         "avatarAlt": "Avatar"
+    },
+    "docs": {
+        "title": "Api Documentation",
+        "decription": "The API documentation provides detailed information about the available endpoints, request parameters, and response formats. It serves as a comprehensive guide for developers to understand how to interact with the API effectively."
     }
 }

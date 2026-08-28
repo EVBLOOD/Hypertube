@@ -10,6 +10,7 @@ import { MailModule } from "./mails/mails.module";
 import { RedisModule } from "./common/redis/redis.module";
 import { BullModule } from "@nestjs/bull";
 import { StreamsModule } from "./streams/streams.module";
+import { DocsModule } from "./docs/docs.module";
 
 @Module({
     imports: [
@@ -30,6 +31,7 @@ import { StreamsModule } from "./streams/streams.module";
         MailModule,
         RedisModule,
         StreamsModule,
+        DocsModule,
     ],
     // providers: [StreamsService],
 })
