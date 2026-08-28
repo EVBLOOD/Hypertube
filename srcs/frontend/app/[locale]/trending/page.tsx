@@ -17,9 +17,7 @@ import { getErrorMessage } from "@/lib/helper";
 
 export default function Trending() {
     const Library = useTranslations("Library");
-
     const { ref: viewRef, inView } = useInView({ threshold: 0.1 });
-
     const {
         data,
         fetchNextPage,
@@ -34,6 +32,7 @@ export default function Trending() {
             fetchNextPage();
         }
     }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+
     if (!data && isPending) return <LoadingPage />;
     if (!data && error) {
         const errorMessage = getErrorMessage(error);
@@ -41,6 +40,7 @@ export default function Trending() {
 
         return <ErrorPage errorCode={errorCode} errorMessage={errorMessage} />;
     }
+
     return (
         <div className={`container ${styles.browseContent}`}>
             <div className={styles.mainBrowseContentHead}>

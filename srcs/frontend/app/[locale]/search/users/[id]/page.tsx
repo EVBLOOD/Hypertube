@@ -18,11 +18,9 @@ import { getErrorMessage } from "@/lib/helper";
 
 export default function SearchUsers() {
     const Library = useTranslations("Library");
-
     const { ref: viewRef, inView } = useInView({ threshold: 0.1 });
 
     const username = useParams().id as string;
-
     const {
         data,
         fetchNextPage,
@@ -39,12 +37,12 @@ export default function SearchUsers() {
     }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
     if (!data && isPending) return <LoadingPage />;
-
     if (!data && error) {
         const errorMessage = getErrorMessage(error);
         const errorCode = (error as AxiosError)?.response?.status || 404;
         return <ErrorPage errorCode={errorCode} errorMessage={errorMessage} />;
     }
+
     return (
         <div className={`container ${styles.browseContent}`}>
             <div className={styles.mainBrowseContentHead}>

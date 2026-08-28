@@ -141,10 +141,6 @@ export default function ViewInteractComment({
                         textButton={dislikeCount.toString()}
                         onClick={handleDislike}
                     />
-                    {/* <ButtonCustom
-                        buttonImage={undefined}
-                        textButton={t("reply")}
-                    /> */}
                 </div>
             </div>
         </div>

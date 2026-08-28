@@ -20,22 +20,6 @@ export default function Filter({
         order: string;
     }) => void;
 }) {
-    const Library = useTranslations("Library");
-    const geners = useTranslations("Genres");
-    const genreKeys = Object.keys(genreMessages.Genres);
-    const searchParams = useSearchParams();
-
-    const [gender, setGender] = useState("all");
-    const [minYear, setMinYear] = useState(2017);
-    const [maxYear, setMaxYear] = useState(2026);
-    const [rating, setRating] = useState(8);
-    const [sortBy, setSortBy] = useState("title");
-    const [order, setOrder] = useState("asc");
-    const query = searchParams.get("search") || "";
-
-    console.debug("Query from searchParams:", query);
-
-    const [searchValue, setSearchValue] = useState(query);
     const sortOptions = [
         { id: "popularity", label: "filter_sort_popularity" },
         { id: "date", label: "filter_sort_add_date" },
@@ -43,26 +27,19 @@ export default function Filter({
         { id: "title", label: "filter_sort_alphabit" },
     ];
 
-    // useEffect(() => {
-    //     onChange({
-    //         genre: gender,
-    //         minYear,
-    //         maxYear,
-    //         minRating: rating,
-    //         sortBy,
-    //         order,
-    //         query: searchValue,
-    //     });
-    //     console.log("Filters updated:", {
-    //         genre: gender,
-    //         minYear,
-    //         maxYear,
-    //         minRating: rating,
-    //         sortBy,
-    //         order,
-    //         query: searchValue,
-    //     });
-    // }, [gender, minYear, maxYear, rating, sortBy, order, searchValue]);
+    const Library = useTranslations("Library");
+    const geners = useTranslations("Genres");
+    const genreKeys = Object.keys(genreMessages.Genres);
+    const searchParams = useSearchParams();
+    const query = searchParams.get("search") || "";
+
+    const [gender, setGender] = useState("all");
+    const [minYear, setMinYear] = useState(2017);
+    const [maxYear, setMaxYear] = useState(2026);
+    const [rating, setRating] = useState(8);
+    const [sortBy, setSortBy] = useState("title");
+    const [order, setOrder] = useState("asc");
+    const [searchValue, setSearchValue] = useState(query);
 
     const handleChange = (
         props: {
@@ -86,7 +63,6 @@ export default function Filter({
         };
 
         onChange(newFilters);
-        console.log("Filters updated:", newFilters);
     };
 
     useEffect(() => {

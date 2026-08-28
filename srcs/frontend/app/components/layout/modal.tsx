@@ -7,12 +7,12 @@ import { ReactNode, useEffect } from "react";
 export default function Modal({ children }: { children: ReactNode }) {
     const router = useRouter();
     const pathname = usePathname();
+
     const isAuthRoute =
         pathname.includes("/login") ||
         pathname.includes("/register") ||
         pathname.includes("/reset-password") ||
         pathname.includes("/reset-password-email");
-
     const alwaysOpenRoutes =
         pathname.includes("/search") && !pathname.includes("/search/users");
 

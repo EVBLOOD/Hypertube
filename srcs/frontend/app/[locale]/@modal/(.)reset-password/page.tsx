@@ -16,22 +16,14 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { getErrorMessage } from "@/lib/helper";
 
 export default function ResetPassword() {
-    const ResetPassword = useTranslations("ResetPassword");
-    const searchParams = useSearchParams();
-    const token = searchParams.get("token");
-
     const router = useRouter();
 
     const passwordRef = useRef<HTMLInputElement>(null);
-
     const [width, setWidth] = useState(window.innerWidth);
 
-    useEffect(() => {
-        const handleResize = () => setWidth(window.innerWidth);
-        window.addEventListener("resize", handleResize);
-
-        return () => window.removeEventListener("resize", handleResize);
-    }, []);
+    const ResetPassword = useTranslations("ResetPassword");
+    const searchParams = useSearchParams();
+    const token = searchParams.get("token");
 
     async function handelResetPassword() {
         const password = passwordRef.current?.value;
@@ -59,6 +51,13 @@ export default function ResetPassword() {
             }
         }
     }
+
+    useEffect(() => {
+        const handleResize = () => setWidth(window.innerWidth);
+        window.addEventListener("resize", handleResize);
+
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
     return (
         <Modal>

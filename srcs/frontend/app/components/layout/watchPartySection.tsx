@@ -23,15 +23,14 @@ export default function WatchPartySection({
 }: WatchPartyProps) {
     const { socket, isConnected } = useSocket();
     const t = useTranslations("WatchParty");
-    const [isRoomJoined, setIsRoomJoined] = useState(false);
 
+    const messageInputRef = useRef<HTMLInputElement>(null);
+    const [isRoomJoined, setIsRoomJoined] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState<number | undefined>(
         undefined,
     );
-
     const [messages, setMessages] = useState<Message[]>([]);
-    const messageInputRef = useRef<HTMLInputElement>(null);
 
     const HandleSendMessage = () => {
         const messageContent = messageInputRef.current?.value || "";
@@ -51,19 +50,16 @@ export default function WatchPartySection({
         }
         if (messageInputRef.current) messageInputRef.current.value = "";
     };
-
     const HandleStartStream = () => {
         if (socket && isConnected) {
             socket.emit("start_stream", { roomId: roomToken });
         }
     };
-
     const HandlePauseStream = () => {
         if (socket && isConnected) {
             socket.emit("pause_stream", { roomId: roomToken });
         }
     };
-
     const HandleSeekStream = (time: number) => {
         if (socket && isConnected) {
             socket.emit("seek_stream", { roomId: roomToken, time });

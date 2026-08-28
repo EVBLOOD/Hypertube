@@ -29,26 +29,26 @@ import { getErrorMessage } from "@/lib/helper";
 
 export default function ProfilePage() {
     const { data, isPending, error } = useProfileSummary();
-    console.log("Profile data:", data);
+
     if (!data && isPending) return <LoadingPage />;
     if (!data && error) {
         const errorMessage = getErrorMessage(error);
         const errorCode = (error as AxiosError)?.response?.status || 404;
         return <ErrorPage errorCode={errorCode} errorMessage={errorMessage} />;
     }
-    const stats = data?.stats || {
-        watched: 0,
-        wishlisted: 0,
-        liked: 0,
-        disliked: 0,
-        totalInteractions: 0,
-    };
-    const history = data?.history?.data || [];
     return (
         <ProfileSectionPage
             userData={data?.user}
-            stats={stats}
-            history={history}
+            stats={
+                data?.stats || {
+                    watched: 0,
+                    wishlisted: 0,
+                    liked: 0,
+                    disliked: 0,
+                    totalInteractions: 0,
+                }
+            }
+            history={data?.history?.data || []}
         />
     );
 }
@@ -62,7 +62,7 @@ function ProfileSectionPage({
     stats: ProfileSummaryStats;
     history: ProfileHistoryItem[];
 }) {
-    const { user, userLogged, userLanguageUpdate } = useUserStore();
+    const { user: __, userLogged: _, userLanguageUpdate } = useUserStore();
     const router = useRouter();
 
     const userNameRef = useRef<HTMLInputElement>(null);
@@ -70,15 +70,9 @@ function ProfileSectionPage({
     const userFirstNameRef = useRef<HTMLInputElement>(null);
     const userLastNameRef = useRef<HTMLInputElement>(null);
     const userPasswordRef = useRef<HTMLInputElement>(null);
-    const [userLanguage, setUserLanguage] = useState<"en" | "ar" | "fr">(
-        userData?.preferredLanguage || "en",
-    );
-    const [userPrivacy, setUserPrivacy] = useState<"public" | "private">(
-        userData?.privacy || "public",
-    );
-    const [profilePicture, setProfilePicture] = useState<string>(
-        userData?.profilePicture || "/hero.png",
-    );
+    const [userLanguage, setUserLanguage] = useState<"en" | "ar" | "fr">(userData?.preferredLanguage || "en");
+    const [userPrivacy, setUserPrivacy] = useState<"public" | "private">(userData?.privacy || "public");
+    const [profilePicture, setProfilePicture] = useState<string>(userData?.profilePicture || "/hero.png");
 
     const ifSavedInServer = (path: string) => {
         if (path) {
@@ -93,26 +87,6 @@ function ProfileSectionPage({
         document.cookie = `NEXT_LOCALE=${lang}; path=/; max-age=31536000`;
         router.push(`/${lang}`);
     };
-
-    useEffect(() => {
-        if (!userData) return;
-        if (userNameRef.current)
-            userNameRef.current!.value = userData.username || "";
-        if (userEmailRef.current)
-            userEmailRef.current!.value = userData.email || "";
-        if (userFirstNameRef.current)
-            userFirstNameRef.current!.value = userData.firstName || "";
-        if (userLastNameRef.current)
-            userLastNameRef.current!.value = userData.lastName || "";
-
-        // userLogged({
-        //     username: data.user.username,
-        //     language: data.user.preferredLanguage || "en",
-        //     avatar: data.user.profilePicture || "/hero.png",
-        //     isPublic: data.user.privacy === "public",
-        // });
-    }, [userData, userLogged]);
-
     const handleSave = async () => {
         if (!userNameRef.current || !userEmailRef.current) return;
 
@@ -124,7 +98,7 @@ function ProfileSectionPage({
             firstName: userFirstNameRef.current?.value,
             lastName: userLastNameRef.current?.value,
             password: userPasswordRef.current?.value,
-            profilePicture: user?.avatar || null,
+            profilePicture: profilePicture || null,
         };
 
         const updated = await UserService.updateMe(form);
@@ -161,6 +135,26 @@ function ProfileSectionPage({
             console.debug("Error updating profile picture:", error);
         }
     };
+
+    useEffect(() => {
+        if (!userData) return;
+        if (userNameRef.current)
+            userNameRef.current!.value = userData.username || "";
+        if (userEmailRef.current)
+            userEmailRef.current!.value = userData.email || "";
+        if (userFirstNameRef.current)
+            userFirstNameRef.current!.value = userData.firstName || "";
+        if (userLastNameRef.current)
+            userLastNameRef.current!.value = userData.lastName || "";
+
+        // userLogged({
+        //     username: data.user.username,
+        //     language: data.user.preferredLanguage || "en",
+        //     avatar: data.user.profilePicture || "/hero.png",
+        //     isPublic: data.user.privacy === "public",
+        // });
+    }, [userData]);
+    // }, [userData, userLogged]);
 
     return (
         <div className={`container ${styles.browseContent}`}>
@@ -232,13 +226,13 @@ function ProfileSectionPage({
                             </div>
                         </div>
                         <ProfileSelectionInputs
-                            init={user?.isPublic ? "public" : "private"}
+                            init={userData.privacy === "public" ? "public" : "private"}
                             setter={setUserPrivacy}
                             title="Public Preview"
                             description="Hide primary email address from community members"
                         />
                         <ProfileSelectionInputs
-                            init={user?.language || "en"}
+                            init={userData.preferredLanguage || "en"}
                             setter={setUserLanguage}
                             title="System Language"
                             description="Default interface and metadata localization"

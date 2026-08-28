@@ -7,15 +7,15 @@ import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 
 export default function LanguageSwitcher({ local }: { local: string }) {
-    const t = useTranslations("Language");
-    const [isAtTop, setIsAtTop] = useState(true);
-    const [isOpen, setIsOpen] = useState(false);
-    const [choose, setChoice] = useState(local);
+    const langs = ["EN", "FR", "AR"];
 
+    const t = useTranslations("Language");
     const router = useRouter();
     const pathname = usePathname();
 
-    const langs = ["EN", "FR", "AR"];
+    const [isAtTop, setIsAtTop] = useState(true);
+    const [isOpen, setIsOpen] = useState(false);
+    const [choose, setChoice] = useState(local);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -34,7 +34,6 @@ export default function LanguageSwitcher({ local }: { local: string }) {
     }
 
     return (
-        // <>
         <div
             className={
                 !isOpen ? styles.languageStyle : styles.languageStyleOpen
@@ -75,6 +74,5 @@ export default function LanguageSwitcher({ local }: { local: string }) {
                     ))}
             </ul>
         </div>
-        // </>
     );
 }

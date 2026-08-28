@@ -22,10 +22,8 @@ export default function HeroSection({
 }) {
     const Home = useTranslations("Home");
     const router = useRouter();
-
     const resulotion = getResolutionLabel(movie.quality);
-    // const cliperText = 'CLAPPER_OPEN'
-    // const cliperText = 'CLAPPER_CLOSE'
+
     return (
         <div
             style={{

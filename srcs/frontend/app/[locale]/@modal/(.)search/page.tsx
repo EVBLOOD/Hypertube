@@ -12,11 +12,11 @@ import ProfileSelectionInputs from "@/app/components/ui/profileSelectionInputs";
 
 export default function Search() {
     const router = useRouter();
+    const searchRef = useRef<HTMLInputElement>(null);
     const [userPrivacy, setUserPrivacy] = useState<"public" | "private">(
         "private",
     );
 
-    const searchRef = useRef<HTMLInputElement>(null);
     const handleSearch = () => {
         const searchValue = searchRef.current?.value.trim();
         if (searchValue && searchValue.length > 0) {

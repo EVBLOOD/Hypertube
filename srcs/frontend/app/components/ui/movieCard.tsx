@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 export default function MovieCard({ movie }: { movie: MovieType }) {
     const Library = useTranslations("Library");
     const router = useRouter();
+
     const isWatched = (currentSeconds: number, durationInMinutes: number) => {
         const totalSeconds = durationInMinutes * 60;
         if (totalSeconds <= 0) return false;
@@ -20,6 +21,7 @@ export default function MovieCard({ movie }: { movie: MovieType }) {
         }
         return false;
     };
+
     return (
         <div
             onClick={() => router.push(`/movie/${movie.id}`)}

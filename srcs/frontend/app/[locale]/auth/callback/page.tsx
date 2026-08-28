@@ -9,24 +9,17 @@ export default function AuthCallbackPage() {
     useEffect(() => {
         const finishAuth = async () => {
             try {
-                const token = document.cookie
-                    .split("; ")
-                    .find((row) => row.startsWith("AUTH_TOKEN="))
-                    ?.split("=")[1];
                 let user = null;
-
-                if (token) {
-                    try {
-                        user = (await AuthService.whois()).data;
-                        useUserStore.getState().userLogged({
-                            username: user.username,
-                            language: user.preferredLanguage,
-                            avatar: user.profilePicture,
-                            isPublic: user.isPublic,
-                        });
-                    } catch (err) {
-                        console.debug(err);
-                    }
+                try {
+                    user = (await AuthService.whois()).data;
+                    useUserStore.getState().userLogged({
+                        username: user.username,
+                        language: user.preferredLanguage,
+                        avatar: user.profilePicture,
+                        isPublic: user.isPublic,
+                    });
+                } catch (err) {
+                    console.debug(err);
                 }
 
                 if (window.opener) {

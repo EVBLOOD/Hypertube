@@ -6,8 +6,6 @@ import styles from "./popupCard.module.css";
 export default function PopupCard({
     childrenHelfCard,
     childrenSecondHelfCard,
-    // widthchildrenHelfCard,
-    // widthchildrenSecondHelfCard,
 }: {
     childrenHelfCard?: ReactNode;
     childrenSecondHelfCard?: ReactNode;
@@ -18,28 +16,12 @@ export default function PopupCard({
         <div className={styles.card}>
             <div className={styles.cardinner}>
                 {childrenHelfCard ? (
-                    <div
-                        className={styles.halfCard}
-                        // style={{
-                        //     width: widthchildrenHelfCard
-                        //         ? widthchildrenHelfCard.toString() + "%"
-                        //         : "auto",
-                        // }}
-                    >
-                        {childrenHelfCard}
-                    </div>
+                    <div className={styles.halfCard}>{childrenHelfCard}</div>
                 ) : (
                     ""
                 )}
                 {childrenSecondHelfCard ? (
-                    <div
-                        className={`${styles.secondHalf}`}
-                        // style={{
-                        //     width: widthchildrenSecondHelfCard
-                        //         ? widthchildrenSecondHelfCard.toString() + "%"
-                        //         : "auto",
-                        // }}
-                    >
+                    <div className={`${styles.secondHalf}`}>
                         {childrenSecondHelfCard}
                     </div>
                 ) : (

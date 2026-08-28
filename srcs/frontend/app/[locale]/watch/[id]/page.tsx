@@ -21,13 +21,9 @@ export default function WatchPageMoviePage({
 }: {
     params: Promise<{ id: string }>;
 }) {
-    const resolvedParams = use(params);
-    const searchParams = useSearchParams();
     const { socket, isConnected } = useSocket();
 
-    const token = searchParams.get("token");
-    const watchAlone = token ? false : true;
-
+    const resolvedParams = use(params);
     const id = resolvedParams.id;
     const { data, isPending, error } = useMovieDetails(id);
     const {
@@ -40,6 +36,10 @@ export default function WatchPageMoviePage({
         isPending: isSubtitlesPending,
         error: subtitlesError,
     } = useMovieSubtitles(id);
+
+    const searchParams = useSearchParams();
+    const token = searchParams.get("token");
+    const watchAlone = token ? false : true;
 
     const [currentTime, setCurrentTime] = useState<number>(
         data?.data.personnel?.lastWatchedTime || 0,

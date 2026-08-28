@@ -22,21 +22,21 @@ export default function MoviePage({
 }: {
     params: Promise<{ id: string }>;
 }) {
+    const createCommentRef = useRef<HTMLDivElement>(null);
+    const interactionCountRef = useRef<HTMLDivElement>(null);
+    const [commentSort, setCommentSort] = useState<string>("createdAt");
+    const [comments, setComments] = useState<CommentType[]>([]);
+    const [wishlisted, setWishlisted] = useState(false);
+    const [reaction, setReaction] = useState<number>(0);
+
     const resolvedParams = use(params);
     const id = resolvedParams.id;
     const { data, isPending, error } = useMovieDetails(id);
-    const [commentSort, setCommentSort] = useState<string>("createdAt");
     const {
         data: commentsData,
         isPending: commentsPending,
         error: commentsError,
     } = useMovieComments(id, 1, commentSort);
-    const [comments, setComments] = useState<CommentType[]>([]);
-    const [wishlisted, setWishlisted] = useState(false);
-    const [reaction, setReaction] = useState<number>(0);
-
-    const createCommentRef = useRef<HTMLDivElement>(null);
-    const interactionCountRef = useRef<HTMLDivElement>(null);
 
     const sendComment = async (content: string) => {
         try {
@@ -52,7 +52,6 @@ export default function MoviePage({
             console.debug(err);
         }
     };
-
     const handleSubmitComment = async (content: string) => {
         try {
             const comment = await sendComment(content);
@@ -76,7 +75,6 @@ export default function MoviePage({
             console.debug(err);
         }
     };
-
     const handleLike = async () => {
         try {
             await MovieService.setInteraction({
@@ -88,7 +86,6 @@ export default function MoviePage({
             console.debug(err);
         }
     };
-
     const handleDislike = async () => {
         try {
             await MovieService.setInteraction({
@@ -100,7 +97,6 @@ export default function MoviePage({
             console.debug(err);
         }
     };
-
     const handleWishlist = async () => {
         try {
             await MovieService.toggleWishlist(id);
@@ -109,7 +105,6 @@ export default function MoviePage({
             console.debug(err);
         }
     };
-
     const handleSort = (sort: string) => {
         if (sort === commentSort) return;
         if (sort !== "createdAt" && sort !== "interactionCount") return;

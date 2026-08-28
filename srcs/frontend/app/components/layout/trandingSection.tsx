@@ -13,8 +13,8 @@ export default function TrandingSection({
     movies: TrendingMovie[];
 }) {
     const Home = useTranslations("Home");
-
     const router = useRouter();
+
     return (
         <div className={`container ${styles.trandingSectionParent}`}>
             <div className={styles.tradingHeader}>

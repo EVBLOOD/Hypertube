@@ -12,8 +12,9 @@ import Image from "next/image";
 
 export default function Header() {
     const header = useTranslations("Header");
-    const user = useUserStore((state) => state.user);
     const router = useRouter();
+    const pathname = usePathname();
+    const user = useUserStore((state) => state.user);
 
     async function handleLogout() {
         try {
@@ -28,7 +29,6 @@ export default function Header() {
     function handleSearch() {
         router.push("/search");
     }
-    const pathname = usePathname();
 
     return (
         <>

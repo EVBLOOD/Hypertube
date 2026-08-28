@@ -31,12 +31,12 @@ export default function HeroSectionMovie({
     isLiked?: boolean;
     isDisliked?: boolean;
 }) {
-    const router = useRouter();
     const t = useTranslations("MovieDetail");
+    const router = useRouter();
+    const { socket, isConnected } = useSocket();
 
     const [openShare, setOpenShare] = useState(false);
     const [openWatch, setOpenWatch] = useState(false);
-    const { socket, isConnected } = useSocket();
     const [inviteSentAndWaitingRoomId, setInviteSentAndWaitingRoomId] =
         useState("");
 

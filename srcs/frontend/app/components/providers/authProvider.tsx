@@ -36,7 +36,6 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
                         );
                         redirect("/login");
                     }
-                    // console.debug(err);
                 } finally {
                     setIsReady(true);
                 }

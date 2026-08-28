@@ -21,10 +21,9 @@ import { getErrorMessage } from "@/lib/helper";
 export default function Library() {
     const Library = useTranslations("Library");
     const { ref: viewRef, inView } = useInView({ threshold: 0.1 });
+
     const searchParams = useSearchParams();
-
     const query = searchParams.get("search") || "";
-
     const [filters, setFilters] = useState({
         genre: "all",
         minYear: 2017,
@@ -34,13 +33,7 @@ export default function Library() {
         query: query,
         order: "asc",
     });
-
-    function OnChange(newFilters: typeof filters) {
-        setFilters(newFilters);
-    }
-
     const debouncedSearch = useDebounce(filters, 500);
-
     const {
         data,
         fetchNextPage,
@@ -50,9 +43,9 @@ export default function Library() {
         isPending,
     } = useSuggestionsList(debouncedSearch);
 
-    // useEffect(() => {
-    //     setFilters({ ...filters, query });
-    // }, [query]);
+    function OnChange(newFilters: typeof filters) {
+        setFilters(newFilters);
+    }
 
     useEffect(() => {
         if (inView && hasNextPage && !isFetchingNextPage) {

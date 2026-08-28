@@ -36,7 +36,6 @@ export default function ButtonCustom({
             : "var(--popup-background-second)",
         ...style,
     };
-
     const imageFilterStyle: CSSProperties = {
         filter:
             textButton.length > 0 && color

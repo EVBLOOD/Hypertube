@@ -17,23 +17,14 @@ import { getErrorMessage } from "@/lib/helper";
 
 export default function Register() {
     const Register = useTranslations("Register");
-
     const router = useRouter();
 
+    const [width, setWidth] = useState(window.innerWidth);
     const firstnameRef = useRef<HTMLInputElement>(null);
     const lastnameRef = useRef<HTMLInputElement>(null);
     const usernameRef = useRef<HTMLInputElement>(null);
     const emailRef = useRef<HTMLInputElement>(null);
     const passwordRef = useRef<HTMLInputElement>(null);
-
-    const [width, setWidth] = useState(window.innerWidth);
-
-    useEffect(() => {
-        const handleResize = () => setWidth(window.innerWidth);
-        window.addEventListener("resize", handleResize);
-
-        return () => window.removeEventListener("resize", handleResize);
-    }, []);
 
     async function handelRegister() {
         const firstname = firstnameRef.current?.value;
@@ -50,12 +41,10 @@ export default function Register() {
             alert("Please enter a valid email address.");
             return;
         }
-
         if (password.length < 6) {
             alert("Password must be at least 6 characters long.");
             return;
         }
-
         if (username.length < 3) {
             alert("Username must be at least 3 characters long.");
             return;
@@ -75,6 +64,7 @@ export default function Register() {
                 email,
                 password,
             });
+
             if (!result || !result.data) {
                 alert("Registration failed. Please check your details.");
                 return;
@@ -90,6 +80,14 @@ export default function Register() {
             }
         }
     }
+
+    useEffect(() => {
+        const handleResize = () => setWidth(window.innerWidth);
+        window.addEventListener("resize", handleResize);
+
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
     return (
         <Modal>
             <PopupCard

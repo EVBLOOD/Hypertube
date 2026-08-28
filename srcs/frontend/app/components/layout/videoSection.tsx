@@ -49,7 +49,6 @@ export default function VideoSection(props: {
             }
         }, 50);
     };
-
     const handlePlay = () => {
         if (isRemoteUpdate.current) {
             isRemoteUpdate.current = false;
@@ -58,7 +57,6 @@ export default function VideoSection(props: {
         props.handleStartStream?.();
         props.handlePlayMovie?.();
     };
-
     const handlePause = () => {
         if (isRemoteUpdate.current) {
             isRemoteUpdate.current = false;
@@ -67,7 +65,6 @@ export default function VideoSection(props: {
         props.handlePauseStream?.();
         props.handlePauseMovie?.();
     };
-
     const handleSeek = () => {
         if (isRemoteUpdate.current) {
             isRemoteUpdate.current = false;
@@ -77,7 +74,6 @@ export default function VideoSection(props: {
             props.handleSeekStream?.(refVideo.current.currentTime);
         }
     };
-
     const handleSeeking = () => {
         if (isRemoteUpdate.current) {
             isRemoteUpdate.current = false;
@@ -87,7 +83,6 @@ export default function VideoSection(props: {
             props.handleSeekStream?.(refVideo.current.currentTime);
         }
     };
-
     const handleVideoError = async () => {
         try {
             await api.get(
@@ -122,13 +117,6 @@ export default function VideoSection(props: {
             }
         }
     }, [props.time]);
-
-    // const handleTimeUpdate = () => {
-    //     if (refVideo.current) {
-    //         props.heartbeatInterval(refVideo.current.currentTime);
-    //     }
-    // };
-
     useEffect(() => {
         if (props.initialTime !== undefined && refVideo.current) {
             if (
@@ -139,7 +127,6 @@ export default function VideoSection(props: {
             }
         }
     }, [props.initialTime]);
-
     useEffect(() => {
         const intervalHeartBeat = setInterval(() => {
             if (refVideo.current) {
@@ -153,7 +140,6 @@ export default function VideoSection(props: {
     if (errorMessage) {
         return <ErrorPage errorCode={404} errorMessage={errorMessage} />;
     }
-
     return (
         <div className={styles.videoSection}>
             {props.qualities && (

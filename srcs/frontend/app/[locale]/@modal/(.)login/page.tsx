@@ -29,137 +29,6 @@ export default function Login() {
         router.push(`/${lang}`);
     };
 
-    const handleLogin42 = () => {
-        const backendUrl = process.env.NEXT_PUBLIC_BACK_API_URL || "";
-
-        const targetOrigin = new URL(backendUrl).origin;
-
-        const childWindow = open(
-            `${backendUrl}/auth/login/42`,
-            "_blank",
-            "width=500,height=600",
-        );
-
-        const messageListener = async (event: MessageEvent) => {
-            if (event.origin !== targetOrigin) return;
-
-            if (event.data?.type === "login_success") {
-                const userData = (await AuthService.whois())?.data;
-
-                useUserStore.getState().userLogged({
-                    username: userData.user.username,
-                    language: userData.user.preferredLanguage,
-                    avatar: userData.user.profilePicture,
-                    isPublic: userData.user.isPublic,
-                });
-
-                changeLanguage(userData.user.preferredLanguage || "en");
-                cleanup();
-                childWindow?.close();
-            }
-        };
-
-        const cleanup = () => {
-            removeEventListener("message", messageListener);
-            clearInterval(checkClosedInterval);
-        };
-
-        addEventListener("message", messageListener);
-
-        const checkClosedInterval = setInterval(() => {
-            if (childWindow?.closed) {
-                cleanup();
-            }
-        }, 1000);
-    };
-
-    const handleLoginGoogle = () => {
-        const backendUrl = process.env.NEXT_PUBLIC_BACK_API_URL || "";
-
-        const targetOrigin = new URL(backendUrl).origin;
-
-        const childWindow = open(
-            `${backendUrl}/auth/login/google`,
-            "_blank",
-            "width=500,height=600",
-        );
-
-        const messageListener = async (event: MessageEvent) => {
-            if (event.origin !== targetOrigin) return;
-            if (event.data?.type === "login_success") {
-                const userData = (await AuthService.whois())?.data;
-
-                useUserStore.getState().userLogged({
-                    username: userData.user.username,
-                    language: userData.user.preferredLanguage,
-                    avatar: userData.user.profilePicture,
-                    isPublic: userData.user.isPublic,
-                });
-
-                changeLanguage(userData.user.preferredLanguage || "en");
-                cleanup();
-                childWindow?.close();
-            }
-        };
-
-        const cleanup = () => {
-            removeEventListener("message", messageListener);
-            clearInterval(checkClosedInterval);
-        };
-
-        addEventListener("message", messageListener);
-
-        const checkClosedInterval = setInterval(() => {
-            if (childWindow?.closed) {
-                cleanup();
-            }
-        }, 1000);
-    };
-
-    const handleLoginGithub = () => {
-        const backendUrl = process.env.NEXT_PUBLIC_BACK_API_URL || "";
-
-        const targetOrigin = new URL(backendUrl).origin;
-
-        const childWindow = open(
-            `${backendUrl}/auth/login/github`,
-            "_blank",
-            "width=500,height=600",
-        );
-
-        const messageListener = async (event: MessageEvent) => {
-            if (event.origin !== targetOrigin) return;
-
-            if (event.data?.type === "login_success") {
-                const userData = (await AuthService.whois())?.data;
-
-                useUserStore.getState().userLogged({
-                    username: userData.user.username,
-                    language: userData.user.preferredLanguage,
-                    avatar: userData.user.profilePicture,
-                    isPublic: userData.user.isPublic,
-                });
-
-                changeLanguage(userData.user.preferredLanguage || "en");
-                cleanup();
-                childWindow?.close();
-            }
-        };
-
-        const cleanup = () => {
-            removeEventListener("message", messageListener);
-            clearInterval(checkClosedInterval);
-        };
-
-        addEventListener("message", messageListener);
-
-        const checkClosedInterval = setInterval(() => {
-            if (childWindow?.closed) {
-                cleanup();
-            }
-        }, 1000);
-    };
-
     async function handelLogin() {
         const emailOrUserName = emailOrUserNameRef.current?.value;
         const password = passwordRef.current?.value;
@@ -200,6 +69,43 @@ export default function Login() {
         }
     }
 
+    const handleLoginOauth = (type: "github" | "google" | "42") => {
+        const backendUrl = process.env.NEXT_PUBLIC_BACK_API_URL || "";
+
+        const targetOrigin = new URL(backendUrl).origin;
+
+        const childWindow = open(
+            `${backendUrl}/auth/login/${type}`,
+            "_blank",
+            "width=500,height=600",
+        );
+
+        const messageListener = async (event: MessageEvent) => {
+            if (event.origin !== targetOrigin) return;
+
+            if (event.data?.type === "login_success") {
+                changeLanguage(
+                    event.data.user?.user?.preferredLanguage || "en",
+                );
+                cleanup();
+                childWindow?.close();
+            }
+        };
+
+        const cleanup = () => {
+            removeEventListener("message", messageListener);
+            clearInterval(checkClosedInterval);
+        };
+
+        addEventListener("message", messageListener);
+
+        const checkClosedInterval = setInterval(() => {
+            if (childWindow?.closed) {
+                cleanup();
+            }
+        }, 1000);
+    };
+
     return (
         <Modal>
             <PopupCard
@@ -227,7 +133,7 @@ export default function Login() {
                             <ButtonCustom
                                 textButton={Login.raw("integrations")[0]}
                                 buttonImage="/costumIcons/42icon.svg"
-                                onClick={handleLogin42}
+                                onClick={() => handleLoginOauth("42")}
                                 style={{
                                     display: "flex",
                                     justifyContent: "start",
@@ -238,7 +144,7 @@ export default function Login() {
                             <ButtonCustom
                                 textButton={Login.raw("integrations")[1]}
                                 buttonImage="/costumIcons/42icon.svg"
-                                onClick={handleLoginGithub}
+                                onClick={() => handleLoginOauth("github")}
                                 style={{
                                     display: "flex",
                                     justifyContent: "start",
@@ -249,7 +155,7 @@ export default function Login() {
                             <ButtonCustom
                                 textButton={Login.raw("integrations")[2]}
                                 buttonImage="/costumIcons/42icon.svg"
-                                onClick={handleLoginGoogle}
+                                onClick={() => handleLoginOauth("google")}
                                 style={{
                                     display: "flex",
                                     justifyContent: "start",

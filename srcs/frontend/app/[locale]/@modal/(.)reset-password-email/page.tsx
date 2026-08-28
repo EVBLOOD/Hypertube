@@ -20,15 +20,7 @@ export default function ResetPasswordEmail() {
 
     const router = useRouter();
     const emailRef = useRef<HTMLInputElement>(null);
-
     const [width, setWidth] = useState(window.innerWidth);
-
-    useEffect(() => {
-        const handleResize = () => setWidth(window.innerWidth);
-        window.addEventListener("resize", handleResize);
-
-        return () => window.removeEventListener("resize", handleResize);
-    }, []);
 
     async function handelRequestResetPassword() {
         const email = emailRef.current?.value;
@@ -58,6 +50,13 @@ export default function ResetPasswordEmail() {
             }
         }
     }
+
+    useEffect(() => {
+        const handleResize = () => setWidth(window.innerWidth);
+        window.addEventListener("resize", handleResize);
+
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
     return (
         <Modal>
