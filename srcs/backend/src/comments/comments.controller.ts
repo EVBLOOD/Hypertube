@@ -7,11 +7,14 @@ import {
     Body,
     Req,
     Query,
+    ParseIntPipe,
 } from "@nestjs/common";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { CommentsService } from "./comments.service";
 import { PaginationCommentDto } from "./dto/pagination-comments.dto ";
 import { OptionalJwtAuthGuard } from "src/auth/guards/optional-jwt-auth.guard";
+import { CreateCommentDto } from "./dto/create-comment.dto";
+import { InteractionCommentDto } from "./dto/interaction-comment.dto";
 
 @Controller("comments")
 export class CommentsController {
@@ -32,22 +35,22 @@ export class CommentsController {
     @Post(":imdbId")
     async createMovieComment(
         @Param("imdbId") imdbId: string,
-        @Body("content") content: string,
+        @Body() dto: CreateCommentDto,
         @Req() req,
     ) {
-        return this.commentService.create(req.user?.id, imdbId, content);
+        return this.commentService.create(req.user?.id, imdbId, dto.content);
     }
 
     @UseGuards(JwtAuthGuard)
     @Post("interaction/:commentId")
     async addInteraction(
-        @Param("commentId") commentId: number,
-        @Body("interaction") interaction: number,
+        @Param("commentId", ParseIntPipe) commentId: number,
+        @Body() dto: InteractionCommentDto,
         @Req() req,
     ) {
         return this.commentService.addInteraction(
             commentId,
-            interaction,
+            dto.interaction,
             req.user?.id,
         );
     }

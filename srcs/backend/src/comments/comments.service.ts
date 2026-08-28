@@ -1,10 +1,15 @@
-import { Injectable } from "@nestjs/common";
+import {
+    Injectable,
+    NotFoundException,
+    BadRequestException,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Comment } from "./entities/comment.entity";
 import { MoviesService } from "src/movies/movies.service";
 import { PaginationCommentDto } from "./dto/pagination-comments.dto ";
 import { CommentCommentInteraction } from "./entities/user-comment.entity";
+import sanitizeHtml from "sanitize-html";
 
 @Injectable()
 export class CommentsService {
@@ -20,13 +25,23 @@ export class CommentsService {
         if (!movie) {
             movie = await this.movieService.saveMoviebyImdbId(imdbId);
             if (!movie) {
-                throw new Error(
+                throw new NotFoundException(
                     `Movie with IMDb ID ${imdbId} not found and could not be created.`,
                 );
             }
         }
+
+        const sanitizedContent = sanitizeHtml(content || "", {
+            allowedTags: [],
+            allowedAttributes: {},
+        }).trim();
+
+        if (!sanitizedContent) {
+            throw new BadRequestException("Comment cannot be empty");
+        }
+
         const comment = this.commentRepo.create({
-            content,
+            content: sanitizedContent,
             user: { id: userId },
             movie: { id: movie.id },
         });
@@ -45,18 +60,17 @@ export class CommentsService {
         userId: number,
     ) {
         const { page = 1, limit = 20, sort = "createdAt" } = paging;
+        const safeSort =
+            sort === "interactionCount"
+                ? "comment.userReaction"
+                : "comment.createdAt";
 
         const query = this.commentRepo
             .createQueryBuilder("comment")
             .leftJoinAndSelect("comment.user", "user")
             .leftJoin("comment.movie", "movie")
             .where("movie.imdbId = :imdbId", { imdbId })
-            .orderBy(
-                sort === "interactionCount"
-                    ? "comment.userReaction"
-                    : `comment.${sort}`,
-                "DESC",
-            )
+            .orderBy(safeSort, "DESC")
             .skip((page - 1) * limit)
             .take(limit);
 
@@ -93,11 +107,11 @@ export class CommentsService {
         });
 
         if (!comment) {
-            throw new Error(`Comment with ID ${commentId} not found.`);
+            throw new NotFoundException(`Comment with ID ${commentId} not found.`);
         }
         if (interaction !== 1 && interaction !== 2) {
-            throw new Error(
-                `Invalid interaction value: ${interaction}. Must be 1 or 2.`,
+            throw new BadRequestException(
+                `Invalid interaction value: ${interaction}. Must be 1 (like) or 2 (dislike).`,
             );
         }
 

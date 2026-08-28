@@ -101,10 +101,20 @@ export class AuthService {
     }
 
     async verifyEmailChange(token: string, userId: string) {
-        const { token: tokenSaved, email } = JSON.parse(
-            (await this.redisService.get(`emailChangeToken:${userId}`)) || "",
-        );
-        if (!tokenSaved || tokenSaved !== token) {
+        const raw = await this.redisService.get(`emailChangeToken:${userId}`);
+        if (!raw) {
+            throw new BadRequestException("Invalid or expired token");
+        }
+
+        let parsed: { token?: string; email?: string } = {};
+        try {
+            parsed = JSON.parse(raw);
+        } catch {
+            throw new BadRequestException("Invalid or expired token");
+        }
+
+        const { token: tokenSaved, email } = parsed;
+        if (!tokenSaved || tokenSaved !== token || !email) {
             throw new BadRequestException("Invalid or expired token");
         }
 
@@ -114,10 +124,20 @@ export class AuthService {
     }
 
     async passwordChange(token: string, userId: string) {
-        const { token: tokenSaved, password } = JSON.parse(
-            (await this.redisService.get(`passwordChange:${userId}`)) || "",
-        );
-        if (!tokenSaved || tokenSaved !== token) {
+        const raw = await this.redisService.get(`passwordChange:${userId}`);
+        if (!raw) {
+            throw new BadRequestException("Invalid or expired token");
+        }
+
+        let parsed: { token?: string; password?: string } = {};
+        try {
+            parsed = JSON.parse(raw);
+        } catch {
+            throw new BadRequestException("Invalid or expired token");
+        }
+
+        const { token: tokenSaved, password } = parsed;
+        if (!tokenSaved || tokenSaved !== token || !password) {
             throw new BadRequestException("Invalid or expired token");
         }
 

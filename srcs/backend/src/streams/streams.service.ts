@@ -14,7 +14,7 @@ import { createReadStream, mkdirSync, existsSync, statSync } from "fs";
 import { MoviesService } from "src/movies/movies.service";
 import * as path from "path";
 import { PieceManager } from "./helpers/piece-manager";
-import { exec } from "child_process";
+import { execFile } from "child_process";
 
 interface Peer {
     host: string;
@@ -352,9 +352,23 @@ export class StreamsService implements OnModuleInit, OnModuleDestroy {
         quality: string,
     ): Promise<void> {
         return new Promise((resolve, reject) => {
-            const ffmpegCmd = `ffmpeg -i "${inputPath}" -c:v libx264 -preset fast -crf 23 -c:a aac -b:a 128k "${outputPath}"`;
+            const ffmpegArgs = [
+                "-i",
+                inputPath,
+                "-c:v",
+                "libx264",
+                "-preset",
+                "fast",
+                "-crf",
+                "23",
+                "-c:a",
+                "aac",
+                "-b:a",
+                "128k",
+                outputPath,
+            ];
 
-            exec(ffmpegCmd, { timeout: 3600000 }, (err, _) => {
+            execFile("ffmpeg", ffmpegArgs, { timeout: 3600000 }, (err, _) => {
                 if (err) {
                     console.error(
                         `[Conversion Failed] ${imdbId}-${quality}: ${err.message}`,

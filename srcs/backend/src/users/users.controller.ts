@@ -26,7 +26,7 @@ import { WhitelistGuard } from "../auth/guards/whitelist.guard";
 import { UsersService } from "./users.service";
 import { ApiDoc } from "../docs/decorators/api-doc.decorator";
 import { PaginationFindUserDto } from "./dto/find-user.dto";
-import { extname, join, normalize } from "path";
+import { extname, join, basename, resolve } from "path";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage, memoryStorage } from "multer";
 import { createReadStream, existsSync, mkdirSync, writeFileSync } from "fs";
@@ -83,15 +83,15 @@ export class UsersController {
     ) {
         const uploadedFile = file;
         if (!uploadedFile) {
-            throw new Error("No file uploaded");
+            throw new BadRequestException("No file uploaded");
         }
-        const uploadDir = "uploads";
+        const uploadDir = join(process.cwd(), "uploads");
         if (!existsSync(uploadDir)) {
             mkdirSync(uploadDir, { recursive: true });
         }
 
         const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-        const ext = extname(file.originalname);
+        const ext = extname(file.originalname).toLowerCase();
         const filename = `${file.fieldname}-${uniqueSuffix}${ext}`;
         const filePath = join(uploadDir, filename);
 
@@ -107,13 +107,11 @@ export class UsersController {
 
     @Get("avatar/:filename")
     async getAvatar(@Param("filename") filename: string) {
-        const safeFilename = normalize(filename).replace(/^(\.\.[\/\\])+/, "");
-        const filePath = join("uploads", safeFilename);
+        const safeFilename = basename(filename);
+        const uploadDir = resolve(process.cwd(), "uploads");
+        const filePath = resolve(uploadDir, safeFilename);
 
-        if (!filePath.startsWith("uploads")) {
-            throw new BadRequestException("Invalid filename");
-        }
-        if (!existsSync(filePath)) {
+        if (!filePath.startsWith(uploadDir) || !existsSync(filePath)) {
             throw new NotFoundException("Avatar not found");
         }
 
