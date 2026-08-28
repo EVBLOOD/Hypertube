@@ -12,21 +12,7 @@ import ShareTo from "./shareTo";
 import WatchWith from "./watchWith";
 import { useSocket } from "@/app/context/SocketContext";
 import LoadingPage from "./loading";
-
-export interface MovieInfos {
-    id: string;
-    title: string;
-    year: number;
-    rating: number;
-    genres: string[];
-    quality: string;
-    standard_audio_format: string;
-    poster: string;
-    isWatched: boolean;
-    overview?: string;
-    size?: string;
-    time?: number;
-}
+import type { MovieInfos } from "@/types/app";
 
 export default function HeroSectionMovie({
     obj,

@@ -10,7 +10,8 @@ import CommentInput from "@/app/components/ui/commentInput";
 import ViewInteractComment from "@/app/components/ui/viewInteractComment";
 import { useMovieDetails } from "@/lib/dataHooks/moviesDetails";
 import LoadingPage from "@/app/components/layout/loading";
-import { CommentType } from "@/types/apiTypes";
+import type { CommentType } from "@/types/app";
+import type { ApiErrorResponse } from "@/types/app";
 import MovieService from "@/lib/services/MovieService";
 import ErrorPage from "@/app/components/layout/error";
 import { AxiosError } from "axios";
@@ -153,8 +154,7 @@ export default function MoviePage({
     if (!data || error) {
         const errorMessage =
             (
-                (error as AxiosError).response?.data as
-                    { message: string } | { message: string[] }
+                (error as AxiosError).response?.data as ApiErrorResponse
             )?.message?.[0] || "Something went wrong";
         const errorCode = (error as AxiosError)?.response?.status || 404;
 

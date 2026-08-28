@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import styles from "./page.module.css";
 import { useInView } from "react-intersection-observer";
 import React, { useEffect } from "react";
-import { UserSearchType } from "@/types/apiTypes";
+import type { UserSearchType } from "@/types/app";
 import LoadingPage from "@/app/components/layout/loading";
 import { AxiosError } from "axios";
 import ErrorPage from "@/app/components/layout/error";
@@ -14,6 +14,7 @@ import DescriptionComponent from "@/app/components/ui/descriptionComponent";
 import { useUsersList } from "@/lib/dataHooks/UsersList";
 import { useParams } from "next/navigation";
 import UserSearchCard from "@/app/components/ui/userSearchCard";
+import type { ApiErrorResponse } from "@/types/app";
 
 export default function SearchUsers() {
     const Library = useTranslations("Library");
@@ -42,8 +43,7 @@ export default function SearchUsers() {
     if (!data && error) {
         const errorMessage =
             (
-                (error as AxiosError).response?.data as
-                    { message: string } | { message: string[] }
+                (error as AxiosError).response?.data as ApiErrorResponse
             )?.message?.[0] || "Something went wrong";
         const errorCode = (error as AxiosError)?.response?.status || 404;
         return <ErrorPage errorCode={errorCode} errorMessage={errorMessage} />;

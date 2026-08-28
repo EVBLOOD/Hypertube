@@ -1,23 +1,5 @@
 import api from "@/lib/api";
-
-export type DocParamType = string | [field: string, type: string][];
-
-export type DocParams = {
-    name: string;
-    in: "body" | "query" | "param" | "header" | "unknown";
-    type?: DocParamType;
-    required: boolean;
-};
-
-export type Docs = {
-    method: string;
-    path: string;
-    summary?: string;
-    description?: string;
-    params?: DocParams[];
-};
-
-export type ApiDocumentation = Record<string, Docs[]>;
+import type { ApiDocumentation } from "@/types/app";
 
 const DocsService = {
     async getDocumentation() {

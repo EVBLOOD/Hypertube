@@ -3,7 +3,7 @@
 import ButtonCustom from "./buttonCustom";
 import DescriptionComponent from "./descriptionComponent";
 import styles from "./viewInteractComment.module.css";
-import { CommentType } from "@/types/apiTypes";
+import type { CommentType } from "@/types/app";
 import { formatDistance } from "date-fns";
 import MovieService from "@/lib/services/MovieService";
 import { useEffect, useRef, useState } from "react";

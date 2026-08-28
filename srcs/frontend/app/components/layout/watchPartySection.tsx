@@ -8,28 +8,7 @@ import LoadingPage from "@/app/components/layout/loading";
 import { useSocket } from "@/app/context/SocketContext";
 import InputCustom from "../ui/inputCustom";
 import ButtonCustom from "../ui/buttonCustom";
-
-interface WatchPartyProps {
-    movieId: string;
-    roomToken: string | null;
-    movie: {
-        title: string;
-        description: string;
-        poster: string;
-    };
-    qualities?: string[];
-    subtitles?: { lang: string; language: string; urlLink: string }[];
-    handlePlayMovie?: () => void;
-    handlePauseMovie?: () => void;
-    heartbeatInterval: React.Dispatch<React.SetStateAction<number>>;
-    initialTime?: number;
-}
-
-interface Message {
-    content: string;
-    sender: string;
-    // timestamp: string;
-}
+import type { Message, WatchPartyProps } from "@/types/app";
 
 export default function WatchPartySection({
     movieId,
@@ -98,7 +77,7 @@ export default function WatchPartySection({
             setIsRoomJoined(true);
         });
 
-        socket.on("MESSAGE", (message) => {
+        socket.on("MESSAGE", (message: Message) => {
             setMessages((prev) => [
                 ...prev,
                 { content: message.content, sender: t("messages.other") },

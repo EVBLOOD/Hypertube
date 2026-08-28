@@ -7,7 +7,7 @@ import DescriptionComponent from "@/app/components/ui/descriptionComponent";
 import MovieCard from "@/app/components/ui/movieCard";
 import { useTranslations } from "next-intl";
 import React, { useEffect, useState } from "react";
-import { MovieType } from "@/types/apiTypes";
+import type { MovieType } from "@/types/app";
 import { useSuggestionsList } from "@/lib/dataHooks/moviesSuggestionsList";
 import { useInView } from "react-intersection-observer";
 import useDebounce from "@/lib/dataHooks/useDebounce";

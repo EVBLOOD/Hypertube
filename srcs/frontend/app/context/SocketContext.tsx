@@ -1,12 +1,49 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+    createContext,
+    useContext,
+    useEffect,
+    useSyncExternalStore,
+} from "react";
 import { io, Socket } from "socket.io-client";
+import type { SocketContextType } from "@/types/app";
 
-interface SocketContextType {
-    socket: Socket | null;
-    isConnected: boolean;
+let socketInstance: Socket | null = null;
+let currentSnapshot: SocketContextType = { socket: null, isConnected: false };
+const listeners = new Set<() => void>();
+
+const SERVER_SNAPSHOT: SocketContextType = Object.freeze({
+    socket: null,
+    isConnected: false,
+});
+
+function subscribe(callback: () => void) {
+    listeners.add(callback);
+    return () => listeners.delete(callback);
 }
+
+function getSnapshot(): SocketContextType {
+    return currentSnapshot;
+}
+
+function updateSnapshot() {
+    const isConnected = socketInstance?.connected ?? false;
+
+    if (
+        currentSnapshot.socket !== socketInstance ||
+        currentSnapshot.isConnected !== isConnected
+    ) {
+        currentSnapshot = { socket: socketInstance, isConnected };
+    }
+    listeners.forEach((listener) => listener());
+}
+
+const getCookie = (name: string) => {
+    if (typeof document === "undefined") return undefined;
+    const parts = `; ${document.cookie}`.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop()?.split(";").shift();
+};
 
 const SocketContext = createContext<SocketContextType>({
     socket: null,
@@ -14,42 +51,38 @@ const SocketContext = createContext<SocketContextType>({
 });
 
 export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
-    const [socket, setSocket] = useState<Socket | null>(null);
-    const [isConnected, setIsConnected] = useState(false);
-
-    const getCookie = (name: string) => {
-        const parts = `; ${document.cookie}`.split(`; ${name}=`);
-        if (parts && parts.length === 2) return parts.pop()?.split(";").shift();
-    };
-
     useEffect(() => {
         const token = getCookie("AUTH_TOKEN");
-        console.debug("AUTH_TOKEN:", token);
-
         if (!token) return;
 
-        const socketInstance = io(
-            `${process.env.NEXT_PUBLIC_SOCKET_URL}/movie`,
-            {
-                path: "/api/socket.io",
-                extraHeaders: {
-                    authorization: `Bearer ${token}`,
-                },
-            },
-        );
+        socketInstance = io(`${process.env.NEXT_PUBLIC_SOCKET_URL}/movie`, {
+            path: "/api/socket.io",
+            extraHeaders: { authorization: `Bearer ${token}` },
+        });
 
-        socketInstance.on("connect", () => setIsConnected(true));
-        socketInstance.on("disconnect", () => setIsConnected(false));
-
-        setSocket(socketInstance);
+        socketInstance.on("connect", updateSnapshot);
+        socketInstance.on("disconnect", updateSnapshot);
+        updateSnapshot();
 
         return () => {
-            socketInstance.disconnect();
+            if (socketInstance) {
+                socketInstance.off("connect", updateSnapshot);
+                socketInstance.off("disconnect", updateSnapshot);
+                socketInstance.disconnect();
+                socketInstance = null;
+                updateSnapshot();
+            }
         };
     }, []);
 
+    const contextValue = useSyncExternalStore(
+        subscribe,
+        getSnapshot,
+        () => SERVER_SNAPSHOT,
+    );
+
     return (
-        <SocketContext.Provider value={{ socket, isConnected }}>
+        <SocketContext.Provider value={contextValue}>
             {children}
         </SocketContext.Provider>
     );

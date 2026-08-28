@@ -1,5 +1,5 @@
 import api from "@/lib/api";
-import type { Login, Register } from "@/types/apiTypes";
+import type { Login, Register } from "@/types/app";
 
 const authService = {
     async login(loginData: Login) {

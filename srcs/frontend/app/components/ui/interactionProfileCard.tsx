@@ -5,23 +5,17 @@ import DescriptionComponent from "./descriptionComponent";
 import styles from "./interactionProfileCard.module.css";
 import { formatDistance } from "date-fns";
 import Image from "next/image";
+import type { ProfileHistoryItem } from "@/types/app";
 
 export default function InteractionProfileCard({
     movie,
 }: {
-    movie?: {
-        title: string;
-        overview: string;
-        quality: string;
-        action: string;
-        actionDate: Date;
-        poster: string;
-    };
+    movie?: ProfileHistoryItem;
 }) {
     const t = useTranslations("Profile");
     console.debug("movie", movie);
 
-    const getInteractionTime = (actionDate: Date) => {
+    const getInteractionTime = (actionDate: string | Date) => {
         const timeAgo = formatDistance(new Date(actionDate), new Date(), {
             addSuffix: true,
         });

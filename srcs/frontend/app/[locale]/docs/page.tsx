@@ -4,12 +4,12 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
-import ApiCard, { type ApiCardProps } from "./apiCard";
+import ApiCard from "./apiCard";
 import styles from "./page.module.css";
 import DescriptionComponent from "@/app/components/ui/descriptionComponent";
 import TitleCustom from "@/app/components/ui/titleCustom";
-import DocsService, { type ApiDocumentation, type Docs,
-} from "@/lib/services/DocsService";
+import DocsService from "@/lib/services/DocsService";
+import type { ApiCardProps, ApiDocumentation, Docs } from "@/types/app";
 
 const sections = [
     "Getting Started",
@@ -38,9 +38,7 @@ export default function DocsPage() {
     const Docs = useTranslations("docs");
     const [data, setData] = useState<ApiDocumentation | null>(null);
 
-
     useEffect(() => {
-
         const fetchDocs = async () => {
             try {
                 const response = await DocsService.getDocumentation();
@@ -51,18 +49,24 @@ export default function DocsPage() {
         };
 
         fetchDocs();
-
     }, []);
 
     const docs = Object.entries(data ?? {});
 
     return (
         <main className={`container ${styles.docsPage}`}>
-            <div className={styles.sidebar} aria-label="Documentation navigation">
+            <div
+                className={styles.sidebar}
+                aria-label="Documentation navigation"
+            >
                 <p className={styles.sidebarEyebrow}>API REFERENCES</p>
                 <nav className={styles.sidebarNav}>
                     {sections.map((section, index) => (
-                        <Link key={section} href="#" className={`${styles.sidebarLink} ${index === 0 ? styles.sidebarLinkActive : ""}`}>
+                        <Link
+                            key={section}
+                            href="#"
+                            className={`${styles.sidebarLink} ${index === 0 ? styles.sidebarLinkActive : ""}`}
+                        >
                             {section}
                         </Link>
                     ))}
@@ -71,11 +75,15 @@ export default function DocsPage() {
 
             <section className={styles.content}>
                 <TitleCustom title={Docs("title")} />
-                <DescriptionComponent text={Docs("decription")} className={styles.docsDescription} />
+                <DescriptionComponent
+                    text={Docs("decription")}
+                    className={styles.docsDescription}
+                />
 
                 <div className={styles.authentication}>
                     <p className={styles.authenticationDescription}>
-                        To access private endpoints, include the following header in your request:
+                        To access private endpoints, include the following
+                        header in your request:
                     </p>
                     <h4>HEADERS</h4>
                     <pre>
@@ -83,18 +91,26 @@ export default function DocsPage() {
                     </pre>
                 </div>
 
-                {docs && docs.map(([doc, endpoints]) => (
-                    <section className={styles.apiSection} id={doc} key={doc} >
-                        <div className={styles.sectionHeading}>
-                            <h2>{doc.toUpperCase()}</h2>
-                        </div>
-                        <div className={styles.apiCards}>
-                            {endpoints.map((endpoint, i) => (
-                                <ApiCard key={i} {...detailsEndpoint(endpoint, doc)} />
-                            ))}
-                        </div>
-                    </section>
-                ))}
+                {docs &&
+                    docs.map(([doc, endpoints]) => (
+                        <section
+                            className={styles.apiSection}
+                            id={doc}
+                            key={doc}
+                        >
+                            <div className={styles.sectionHeading}>
+                                <h2>{doc.toUpperCase()}</h2>
+                            </div>
+                            <div className={styles.apiCards}>
+                                {endpoints.map((endpoint, i) => (
+                                    <ApiCard
+                                        key={i}
+                                        {...detailsEndpoint(endpoint, doc)}
+                                    />
+                                ))}
+                            </div>
+                        </section>
+                    ))}
             </section>
         </main>
     );

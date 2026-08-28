@@ -1,22 +1,8 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import type { UserStoreState } from "@/types/app";
 
-interface Generalinfos {
-    username: string;
-    language: string;
-    avatar: string;
-    isPublic: boolean;
-}
-
-interface GeneralInfosState {
-    user: Generalinfos | undefined;
-    userLogged: (user: Generalinfos) => void;
-    userAvatarUpdate: (avatar: string) => void;
-    userLanguageUpdate: (language: string) => void;
-    reset: () => void;
-}
-
-export const useUserStore = create<GeneralInfosState>()(
+export const useUserStore = create<UserStoreState>()(
     persist(
         (set) => ({
             user: undefined,

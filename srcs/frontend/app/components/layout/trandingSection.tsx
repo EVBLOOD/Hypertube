@@ -5,17 +5,12 @@ import CardElementHighlight from "../ui/cardElementHighlight";
 import styles from "./trandingSection.module.css";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import type { TrendingMovie } from "@/types/app";
 
 export default function TrandingSection({
     movies,
 }: {
-    movies: {
-        id: number;
-        title: string;
-        poster: string;
-        quality: string;
-        standard_audio_format: string;
-    }[];
+    movies: TrendingMovie[];
 }) {
     const Home = useTranslations("Home");
 

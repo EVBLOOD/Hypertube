@@ -1,28 +1,26 @@
 import api from "@/lib/api";
-
-export type UpdateUserPayload = {
-    firstName?: string;
-    lastName?: string;
-    email?: string;
-    username?: string;
-    preferredLanguage?: "en" | "fr" | "ar";
-    privacy?: "public" | "private";
-};
+import type {
+    AvatarUpdateResponse,
+    ProfileSummary,
+    ProfileUpdateResponse,
+    UpdateUserPayload,
+} from "@/types/app";
 
 const userService = {
     async getProfileSummary() {
-        return (await api.get("/users/me/summary")).data;
+        return (await api.get<ProfileSummary>("/users/me/summary")).data;
     },
 
     async updateMe(payload: UpdateUserPayload) {
-        return (await api.patch("/users/me", payload)).data;
+        return (await api.patch<ProfileUpdateResponse>("/users/me", payload))
+            .data;
     },
     async getUserList({
         pageParam = 1,
         username,
     }: {
         pageParam: number;
-        queryKey: any;
+        queryKey: string[];
         username: string;
     }) {
         return (
@@ -37,7 +35,7 @@ const userService = {
     },
     async UpdateUserAvatar(file: FormData) {
         return (
-            await api.post(`/users/avatar_update`, file, {
+            await api.post<AvatarUpdateResponse>(`/users/avatar_update`, file, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },

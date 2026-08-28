@@ -19,6 +19,13 @@ import { useUserStore } from "@/stores/user";
 import { AxiosError } from "axios";
 import ErrorPage from "@/app/components/layout/error";
 import { useRouter } from "next/navigation";
+import type {
+    ApiErrorResponse,
+    ProfileHistoryItem,
+    ProfileSummaryStats,
+    ProfileSummaryUser,
+    UpdateUserPayload,
+} from "@/types/app";
 
 export default function ProfilePage() {
     const { data, isPending, error } = useProfileSummary();
@@ -27,8 +34,7 @@ export default function ProfilePage() {
     if (!data && error) {
         const errorMessage =
             (
-                (error as AxiosError).response?.data as
-                    { message: string } | { message: string[] }
+                (error as AxiosError).response?.data as ApiErrorResponse
             )?.message?.[0] || "Something went wrong";
         const errorCode = (error as AxiosError)?.response?.status || 404;
         return <ErrorPage errorCode={errorCode} errorMessage={errorMessage} />;
@@ -55,30 +61,9 @@ function ProfileSectionPage({
     stats,
     history,
 }: {
-    userData: {
-        username: string;
-        email: string;
-        firstName: string;
-        lastName: string;
-        preferredLanguage: "en" | "ar" | "fr";
-        privacy: "public" | "private";
-        profilePicture: string;
-    };
-    stats: {
-        watched: number;
-        wishlisted: number;
-        liked: number;
-        disliked: number;
-        totalInteractions: number;
-    };
-    history: {
-        title: string;
-        overview: string;
-        quality: string;
-        action: string;
-        actionDate: Date;
-        poster: string;
-    }[];
+    userData: ProfileSummaryUser;
+    stats: ProfileSummaryStats;
+    history: ProfileHistoryItem[];
 }) {
     const { user, userLogged, userLanguageUpdate } = useUserStore();
     const router = useRouter();
@@ -134,7 +119,7 @@ function ProfileSectionPage({
     const handleSave = async () => {
         if (!userNameRef.current || !userEmailRef.current) return;
 
-        const form = {
+        const form: UpdateUserPayload = {
             username: userNameRef.current?.value,
             email: userEmailRef.current?.value,
             preferredLanguage: userLanguage,
@@ -149,7 +134,7 @@ function ProfileSectionPage({
         const updatedUser = updated?.user;
         const actions = updated?.actions || [];
 
-        actions.forEach((action: string) => {
+        actions.forEach((action) => {
             alert(`Action: ${action}`);
         });
         console.debug("Updated user:", updatedUser);
@@ -287,17 +272,7 @@ function ProfileSectionPage({
                         </div>
                         <div className={styles.interactionsSection}>
                             {history.map(
-                                (
-                                    item: {
-                                        title: string;
-                                        overview: string;
-                                        quality: string;
-                                        action: string;
-                                        actionDate: Date;
-                                        poster: string;
-                                    },
-                                    index: number,
-                                ) => (
+                                (item: ProfileHistoryItem, index: number) => (
                                     <InteractionProfileCard
                                         key={index}
                                         movie={item}

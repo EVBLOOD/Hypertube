@@ -5,7 +5,7 @@ import ButtonCustom from "./buttonCustom";
 import DescriptionComponent from "./descriptionComponent";
 import styles from "./movieCard.module.css";
 import TitleCustom from "./titleCustom";
-import { MovieType } from "@/types/apiTypes";
+import type { MovieType } from "@/types/app";
 import { useRouter } from "next/navigation";
 
 export default function MovieCard({ movie }: { movie: MovieType }) {

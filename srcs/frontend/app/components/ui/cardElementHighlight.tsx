@@ -6,6 +6,7 @@ import styles from "./cardElementHighlight.module.css";
 import DescriptionComponent from "./descriptionComponent";
 import TitleCustom from "./titleCustom";
 import { useRouter } from "next/navigation";
+import type { TrendingMovie } from "@/types/app";
 
 export default function CardElementHighlight({
     movie,
@@ -14,14 +15,7 @@ export default function CardElementHighlight({
     yeIfos = true,
     classNameTitle,
 }: {
-    movie: {
-        id: string;
-        title: string;
-        overview: string;
-        rating: number;
-        time: number;
-        poster: string;
-    };
+    movie: TrendingMovie;
     className?: string;
     yeExtra?: boolean;
     yeIfos?: boolean;
@@ -59,9 +53,13 @@ export default function CardElementHighlight({
             )}
             <div>
                 <TitleCustom className={classNameTitle} title={movie.title} />
-                {yeExtra ? <DescriptionComponent text={movie.overview} /> : ""}
+                {yeExtra ? (
+                    <DescriptionComponent text={movie.overview || ""} />
+                ) : (
+                    ""
+                )}
             </div>
-            {yeExtra && yeIfos ? (
+            {yeExtra && yeIfos && movie.rating !== undefined && movie.time !== undefined ? (
                 <div className={styles.infosCard}>
                     <p>{Home("imdb", { rating: movie.rating })}</p>
                     <p>

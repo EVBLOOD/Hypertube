@@ -5,7 +5,7 @@ import styles from "./page.module.css";
 import { useInView } from "react-intersection-observer";
 import React, { useEffect } from "react";
 import { useTrendings } from "@/lib/dataHooks/trendingList";
-import { MovieType } from "@/types/apiTypes";
+import type { MovieType } from "@/types/app";
 import MovieCard from "@/app/components/ui/movieCard";
 import LoadingPage from "@/app/components/layout/loading";
 import { AxiosError } from "axios";

@@ -2,7 +2,7 @@
 
 import styles from "./userSearch.module.css";
 import TitleCustom from "./titleCustom";
-import { UserSearchType } from "@/types/apiTypes";
+import type { UserSearchType } from "@/types/app";
 import { useRouter } from "next/navigation";
 
 export default function UserSearchCard({

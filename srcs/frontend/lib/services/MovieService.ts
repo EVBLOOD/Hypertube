@@ -1,25 +1,30 @@
 import api from "../api";
-
+import type { MovieFilters } from "@/types/app";
 const movieService = {
     async getLibrary({
         pageParam = 1,
         queryKey,
     }: {
         pageParam: number;
-        queryKey: any;
+        queryKey: (string | MovieFilters)[];
     }) {
         const [_key, _subKey, filters] = queryKey;
         const moviesPromiss = await api.get("/movies", {
             params: {
                 page: pageParam,
                 limit: 20,
-                ...filters,
+                ...(filters as MovieFilters),
             },
         });
 
         return moviesPromiss.data;
     },
-    async getTrending({ pageParam = 1 }: { pageParam: number; queryKey: any }) {
+    async getTrending({
+        pageParam = 1,
+    }: {
+        pageParam: number;
+        queryKey: string[];
+    }) {
         return (
             await api.get("/movies/trending", {
                 params: {
@@ -29,7 +34,12 @@ const movieService = {
             })
         ).data;
     },
-    async getWishlist({ pageParam = 1 }: { pageParam: number; queryKey: any }) {
+    async getWishlist({
+        pageParam = 1,
+    }: {
+        pageParam: number;
+        queryKey: string[];
+    }) {
         return (
             await api.get("/movies/wishlist", {
                 params: {
@@ -43,7 +53,7 @@ const movieService = {
         const moviesPopular = await api.get("/movies/popular_one");
         return moviesPopular;
     },
-    async getMovieDetails({ queryKey }: any) {
+    async getMovieDetails({ queryKey }: { queryKey: string[] }) {
         const [_key, movieId] = queryKey;
         const movieDetails = await api.get(`/movies/${movieId}`);
         return movieDetails;
@@ -56,7 +66,7 @@ const movieService = {
         queryKey,
         interaction,
     }: {
-        queryKey: any;
+        queryKey: string[];
         interaction: number;
     }) {
         const [_key, imdbId] = queryKey;
@@ -67,7 +77,11 @@ const movieService = {
         return await api.post(`/movies/wishlist/${movieId}`);
     },
 
-    async getComments({ queryKey }: any) {
+    async getComments({
+        queryKey,
+    }: {
+        queryKey: [string, string, number, string];
+    }) {
         const [_key, movieId, pageParam, sortParam] = queryKey;
         return await api.get(`/comments/${movieId}`, {
             params: {
