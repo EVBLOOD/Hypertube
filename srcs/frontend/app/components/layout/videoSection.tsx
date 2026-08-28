@@ -2,8 +2,8 @@
 import { useEffect, useRef, useState } from "react";
 import styles from "./videoSection.module.css";
 import ErrorPage from "./error";
-import { AxiosError } from "axios";
 import api from "@/lib/api";
+import { getErrorMessage } from "@/lib/helper";
 
 export default function VideoSection(props: {
     id: string;
@@ -95,11 +95,9 @@ export default function VideoSection(props: {
             );
         } catch (err) {
             const errorMessage =
-                (
-                    (err as AxiosError).response?.data as
-                        { message: string } | { message: string[] }
-                )?.message?.[0] ||
-                "Unable to connect to the video streaming server.";
+                getErrorMessage(err) !== "An listed error occurred."
+                    ? getErrorMessage(err)
+                    : "Unable to connect to the video streaming server.";
 
             setErrorMessage(errorMessage);
         }

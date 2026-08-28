@@ -14,7 +14,7 @@ import LoadingPage from "@/app/components/layout/loading";
 import { AxiosError } from "axios";
 import ErrorPage from "@/app/components/layout/error";
 import { useSocket } from "@/app/context/SocketContext";
-import type { ApiErrorResponse } from "@/types/app";
+import { getErrorMessage } from "@/lib/helper";
 
 export default function WatchPageMoviePage({
     params,
@@ -77,22 +77,14 @@ export default function WatchPageMoviePage({
         return <LoadingPage />;
 
     if (!data || error) {
-        const errorMessage =
-            (
-                (error as AxiosError).response?.data as ApiErrorResponse
-            )?.message?.[0] || "Something went wrong";
+        const errorMessage = getErrorMessage(error);
         const errorCode = (error as AxiosError)?.response?.status || 404;
         return <ErrorPage errorCode={errorCode} errorMessage={errorMessage} />;
     }
 
     if (qualitiesError || subtitlesError) {
-        const errorMessage =
-            (
-                (
-                    (qualitiesError as AxiosError) ||
-                    (subtitlesError as AxiosError)
-                ).response?.data as ApiErrorResponse
-            )?.message?.[0] || "Something went wrong";
+        const errorMessage = getErrorMessage(qualitiesError, subtitlesError);
+
         const errorCode =
             ((qualitiesError as AxiosError) || (subtitlesError as AxiosError))
                 ?.response?.status || 404;

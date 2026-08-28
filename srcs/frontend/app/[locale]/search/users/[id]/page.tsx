@@ -14,7 +14,7 @@ import DescriptionComponent from "@/app/components/ui/descriptionComponent";
 import { useUsersList } from "@/lib/dataHooks/UsersList";
 import { useParams } from "next/navigation";
 import UserSearchCard from "@/app/components/ui/userSearchCard";
-import type { ApiErrorResponse } from "@/types/app";
+import { getErrorMessage } from "@/lib/helper";
 
 export default function SearchUsers() {
     const Library = useTranslations("Library");
@@ -41,10 +41,7 @@ export default function SearchUsers() {
     if (!data && isPending) return <LoadingPage />;
 
     if (!data && error) {
-        const errorMessage =
-            (
-                (error as AxiosError).response?.data as ApiErrorResponse
-            )?.message?.[0] || "Something went wrong";
+        const errorMessage = getErrorMessage(error);
         const errorCode = (error as AxiosError)?.response?.status || 404;
         return <ErrorPage errorCode={errorCode} errorMessage={errorMessage} />;
     }

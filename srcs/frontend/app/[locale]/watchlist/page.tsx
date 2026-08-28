@@ -13,6 +13,7 @@ import ScrollLoading from "@/app/components/ui/scrollLoading";
 import TitleCustom from "@/app/components/ui/titleCustom";
 import DescriptionComponent from "@/app/components/ui/descriptionComponent";
 import { useMoviesWishList } from "@/lib/dataHooks/moviesWishList";
+import { getErrorMessage } from "@/lib/helper";
 
 export default function Trending() {
     const Library = useTranslations("Library");
@@ -36,11 +37,7 @@ export default function Trending() {
 
     if (!data && isPending) return <LoadingPage />;
     if (!data && error) {
-        const errorMessage =
-            (
-                (error as AxiosError).response?.data as
-                    { message: string } | { message: string[] }
-            )?.message?.[0] || "Something went wrong";
+        const errorMessage = getErrorMessage(error);
         const errorCode = (error as AxiosError)?.response?.status || 404;
         return <ErrorPage errorCode={errorCode} errorMessage={errorMessage} />;
     }

@@ -59,7 +59,10 @@ export default function CardElementHighlight({
                     ""
                 )}
             </div>
-            {yeExtra && yeIfos && movie.rating !== undefined && movie.time !== undefined ? (
+            {yeExtra &&
+            yeIfos &&
+            movie.rating !== undefined &&
+            movie.time !== undefined ? (
                 <div className={styles.infosCard}>
                     <p>{Home("imdb", { rating: movie.rating })}</p>
                     <p>

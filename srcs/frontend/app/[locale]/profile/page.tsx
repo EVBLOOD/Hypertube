@@ -20,22 +20,19 @@ import { AxiosError } from "axios";
 import ErrorPage from "@/app/components/layout/error";
 import { useRouter } from "next/navigation";
 import type {
-    ApiErrorResponse,
     ProfileHistoryItem,
     ProfileSummaryStats,
     ProfileSummaryUser,
     UpdateUserPayload,
 } from "@/types/app";
+import { getErrorMessage } from "@/lib/helper";
 
 export default function ProfilePage() {
     const { data, isPending, error } = useProfileSummary();
     console.log("Profile data:", data);
     if (!data && isPending) return <LoadingPage />;
     if (!data && error) {
-        const errorMessage =
-            (
-                (error as AxiosError).response?.data as ApiErrorResponse
-            )?.message?.[0] || "Something went wrong";
+        const errorMessage = getErrorMessage(error);
         const errorCode = (error as AxiosError)?.response?.status || 404;
         return <ErrorPage errorCode={errorCode} errorMessage={errorMessage} />;
     }

@@ -12,8 +12,8 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import AuthService from "@/lib/services/AuthService";
-import { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
+import { getErrorMessage } from "@/lib/helper";
 
 export default function ResetPasswordEmail() {
     const ResetPasswordEmail = useTranslations("ResetPasswordEmail");
@@ -50,14 +50,9 @@ export default function ResetPasswordEmail() {
             }
             router.push("/");
         } catch (err) {
-            const errorMessage = (
-                (err as AxiosError).response?.data as
-                    { message: string } | { message: string[] }
-            )?.message;
-            if (typeof errorMessage === "string") {
+            const errorMessage = getErrorMessage(err);
+            if (errorMessage !== "an listed error occurred.") {
                 alert(errorMessage);
-            } else if (Array.isArray(errorMessage) && errorMessage.length > 0) {
-                alert(errorMessage[0]);
             } else {
                 alert("Email request failed. Please try again.");
             }

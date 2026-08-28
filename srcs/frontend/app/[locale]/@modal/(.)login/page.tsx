@@ -14,9 +14,8 @@ import { useTranslations } from "next-intl";
 import { useRef } from "react";
 import AuthService from "@/lib/services/AuthService";
 import { useUserStore } from "@/stores/user";
-
 import { useRouter } from "next/navigation";
-import { AxiosError } from "axios";
+import { getErrorMessage } from "@/lib/helper";
 
 export default function Login() {
     const Login = useTranslations("Login");
@@ -192,14 +191,9 @@ export default function Login() {
 
             changeLanguage(user.preferredLanguage || "en");
         } catch (err) {
-            const errorMessage = (
-                (err as AxiosError).response?.data as
-                    { message: string } | { message: string[] }
-            )?.message;
-            if (typeof errorMessage === "string") {
+            const errorMessage = getErrorMessage(err);
+            if (errorMessage !== "An listed error occurred.") {
                 alert(errorMessage);
-            } else if (Array.isArray(errorMessage) && errorMessage.length > 0) {
-                alert(errorMessage[0]);
             } else {
                 alert("Login failed. Please check your credentials.");
             }

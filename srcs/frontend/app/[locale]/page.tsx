@@ -11,6 +11,7 @@ import ErrorPage from "../components/layout/error";
 import { AxiosError } from "axios";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
+import { getErrorMessage } from "@/lib/helper";
 
 export default function Home() {
     const searchParams = useSearchParams();
@@ -55,22 +56,11 @@ export default function Home() {
     if (hero_pending || topFour_pending) return <LoadingPage />;
 
     if (hero_error || topFour_error) {
-        const heroAxiosError = (
-            (hero_error as AxiosError).response?.data as
-                { message: string } | { message: string[] }
-        )?.message?.[0];
-        const topFourAxiosError = (
-            (topFour_error as AxiosError).response?.data as
-                { message: string } | { message: string[] }
-        )?.message?.[0];
+        const heroAxiosError = getErrorMessage(hero_error, topFour_error);
 
         return (
             <ErrorPage
-                errorMessage={
-                    heroAxiosError ||
-                    topFourAxiosError ||
-                    "Something went wrong"
-                }
+                errorMessage={heroAxiosError}
                 errorCode={
                     (hero_error as AxiosError)?.response?.status ||
                     (topFour_error as AxiosError)?.response?.status ||

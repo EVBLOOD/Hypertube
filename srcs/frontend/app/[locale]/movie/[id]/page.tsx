@@ -11,11 +11,11 @@ import ViewInteractComment from "@/app/components/ui/viewInteractComment";
 import { useMovieDetails } from "@/lib/dataHooks/moviesDetails";
 import LoadingPage from "@/app/components/layout/loading";
 import type { CommentType } from "@/types/app";
-import type { ApiErrorResponse } from "@/types/app";
 import MovieService from "@/lib/services/MovieService";
 import ErrorPage from "@/app/components/layout/error";
 import { AxiosError } from "axios";
 import { useMovieComments } from "@/lib/dataHooks/moviesComments";
+import { getErrorMessage } from "@/lib/helper";
 
 export default function MoviePage({
     params,
@@ -152,10 +152,7 @@ export default function MoviePage({
 
     if (isPending) return <LoadingPage />;
     if (!data || error) {
-        const errorMessage =
-            (
-                (error as AxiosError).response?.data as ApiErrorResponse
-            )?.message?.[0] || "Something went wrong";
+        const errorMessage = getErrorMessage(error);
         const errorCode = (error as AxiosError)?.response?.status || 404;
 
         return <ErrorPage errorCode={errorCode} errorMessage={errorMessage} />;
@@ -239,12 +236,7 @@ export default function MoviePage({
                 ) : commentsError ? (
                     <ErrorPage
                         errorCode={(commentsError as AxiosError).status}
-                        errorMessage={
-                            (
-                                (commentsError as AxiosError).response?.data as
-                                    { message: string } | { message: string[] }
-                            )?.message?.[0] || "Something went wrong"
-                        }
+                        errorMessage={getErrorMessage(commentsError)}
                     />
                 ) : (
                     <div>

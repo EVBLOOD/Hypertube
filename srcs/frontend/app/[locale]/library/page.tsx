@@ -16,6 +16,7 @@ import ErrorPage from "@/app/components/layout/error";
 import { AxiosError } from "axios";
 import ScrollLoading from "@/app/components/ui/scrollLoading";
 import { useSearchParams } from "next/navigation";
+import { getErrorMessage } from "@/lib/helper";
 
 export default function Library() {
     const Library = useTranslations("Library");
@@ -60,11 +61,7 @@ export default function Library() {
     }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
     if (!data && error) {
-        const errorMessage =
-            (
-                (error as AxiosError).response?.data as
-                    { message: string } | { message: string[] }
-            )?.message?.[0] || "An error occurred while fetching data.";
+        const errorMessage = getErrorMessage(error);
 
         const errorCode = (error as AxiosError)?.response?.status || 404;
         return <ErrorPage errorCode={errorCode} errorMessage={errorMessage} />;
