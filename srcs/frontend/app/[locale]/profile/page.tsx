@@ -18,47 +18,21 @@ import LoadingPage from "@/app/components/layout/loading";
 import { useUserStore } from "@/stores/user";
 import { AxiosError } from "axios";
 import ErrorPage from "@/app/components/layout/error";
+import { useRouter } from "next/navigation";
 
 export default function ProfilePage() {
     const { data, isPending, error } = useProfileSummary();
-    const { user, userLogged, userLanguageUpdate } = useUserStore();
-    const userNameRef = useRef<HTMLInputElement>(null);
-    const userEmailRef = useRef<HTMLInputElement>(null);
-    const userFirstNameRef = useRef<HTMLInputElement>(null);
-    const userLastNameRef = useRef<HTMLInputElement>(null);
-    // const userAvatarRef = useRef<HTMLInputElement>(null);
-    const userPasswordRef = useRef<HTMLInputElement>(null);
-    const [userLanguage, setUserLanguage] = useState<"en" | "ar" | "fr">("en");
-    const [userPrivacy, setUserPrivacy] = useState<"public" | "private">(
-        "public",
-    );
-
-    useEffect(() => {
-        if (!data?.user) return;
-        userNameRef.current!.value = data.user.username || "";
-        userEmailRef.current!.value = data.user.email || "";
-        userFirstNameRef.current!.value = data.user.firstName || "";
-        userLastNameRef.current!.value = data.user.lastName || "";
-        setUserLanguage(data.user.preferredLanguage || "en");
-        setUserPrivacy(data.user.privacy || "public");
-
-        userLogged({
-            username: data.user.username,
-            language: data.user.preferredLanguage || "en",
-            avatar: data.user.profilePicture || "/hero.png",
-            isPublic: data.user.privacy === "public",
-        });
-    }, [data, userLogged]);
-
+    console.log("Profile data:", data);
     if (!data && isPending) return <LoadingPage />;
     if (!data && error) {
-        const axiosErr = error as AxiosError<any>;
         const errorMessage =
-            axiosErr.response?.data?.message || "Something went wrong";
-        const errorCode = axiosErr?.response?.status || 404;
+            (
+                (error as AxiosError).response?.data as
+                    { message: string } | { message: string[] }
+            )?.message?.[0] || "Something went wrong";
+        const errorCode = (error as AxiosError)?.response?.status || 404;
         return <ErrorPage errorCode={errorCode} errorMessage={errorMessage} />;
     }
-
     const stats = data?.stats || {
         watched: 0,
         wishlisted: 0,
@@ -67,9 +41,99 @@ export default function ProfilePage() {
         totalInteractions: 0,
     };
     const history = data?.history?.data || [];
+    return (
+        <ProfileSectionPage
+            userData={data?.user}
+            stats={stats}
+            history={history}
+        />
+    );
+}
+
+function ProfileSectionPage({
+    userData,
+    stats,
+    history,
+}: {
+    userData: {
+        username: string;
+        email: string;
+        firstName: string;
+        lastName: string;
+        preferredLanguage: "en" | "ar" | "fr";
+        privacy: "public" | "private";
+        profilePicture: string;
+    };
+    stats: {
+        watched: number;
+        wishlisted: number;
+        liked: number;
+        disliked: number;
+        totalInteractions: number;
+    };
+    history: {
+        title: string;
+        overview: string;
+        quality: string;
+        action: string;
+        actionDate: Date;
+        poster: string;
+    }[];
+}) {
+    const { user, userLogged, userLanguageUpdate } = useUserStore();
+    const router = useRouter();
+
+    const userNameRef = useRef<HTMLInputElement>(null);
+    const userEmailRef = useRef<HTMLInputElement>(null);
+    const userFirstNameRef = useRef<HTMLInputElement>(null);
+    const userLastNameRef = useRef<HTMLInputElement>(null);
+    const userPasswordRef = useRef<HTMLInputElement>(null);
+    const [userLanguage, setUserLanguage] = useState<"en" | "ar" | "fr">(
+        userData?.preferredLanguage || "en",
+    );
+    const [userPrivacy, setUserPrivacy] = useState<"public" | "private">(
+        userData?.privacy || "public",
+    );
+    const [profilePicture, setProfilePicture] = useState<string>(
+        userData?.profilePicture || "/hero.png",
+    );
+
+    const ifSavedInServer = (path: string) => {
+        if (path) {
+            return path.includes("/")
+                ? path
+                : process.env.NEXT_PUBLIC_BACK_API_URL +
+                      `/users/avatar/${path}`;
+        }
+        return "/hero.png";
+    };
+    const changeLanguage = (lang: string) => {
+        document.cookie = `NEXT_LOCALE=${lang}; path=/; max-age=31536000`;
+        router.push(`/${lang}`);
+    };
+
+    useEffect(() => {
+        if (!userData) return;
+        if (userNameRef.current)
+            userNameRef.current!.value = userData.username || "";
+        if (userEmailRef.current)
+            userEmailRef.current!.value = userData.email || "";
+        if (userFirstNameRef.current)
+            userFirstNameRef.current!.value = userData.firstName || "";
+        if (userLastNameRef.current)
+            userLastNameRef.current!.value = userData.lastName || "";
+
+        // userLogged({
+        //     username: data.user.username,
+        //     language: data.user.preferredLanguage || "en",
+        //     avatar: data.user.profilePicture || "/hero.png",
+        //     isPublic: data.user.privacy === "public",
+        // });
+    }, [userData, userLogged]);
 
     const handleSave = async () => {
         if (!userNameRef.current || !userEmailRef.current) return;
+
         const form = {
             username: userNameRef.current?.value,
             email: userEmailRef.current?.value,
@@ -80,6 +144,7 @@ export default function ProfilePage() {
             password: userPasswordRef.current?.value,
             profilePicture: user?.avatar || null,
         };
+
         const updated = await UserService.updateMe(form);
         const updatedUser = updated?.user;
         const actions = updated?.actions || [];
@@ -87,8 +152,31 @@ export default function ProfilePage() {
         actions.forEach((action: string) => {
             alert(`Action: ${action}`);
         });
+        console.debug("Updated user:", updatedUser);
         if (updatedUser?.preferredLanguage) {
             userLanguageUpdate(updatedUser.preferredLanguage);
+            changeLanguage(updatedUser.preferredLanguage);
+        }
+    };
+
+    const handleFileChange = async (
+        event: React.ChangeEvent<HTMLInputElement>,
+    ) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+            const updated = await UserService.UpdateUserAvatar(formData);
+            console.debug("Updated avatar:", updated);
+            setProfilePicture(updated.filename);
+            if (!updated) return;
+
+            // userLogged({ ...user, avatar: img });
+        } catch (error) {
+            console.debug("Error updating profile picture:", error);
         }
     };
 
@@ -116,13 +204,21 @@ export default function ProfilePage() {
                         </div>
                         <div className={styles.personalInfosField}>
                             <div className={styles.profilePicture}>
-                                <img
-                                    className={styles.avatarProfile}
-                                    src={user?.avatar || "/hero.png"}
-                                    alt=""
-                                    width="128px"
-                                    height="128px"
+                                <input
+                                    hidden
+                                    id="fileInput"
+                                    type="file"
+                                    accept="image/jpeg, image/png"
+                                    className={styles.fileInput}
+                                    onChange={handleFileChange}
                                 />
+                                <label
+                                    htmlFor="fileInput"
+                                    className={styles.avatarProfile}
+                                    style={{
+                                        backgroundImage: `url(${ifSavedInServer(profilePicture)})`,
+                                    }}
+                                ></label>
                             </div>
                             <div className={styles.inputsholder}>
                                 <InputCustom
@@ -190,12 +286,24 @@ export default function ProfilePage() {
                             </Link>
                         </div>
                         <div className={styles.interactionsSection}>
-                            {history.map((item: any, index: number) => (
-                                <InteractionProfileCard
-                                    key={index}
-                                    movie={item}
-                                />
-                            ))}
+                            {history.map(
+                                (
+                                    item: {
+                                        title: string;
+                                        overview: string;
+                                        quality: string;
+                                        action: string;
+                                        actionDate: Date;
+                                        poster: string;
+                                    },
+                                    index: number,
+                                ) => (
+                                    <InteractionProfileCard
+                                        key={index}
+                                        movie={item}
+                                    />
+                                ),
+                            )}
                         </div>
                     </div>
                     <div></div>

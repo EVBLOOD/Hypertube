@@ -50,9 +50,10 @@ export default function ResetPasswordEmail() {
             }
             router.push("/");
         } catch (err) {
-            console.log((err as AxiosError).response?.data);
-            const errorMessage = ((err as AxiosError).response?.data as any)
-                .message;
+            const errorMessage = (
+                (err as AxiosError).response?.data as
+                    { message: string } | { message: string[] }
+            )?.message;
             if (typeof errorMessage === "string") {
                 alert(errorMessage);
             } else if (Array.isArray(errorMessage) && errorMessage.length > 0) {

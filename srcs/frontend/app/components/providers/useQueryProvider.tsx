@@ -6,6 +6,7 @@ import {
     QueryClient,
     QueryClientProvider,
 } from "@tanstack/react-query";
+import axios from "axios";
 import { useRouter } from "next/navigation";
 import { ReactNode, useState } from "react";
 
@@ -20,30 +21,39 @@ export default function UseQueryProvider({
         () =>
             new QueryClient({
                 queryCache: new QueryCache({
-                    onError: (error: any) => {
-                        console.log("Query error:", error);
-                        const status = error?.response?.status;
-                        if (status === 401) {
-                            router.push("/login");
+                    onError: (error: Error) => {
+                        console.debug("Query error:", error);
+                        if (axios.isAxiosError(error)) {
+                            const status = error.response?.status;
+                            if (status === 401) {
+                                router.push("/login");
+                            }
                         }
                     },
                 }),
 
                 mutationCache: new MutationCache({
-                    onError: (error: any) => {
-                        console.log("Mutation error:", error);
-                        const status = error?.response?.status;
-                        if (status === 401) {
-                            router.push("/login");
+                    onError: (error: Error) => {
+                        console.debug("Mutation error:", error);
+                        if (axios.isAxiosError(error)) {
+                            const status = error.response?.status;
+                            if (status === 401) {
+                                router.push("/login");
+                            }
                         }
                     },
                 }),
 
                 defaultOptions: {
                     queries: {
-                        retry: (failureCount, error: any) => {
-                            console.log("Query error:", error);
-                            if (error?.response?.status === 401) return false;
+                        retry: (failureCount, error: Error) => {
+                            console.debug("Query error:", error);
+                            if (axios.isAxiosError(error)) {
+                                const status = error.response?.status;
+                                if (status === 401) {
+                                    return false;
+                                }
+                            }
                             return failureCount < 3;
                         },
                     },

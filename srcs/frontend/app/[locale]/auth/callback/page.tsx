@@ -25,7 +25,7 @@ export default function AuthCallbackPage() {
                             isPublic: user.isPublic,
                         });
                     } catch (err) {
-                        console.log(err);
+                        console.debug(err);
                     }
                 }
 
@@ -36,7 +36,7 @@ export default function AuthCallbackPage() {
                     );
                 }
             } catch (error) {
-                console.error("Error during auth callback:", error);
+                console.debug("Error during auth callback:", error);
             } finally {
                 window.close();
             }

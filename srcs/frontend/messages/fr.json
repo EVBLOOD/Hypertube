@@ -1,19 +1,23 @@
 {
     "Library": {
         "name": "Bibliothèque",
-        "filter_title": "FILTRES D'ARCHIVE",
+        "filter_title": "FILTRES ARCHIVES",
         "filter_genre": "GENRE",
-        "filter_allgenre": "TOUS LES GENRES",
+        "filter_allgenre": "TOUT GENRES",
         "filter_production_year": "ANNÉE DE PRODUCTION",
         "filter_rating": "NOTE MINIMALE (IMDb)",
         "filter_sortby": "TRIER PAR",
-        "filter_sort_views_count": "SOURCES/PAIRS (SEEDS)",
         "filter_sort_add_date": "DATE D'AJOUT",
         "filter_sort_alphabit": "ALPHABÉTIQUE",
-        "title": "LE BACKLOT",
-        "sub_title": "ACTIFS INDEXÉS // RÉPERTOIRE GLOBAL",
+        "title": "THE BACKLOT",
+        "sub_title": "ACTIFS INDEXÉS // DÉPÔT MONDIAL",
         "resolution": "RÉSOLUTION",
-        "seen": "VU"
+        "seen": "VU",
+        "continue": "Continuer",
+        "filter_search": "RECHERCHER",
+        "filter_search_placeholder": "RECHERCHER UN FILM...",
+        "filter_sort_popularity": "POPULARITÉ",
+        "filter_sort_rating": "NOTE"
     },
     "Genres": {
         "action": "Action",
@@ -21,19 +25,19 @@
         "animation": "Animation",
         "biography": "Biographie",
         "comedy": "Comédie",
-        "crime": "Crime",
+        "crime": "Policier",
         "documentary": "Documentaire",
         "drama": "Drame",
         "family": "Famille",
-        "fantasy": "Fantaisie",
-        "film-noir": "Film Noir",
+        "fantasy": "Fantastique",
+        "film-noir": "Film noir",
         "history": "Histoire",
         "horror": "Horreur",
         "music": "Musique",
-        "musical": "Comédie Musicale",
+        "musical": "Comédie musicale",
         "mystery": "Mystère",
         "romance": "Romance",
-        "sci-fi": "Science-Fiction",
+        "sci-fi": "Science-fiction",
         "sport": "Sport",
         "thriller": "Thriller",
         "war": "Guerre",
@@ -42,83 +46,206 @@
     "Home": {
         "name": "Accueil",
         "rec": "CLAPPER_OPEN",
-        "hero_discription": "Accédez au coffre-fort technique peer-to-peer le plus sécurisé pour les chefs-d'œuvre cinématographiques. Images non compressées. Métadonnées professionnelles. L'intention du réalisateur, préservée.",
-        "watch_now": "REGARDER MAINTENANT",
-        "view_more": "VOIR DÉTAILS",
+        "hero_discription": "Accédez au coffre technique pair-à-pair le plus sécurisé dédié aux chefs-d'œuvre du cinéma. Images non compressées. Métadonnées professionnelles. L'intention du réalisateur, préservée.",
+        "watch_now": "REGARDER",
+        "view_more": "VOIR LES DÉTAILS",
         "resolution": "RÉSOLUTION",
         "codec": "CODEC",
         "bitrate": "DÉBIT",
         "tranding": "Tendances",
-        "selection": "Sélection Technique Commissariée",
+        "selection": "Sélection Technique",
         "see_all": "VOIR TOUTES LES ENTRÉES",
         "minutes": "MIN",
-        "volt_type": "COFFRE PREMIUM"
+        "volt_type": "COFFRE PREMIUM",
+        "imdb": "IMDb {rating}"
     },
     "Login": {
-        "title": "PRÊT POUR LE STREAMING ?",
-        "description": "Accédez au coffre-fort le plus complet au monde pour le contenu cinématographique haute définition. Un clic pour l'action.",
+        "title": "PRÊT À REGARDER?",
+        "description": "Accédez au coffre de contenus cinématographiques haute définition le plus complet au monde. Une seule action suffit.",
         "scenes": [
             {
                 "number": "SCÈNE : 01",
-                "name": "AUTH_GLOBALE"
+                "name": "AUTHENTIFICATION_GLOBALE"
             },
             {
                 "number": "PRISE : 04",
-                "name": "COEUR_TORRENT"
+                "name": "NOYAU_TORRENT"
             }
         ],
-        "integration": "Intégration avec fournisseurs sécurisés",
+        "integration": "Intégrer avec des fournisseurs sécurisés",
         "integrations": [
             "CONTINUER AVEC 42 NETWORK",
-            "CONTINUER AVEC 42 NETWORK"
+            "CONTINUER AVEC GITHUB",
+            "CONTINUER AVEC GOOGLE"
         ],
         "second_title": "IDENTIFICATION",
-        "second_discreption": "Veuillez fournir vos identifiants pour entrer dans le coffre.",
-        "label_address": "ADRESSE_EMAIL",
+        "second_discreption": "Veuillez fournir vos identifiants pour accéder au coffre.",
+        "label_address": "ADRESSE E-MAIL",
         "holder_address": "USER@DOMAIN.COM",
-        "label_pass": "CODE_ACCÈS",
-        "forgot_pass": "Récupérer_Clé_Perdue",
+        "label_pass": "CODE D'ACCÈS",
+        "forgot_pass": "Récupérer_la_clé_perdue",
         "no_account": "PAS ENCORE DE CLÉ ?",
         "create_account": "S'INSCRIRE_ICI"
     },
     "Register": {
-        "title": "SCÈNE 02 : INTÉGRATION - CRÉER COMPTE",
+        "title": "SCÈNE 02 : INTÉGRATION - CRÉER UN COMPTE",
         "scenes": [
             {
                 "number": "SCÈNE : 01",
-                "name": "AUTH_GLOBALE"
+                "name": "AUTHENTIFICATION_GLOBALE"
             },
             {
                 "number": "PRISE : 04",
-                "name": "COEUR_TORRENT"
+                "name": "NOYAU_TORRENT"
             }
         ],
-        "description": "Accédez au coffre-fort le plus complet au monde pour le contenu cinématographique haute définition. Créez un compte pour lancer l'action.",
+        "description": "Accédez au coffre de contenus cinématographiques haute définition le plus complet au monde. Créez un compte pour entrer en action.",
         "label_first_name": "Prénom",
-        "holder_first_name": "PRÉNOM_USUEL",
+        "holder_first_name": "PRÉNOM",
         "label_last_name": "Nom",
-        "holder_last_name": "NOM_FAMILLE",
+        "holder_last_name": "NOM",
         "label_user_name": "Nom d'utilisateur",
         "holder_user_name": "NOM_UNIQUE",
-        "label_address": "ADRESSE_EMAIL",
+        "label_address": "ADRESSE E-MAIL",
         "holder_address": "USER@DOMAIN.COM",
-        "label_pass": "CODE_ACCÈS",
+        "label_pass": "CODE D'ACCÈS",
+        "ye_account": "DÉJÀ INSCRIT ?",
+        "access_account": "ACCÉDER AU COFFRE"
+    },
+    "ResetPasswordEmail": {
+        "title": "SCÈNE 03 : PREMIER MONTAGE - RÉINITIALISER LE MOT DE PASSE",
+        "description": "Accédez au coffre de contenus cinématographiques haute définition le plus complet au monde. Créez un compte pour entrer en action.",
+        "label_address": "ADRESSE E-MAIL",
+        "holder_address": "USER@DOMAIN.COM",
+        "label_pass": "CODE D'ACCÈS",
+        "ye_account": "DÉJÀ INSCRIT ?",
+        "access_account": "ACCÉDER AU COFFRE"
+    },
+    "ResetPassword": {
+        "title": "SCÈNE 02 : INTÉGRATION - CRÉER UN COMPTE",
+        "description": "Accédez au coffre de contenus cinématographiques haute définition le plus complet au monde. Créez un compte pour entrer en action.",
+        "label_pass": "CODE D'ACCÈS",
         "ye_account": "DÉJÀ INSCRIT ?",
         "access_account": "ACCÉDER AU COFFRE"
     },
     "Header": {
-        "library": "Bibliothèque",
-        "trending": "Tendances",
-        "watchlist": "Ma Liste",
-        "my_vault": "Mon Coffre",
-        "sign_in": "CONNEXION",
-        "sign_out": "DÉCONNEXION"
+        "navigation": {
+            "library": "Bibliothèque",
+            "trending": "Tendances",
+            "watchlist": "Liste de suivi",
+            "myVault": "Mon coffre"
+        },
+        "actions": {
+            "search": "Rechercher",
+            "signIn": "CONNECTE",
+            "signOut": "DECONNECTE"
+        }
     },
-
+    "Footer": {
+        "brand": "HYPERTUBE",
+        "rights": "© 2026 HYPERTUBE FILM VAULT. TOUS DROITS RÉSERVÉS.",
+        "links": {
+            "technicalSpecs": "Spécifications techniques",
+            "privacyProtocol": "Protocole de confidentialité",
+            "apiDocumentation": "Documentation API"
+        }
+    },
+    "Common": {
+        "status": {
+            "loading": "CHARGEMENT DES DONNÉES...",
+            "loadingNextPage": "CHARGEMENT DE LA PAGE SUIVANTE...",
+            "connected": "Connecté à la salle",
+            "connecting": "Connexion..."
+        },
+        "actions": {
+            "submit": "Valider",
+            "close": "Fermer",
+            "send": "Envoyer",
+            "cancel": "Annuler"
+        }
+    },
+    "Error": {
+        "recordLabel": "Code d'erreur détecté",
+        "description": "La page que vous recherchez n'a pas encore été enregistrée. Revenez ultérieurement.",
+        "authorizeSession": "AUTORISER LA SESSION",
+        "backToHome": "RETOUR À L'ACCUEIL",
+        "reportIssue": "SIGNALER UN PROBLÈME"
+    },
+    "MovieDetail": {
+        "waitingForFriends": "En attente de l'arrivée de vos amis...",
+        "defaultRuntime": "2 H 14 MIN",
+        "defaultSize": "12,4 Go",
+        "watchNow": "REGARDER",
+        "watchLater": "REGARDER PLUS TARD",
+        "liveInvite": "INVITATION EN DIRECT"
+    },
+    "WatchParty": {
+        "status": {
+            "label": "Statut",
+            "connected": "Connecté à la salle",
+            "connecting": "Connexion..."
+        },
+        "messages": {
+            "self": "Vous",
+            "other": "Autre"
+        },
+        "chat": {
+            "placeholder": "Écrire un message...",
+            "send": "Envoyer le message"
+        }
+    },
+    "WatchWith": {
+        "title": "Regarder {title} avec vos amis !",
+        "imageAlt": "Regarder avec des amis",
+        "input": {
+            "label": "Nom d'utilisateur ou e-mail",
+            "placeholder": "Nom d'utilisateur ou e-mail"
+        },
+        "button": {
+            "sendInvite": "Envoyer l'invitation"
+        },
+        "validation": {
+            "emptyInput": "Le champ est vide."
+        },
+        "success": {
+            "sent": "Invitation envoyée avec succès."
+        },
+        "error": {
+            "sendFailed": "Erreur lors de l'envoi de l'invitation."
+        }
+    },
+    "Share": {
+        "title": "Partager {title} avec vos amis !",
+        "platforms": {
+            "facebook": "Partager sur Facebook",
+            "x": "Partager sur X",
+            "reddit": "Partager sur Reddit",
+            "email": "Partager par e-mail"
+        }
+    },
+    "Auth": {
+        "waiting": "En attente de l'authentification..."
+    },
+    "Language": {
+        "ariaLabel": "Sélecteur de langue"
+    },
+    "Profile": {
+        "stats": {
+            "approvedTitles": "Titres approuvés",
+            "accumulatedExposure": "Exposition cumulée",
+            "hours": "Heures",
+            "exposureDescription": "Votre consommation de métadonnées sur le réseau HyperTube dépasse celle de 84 % des réalisateurs actifs dans ce secteur.",
+            "unknownTime": "Durée inconnue",
+            "moviePoster": "Affiche du film",
+            "interactionIcon": "Icône d'interaction",
+            "unknownTitle": "Titre inconnu",
+            "unknownOverview": "Synopsis inconnu"
+        }
+    },
     "Watch": {
         "start_button": "Démarrer WatchTogether",
         "invite_copied": "Lien d'invitation copié dans le presse-papiers.",
-        "create_error": "Échec de la création de la salle.",
+        "create_error": "Impossible de créer la salle.",
         "chat_send": "Envoyer",
         "chat_placeholder": "Écrire un message..."
     },
@@ -126,6 +253,7 @@
         "placeholder": "ÉCRIRE UNE TRANSMISSION...",
         "post_button": "PUBLIER LE COMMENTAIRE",
         "hours_ago_2": "IL Y A 2 HEURES",
-        "reply": "répondre"
+        "reply": "répondre",
+        "avatarAlt": "Avatar"
     }
 }

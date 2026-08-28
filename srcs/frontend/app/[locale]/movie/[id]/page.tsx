@@ -1,7 +1,7 @@
 "use client";
 
 import HeroSectionMovie from "@/app/components/layout/heroSectionMovie";
-import { use, useEffect, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import styles from "./page.module.css";
 import TitleCustom from "@/app/components/ui/titleCustom";
 import DescriptionComponent from "@/app/components/ui/descriptionComponent";
@@ -14,6 +14,7 @@ import { CommentType } from "@/types/apiTypes";
 import MovieService from "@/lib/services/MovieService";
 import ErrorPage from "@/app/components/layout/error";
 import { AxiosError } from "axios";
+import { useMovieComments } from "@/lib/dataHooks/moviesComments";
 
 export default function MoviePage({
     params,
@@ -23,9 +24,18 @@ export default function MoviePage({
     const resolvedParams = use(params);
     const id = resolvedParams.id;
     const { data, isPending, error } = useMovieDetails(id);
+    const [commentSort, setCommentSort] = useState<string>("createdAt");
+    const {
+        data: commentsData,
+        isPending: commentsPending,
+        error: commentsError,
+    } = useMovieComments(id, 1, commentSort);
     const [comments, setComments] = useState<CommentType[]>([]);
     const [wishlisted, setWishlisted] = useState(false);
     const [reaction, setReaction] = useState<number>(0);
+
+    const createCommentRef = useRef<HTMLDivElement>(null);
+    const interactionCountRef = useRef<HTMLDivElement>(null);
 
     const sendComment = async (content: string) => {
         try {
@@ -38,40 +48,7 @@ export default function MoviePage({
             });
             return created;
         } catch (err) {
-            console.error(err);
-        }
-    };
-
-    const handleLike = async () => {
-        try {
-            await MovieService.setInteraction({
-                queryKey: ["movie", id],
-                interaction: 1,
-            });
-            setReaction(1);
-        } catch (err) {
-            console.error(err);
-        }
-    };
-
-    const handleDislike = async () => {
-        try {
-            await MovieService.setInteraction({
-                queryKey: ["movie", id],
-                interaction: 2,
-            });
-            setReaction(2);
-        } catch (err) {
-            console.error(err);
-        }
-    };
-
-    const handleWishlist = async () => {
-        try {
-            await MovieService.toggleWishlist(id);
-            setWishlisted((value) => !value);
-        } catch (err) {
-            console.error(err);
+            console.debug(err);
         }
     };
 
@@ -95,17 +72,68 @@ export default function MoviePage({
                 return [created, ...current];
             });
         } catch (err) {
-            console.error(err);
+            console.debug(err);
+        }
+    };
+
+    const handleLike = async () => {
+        try {
+            await MovieService.setInteraction({
+                queryKey: ["movie", id],
+                interaction: 1,
+            });
+            setReaction(1);
+        } catch (err) {
+            console.debug(err);
+        }
+    };
+
+    const handleDislike = async () => {
+        try {
+            await MovieService.setInteraction({
+                queryKey: ["movie", id],
+                interaction: 2,
+            });
+            setReaction(2);
+        } catch (err) {
+            console.debug(err);
+        }
+    };
+
+    const handleWishlist = async () => {
+        try {
+            await MovieService.toggleWishlist(id);
+            setWishlisted((value) => !value);
+        } catch (err) {
+            console.debug(err);
+        }
+    };
+
+    const handleSort = (sort: string) => {
+        if (sort === commentSort) return;
+        if (sort !== "createdAt" && sort !== "interactionCount") return;
+        setCommentSort(sort);
+        createCommentRef.current?.classList.remove(
+            styles.commentSelectedFilter,
+        );
+        interactionCountRef.current?.classList.remove(
+            styles.commentSelectedFilter,
+        );
+        if (sort === "createdAt") {
+            createCommentRef.current?.classList.add(
+                styles.commentSelectedFilter,
+            );
+        } else {
+            interactionCountRef.current?.classList.add(
+                styles.commentSelectedFilter,
+            );
         }
     };
 
     useEffect(() => {
         const load = async () => {
             try {
-                const commentsResponse = await MovieService.getComments({
-                    queryKey: ["comments", id],
-                });
-                setComments(commentsResponse || []);
+                setComments(commentsData?.data || []);
 
                 if (data && data.data.personnel) {
                     setWishlisted(data.data.personnel.isWishlisted);
@@ -114,23 +142,24 @@ export default function MoviePage({
                     else setReaction(0);
                 }
             } catch (err) {
-                console.error(err);
+                console.debug(err);
             }
         };
 
         void load();
-    }, [id, data]);
+    }, [id, data, commentsData]);
 
-    if (isPending) return <LoadingPage></LoadingPage>;
+    if (isPending) return <LoadingPage />;
     if (!data || error) {
-        const axiosErr = error as AxiosError<any>;
         const errorMessage =
-            axiosErr.response?.data?.message || "Something went wrong";
-        const errorCode = axiosErr?.response?.status || 404;
+            (
+                (error as AxiosError).response?.data as
+                    { message: string } | { message: string[] }
+            )?.message?.[0] || "Something went wrong";
+        const errorCode = (error as AxiosError)?.response?.status || 404;
+
         return <ErrorPage errorCode={errorCode} errorMessage={errorMessage} />;
     }
-
-    console.log(data);
 
     return (
         <div>
@@ -159,14 +188,19 @@ export default function MoviePage({
                             name={data.data.director}
                             role="Director"
                         />
-                        {data.data.actors.map((act: any, index: number) => (
-                            <ProdictionAuthorCard
-                                key={index}
-                                name={act.name}
-                                role="Actor"
-                                overview={act.character}
-                            />
-                        ))}
+                        {data.data.actors.map(
+                            (
+                                act: { name: string; character: string },
+                                index: number,
+                            ) => (
+                                <ProdictionAuthorCard
+                                    key={index}
+                                    name={act.name}
+                                    role="Actor"
+                                    overview={act.character}
+                                />
+                            ),
+                        )}
                     </div>
                 </div>
             </div>
@@ -177,25 +211,54 @@ export default function MoviePage({
                     nb_color={-1}
                 />
                 <div className={styles.commentInfos}>
-                    <DescriptionComponent text="284 COMMENTS IN THREAD" />
+                    <DescriptionComponent
+                        text={`${comments ? comments.length : 0} COMMENT${comments && comments.length !== 1 ? "S" : ""} IN THREAD`}
+                    />
                     <div className={styles.commentInfosFilter}>
-                        <span className={styles.commentSelectedFilter}>
+                        <span
+                            onClick={() => {
+                                handleSort("createdAt");
+                            }}
+                            ref={createCommentRef}
+                            className={styles.commentSelectedFilter}
+                        >
                             LATEST
                         </span>
-                        <span>TOP RATED</span>
+                        <span
+                            onClick={() => {
+                                handleSort("interactionCount");
+                            }}
+                            ref={interactionCountRef}
+                        >
+                            TOP RATED
+                        </span>
                     </div>
-                </div>
-                <div>
-                    <CommentInput onSubmit={handleSubmitComment} />
-                    <div className={styles.viewCommentSection}>
-                        {comments.map((comment) => (
-                            <ViewInteractComment
-                                key={comment.id}
-                                comment={comment}
-                            />
-                        ))}
+                </div>{" "}
+                {commentsPending ? (
+                    <LoadingPage></LoadingPage>
+                ) : commentsError ? (
+                    <ErrorPage
+                        errorCode={(commentsError as AxiosError).status}
+                        errorMessage={
+                            (
+                                (commentsError as AxiosError).response?.data as
+                                    { message: string } | { message: string[] }
+                            )?.message?.[0] || "Something went wrong"
+                        }
+                    />
+                ) : (
+                    <div>
+                        <CommentInput onSubmit={handleSubmitComment} />
+                        <div className={styles.viewCommentSection}>
+                            {comments.map((comment) => (
+                                <ViewInteractComment
+                                    key={comment.id}
+                                    comment={comment}
+                                />
+                            ))}
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
         </div>
     );

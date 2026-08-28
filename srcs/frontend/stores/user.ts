@@ -20,7 +20,7 @@ export const useUserStore = create<GeneralInfosState>()(
     persist(
         (set) => ({
             user: undefined,
-            userLogged: (user) => set((state) => ({ user: user })),
+            userLogged: (user) => set(() => ({ user: user })),
             userAvatarUpdate: (avatar) =>
                 set((state) => ({
                     user: state.user

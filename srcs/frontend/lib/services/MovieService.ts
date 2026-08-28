@@ -1,6 +1,6 @@
 import api from "../api";
 
-export default {
+const movieService = {
     async getLibrary({
         pageParam = 1,
         queryKey,
@@ -68,11 +68,41 @@ export default {
     },
 
     async getComments({ queryKey }: any) {
-        const [_key, movieId] = queryKey;
-        return (await api.get(`/comments/${movieId}`)).data;
+        const [_key, movieId, pageParam, sortParam] = queryKey;
+        return await api.get(`/comments/${movieId}`, {
+            params: {
+                page: pageParam,
+                limit: 20,
+                sort: sortParam,
+            },
+        });
     },
-
     async postComment(movieId: string, content: string) {
         return await api.post(`/comments/${movieId}`, { content });
     },
+
+    async addCommentInteraction(commentId: number, interaction: number) {
+        return await api.post(`/comments/interaction/${commentId}`, {
+            interaction,
+        });
+    },
+    async sendInvite(imdbId: string, title: string, userInput: string) {
+        return await api.post(`/movies/invite/${imdbId}`, { title, userInput });
+    },
+    async getMovieQualities(imdbId: string) {
+        return await api.get(`/movies/qualities/${imdbId}`);
+    },
+    async getMovieSubtitles(imdbId: string) {
+        return await api.get(`/movies/subtitles/${imdbId}`);
+    },
+    // async getMovieStream(imdbId: string, quality: string, subtitle?: string) {
+    //     return await api.get(`/movies/watch/${imdbId}`, {
+    //         params: {
+    //             quality,
+    //             subtitle,
+    //         },
+    //     });
+    // },
 };
+
+export default movieService;

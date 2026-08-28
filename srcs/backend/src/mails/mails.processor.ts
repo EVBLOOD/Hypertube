@@ -84,4 +84,22 @@ export class MailProcessor {
             this.logger.error(`Failed to send email: ${error.message}`);
         }
     }
+    @Process("send-invite")
+    async handleSendInvite(job: Job) {
+        this.logger.log(`Sending movie invite email to ${job.data.email}...`);
+        try {
+            await this.mailerService.sendMail({
+                to: job.data.email,
+                subject: `🎬 Action! ${job.data.username} invited you to watch a movie on Hypertube`,
+                template: "./invite",
+                context: {
+                    name: job.data.username,
+                    title: job.data.title,
+                    url: job.data.inviteLink,
+                },
+            });
+        } catch (error: any) {
+            this.logger.error(`Failed to send email: ${error.message}`);
+        }
+    }
 }

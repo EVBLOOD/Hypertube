@@ -1,0 +1,125 @@
+**Architecture & Environment Setup**
+* [x] Initialize repository structure and strictly add `.env` to `.gitignore` to protect API keys.
+* [x] Configure your web server and database schema for users, stored videos, and comments.
+* [x] Set up security middleware for input sanitization, form validation, and SQL/XSS prevention.
+* [x] Configure secure password hashing (Argon2 or bcrypt) for local authentication.
+
+**Authentication & User Profiles**
+* [x] Build local user registration (email, username, first name, last name, password).
+* [x] Implement token-based email password reset flow.
+* [x] Integrate 42 OmniAuth strategy alongside a second provider (e.g., GitHub or Google).
+    - [x] 42
+    - [x] github or google to add
+* [x] Implement site-wide 1-click logout and language preference switcher (defaulting to English).
+* [x] Build editable user profile settings
+// For Mohcine
+* [ ] public profile views (ensuring emails stay private).
+
+
+**Torrent Engine & Video Streaming**
+* [x] Build custom background torrent client (strictly avoiding prohibited libraries like `webtorrent` or `peerflix`).
+* [x] Build non-blocking background downloading with sequential piece prioritisation.
+* [x] Implement on-the-fly transcoding via `ffmpeg` pipes for non-native browser formats (specifically `.mkv`).
+* [x] Set up automatic subtitle fetching (English + user's preferred language).
+* [ ] Implement a scheduled cron task to purge downloaded movies unwatched for 30 days.
+
+
+**Library & Player UI**
+* [x] Create responsive layout adhering to grid rules (Header, Main, Footer) supporting mobile screens.
+* [x] Integrate scrapers for at least 2 external torrent sources + IMDb/TMDb API for movie metadata.
+* [x] Build library view with infinite scroll, sorting/filtering (name, genre, rating, year), and watched/unwatched indicators.
+* [x] Build detailed video player page displaying cast, summary, player controls, and real-time user comments.
+
+
+**RESTful API Implementation**
+* [ ] Implement OAuth2 token route (`POST /oauth/token`).
+* [x] Implement User routes (`GET /users`, `GET /users/:id`, `PATCH /users/:id`).
+* [x] Implement Movie routes (`GET /movies`, `GET /movies/:id`).
+* [ ] Implement Comment routes (`GET /comments`, `GET /comments/:id`, `POST /comments`).
+* [ ] Configure explicit HTTP status error handling for invalid endpoints.
+
+
+**Bonus Implementation**
+* [ ] Build MediaStream / MSE browser API integration for dynamic video chunking.
+* [x] Implement dynamic multi-resolution streaming (480p, 720p, 1080p dynamically piped through `ffmpeg`).
+* [x] Add playback state retention ("Resume watching where you left off").
+* [x] Add extra OAuth2 strategies (Discord, Spotify, Twitch).
+
+
+--- 
+
+[x] Environment & Git Setup
+    [x] Create `.env` file for database credentials, JWT secrets, and OAuth keys.
+    [x] Add `.env` to `.gitignore` and verify no sensitive credentials exist in repo.
+
+[ ] UI Layout & Responsiveness
+    [x] Build application layout containing at least Header, Main section, and Footer.
+    [ ] Ensure responsive design for mobile screens and small display resolutions.
+    [ ] Verify smooth execution without console errors on Chrome and Firefox.
+
+[ ] Input Validation & Security
+    [ ] Implement input sanitization on all forms against XSS and HTML/JS injection.
+    [x] Secure database queries against SQL injection.
+    [x] Validate file uploads (MIME type, extension, size limit) to prevent unauthorized file execution.
+    [x] Hash all user passwords securely prior to database insertion.
+
+[x] Standard Registration & Login
+    [x] Create registration form capturing email, username, first name, last name, and password.
+    [x] Build login mechanism via username and password.
+    [x] Add single-click logout accessible from any page.
+
+[x] OAuth2 Integration (Omniauth)
+    [x] Implement 42 OAuth2 authentication strategy.
+    [x] Implement at least 1 secondary OAuth strategy (e.g., GitHub, Google, Discord).
+
+[ ] Password Recovery & Profiles
+    [x] Build password reset flow sending link/token via email for forgotten passwords.
+    [x] Allow users to update email, name, password, and profile picture.
+    [x] Add language switcher (default language: English).
+// For Mohcine
+    [ ] Build public user profile page (avatar and details visible, email strictly private).
+
+[x] External API Integration
+    [x] Query at least 2 external video sources (e.g., YTS, TMDb, OMDb).
+    [x] Implement fallback displaying popular movies when no search query is provided.
+
+[x] Movie Grid & Filters
+    [x] Display video results as thumbnail cards containing Title, Production Year, IMDb rating, and Cover Image.
+    [x] Visually differentiate watched vs. unwatched videos on thumbnails.
+    [x] Implement asynchronous infinite scrolling pagination (no explicit next-page links).
+    [x] Add sorting and filtering options (Name, Genre, IMDb Rating, Production Year).
+
+
+[x] Non-Blocking BitTorrent Engine
+    [x] Launch background torrent download process on server upon user play request.
+    [x] Stream video feed to browser as soon as minimum required data chunk is downloaded.
+    [x] Keep full downloaded file on server to prevent re-downloading on future plays.
+
+[x] Transcoding & Subtitles
+    [x] Perform on-the-fly video transcoding for non-native web browser formats (MKV support mandatory).
+    [x] Download English subtitles automatically when available.
+    [x] Automatically download and enable subtitles matching user's preferred language if video language differs.
+
+[ ] Video Details & Storage Maintenance
+    [x] Build video page showing summary, cast (director, producer, main actors), duration, rating, cover, player, and user comments.
+    [x] Allow authenticated users to write comments on video pages.
+    [ ] Set up automated background cleanup script to erase movie files unwatched for over 1 month.
+
+
+[ ] POST /oauth/token          [ ] Accepts client credentials/secret, returns OAuth token.
+[ ] GET /users                 [ ] Returns list of users (IDs and usernames).
+[ ] GET /users/:id             [ ] Returns target user details (username, avatar, email).
+[ ] PATCH /users/:id           [ ] Updates user profile (expects username, email, password, avatar URL).
+[ ] GET /movies                [ ] Public endpoint; returns front-page top movie list (IDs and titles).
+[ ] GET /movies/:id            [ ] Returns movie metadata, IMDb rating, year, duration, subtitles, comment count.
+[ ] GET /comments              [ ] Returns latest comments (author username, date, content, ID).
+[ ] GET /comments/:id          [ ] Returns specific comment details.
+[ ] POST /comments             [ ] Creates comment (expects comment payload & movie_id).
+[ ] PATCH /comments/:id        [ ] Updates comment payload.
+[ ] DELETE /comments/:id       [ ] Deletes specific comment.
+[ ] HTTP ERROR HANDLING        [ ] Return appropriate HTTP error status codes for unauthorized/unsupported endpoints.
+
+[x] Additional OAuth2 strategies (e.g., Twitch, Spotify, GitLab).
+[x] Multi-resolution video streaming selection (1080p, 720p, 480p).
+[ ] Client-side video streaming via MediaStream API.
+[x] Extended REST API routes (e.g., admin controls, custom movie management).

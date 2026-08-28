@@ -11,4 +11,8 @@ export class PaginationMovieDto {
     @Type(() => Number)
     @IsInt()
     limit?: number = 20;
+
+    @IsOptional()
+    @IsString()
+    language?: string = "en";
 }

@@ -4,8 +4,19 @@ import { useTranslations } from "use-intl";
 import CardElementHighlight from "../ui/cardElementHighlight";
 import styles from "./trandingSection.module.css";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
-export default function TrandingSection({ movies }: { movies: any }) {
+export default function TrandingSection({
+    movies,
+}: {
+    movies: {
+        id: number;
+        title: string;
+        poster: string;
+        quality: string;
+        standard_audio_format: string;
+    }[];
+}) {
     const Home = useTranslations("Home");
 
     const router = useRouter();
@@ -15,18 +26,19 @@ export default function TrandingSection({ movies }: { movies: any }) {
                 <div>
                     <h1 style={{ marginBottom: 0 }}>{Home("tranding")}</h1>
                     <span className={styles.subTitleTranding}>
-                        Curated Technical Selection
+                        {Home("selection")}
                     </span>
                 </div>
                 <div
                     className={styles.tradingViewMore}
                     onClick={() => router.push("/trending")}
                 >
-                    <p>SEE ALL ENTRIES</p>
-                    <img
+                    <p>{Home("see_all")}</p>
+                    <Image
+                        height={20}
+                        width={20}
                         src="/costumIcons/go_in.svg"
-                        alt="Next"
-                        height="10px"
+                        alt={Home("see_all")}
                     />
                 </div>
             </div>

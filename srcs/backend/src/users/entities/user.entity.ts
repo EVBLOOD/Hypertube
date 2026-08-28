@@ -14,6 +14,7 @@ import { IsEmail, IsNotEmpty } from "class-validator";
 
 import { v4 as uuidv4 } from "uuid";
 import { UserMovieHistory } from "src/movies/entities/user-movie-history.entity";
+import { CommentCommentInteraction } from "src/comments/entities/user-comment.entity";
 
 @Entity()
 export class User {
@@ -71,6 +72,12 @@ export class User {
 
     @OneToMany(() => UserMovieHistory, (history) => history.user)
     userMovieHistories!: UserMovieHistory[];
+
+    @OneToMany(
+        () => CommentCommentInteraction,
+        (interaction) => interaction.user,
+    )
+    commentCommentInteractions!: CommentCommentInteraction[];
 
     @BeforeInsert()
     @BeforeUpdate()

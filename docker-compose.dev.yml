@@ -27,6 +27,7 @@ services:
     environment:
       - NEXT_PUBLIC_BACK_API_URL=${PUBLIC_API_URL}
       - PORT=${PORT}
+      - NEXT_PUBLIC_SOCKET_URL=${FRONTEND_URL}
 
   back:
     build: setup/backend
@@ -83,7 +84,7 @@ services:
 
   redis:
     image: redis:latest
-    container_name: matcha_redis
+    container_name: hypertube_redis
     command: redis-server --appendonly yes
     restart: on-failure
     # volumes:

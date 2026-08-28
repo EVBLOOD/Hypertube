@@ -1,0 +1,26 @@
+.bodyCard {
+    width: 160px;
+    cursor: pointer;
+}
+
+.cardImage {
+    width: 160px;
+    height: 240px;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.titleRatingWraper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+}
+.titleRatingWraper span {
+    color: var(--primary-color);
+}

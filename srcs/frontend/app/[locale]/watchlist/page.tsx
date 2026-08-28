@@ -15,7 +15,6 @@ import DescriptionComponent from "@/app/components/ui/descriptionComponent";
 import { useMoviesWishList } from "@/lib/dataHooks/moviesWishList";
 
 export default function Trending() {
-    const Trending = useTranslations("Trending");
     const Library = useTranslations("Library");
 
     const { ref: viewRef, inView } = useInView({ threshold: 0.1 });
@@ -25,7 +24,6 @@ export default function Trending() {
         fetchNextPage,
         hasNextPage,
         isFetchingNextPage,
-        status,
         isPending,
         error,
     } = useMoviesWishList();
@@ -34,13 +32,16 @@ export default function Trending() {
         if (inView && hasNextPage && !isFetchingNextPage) {
             fetchNextPage();
         }
-    }, [inView]);
+    }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+
     if (!data && isPending) return <LoadingPage />;
     if (!data && error) {
-        const axiosErr = error as AxiosError<any>;
         const errorMessage =
-            axiosErr.response?.data?.message || "Something went wrong";
-        const errorCode = axiosErr?.response?.status || 404;
+            (
+                (error as AxiosError).response?.data as
+                    { message: string } | { message: string[] }
+            )?.message?.[0] || "Something went wrong";
+        const errorCode = (error as AxiosError)?.response?.status || 404;
         return <ErrorPage errorCode={errorCode} errorMessage={errorMessage} />;
     }
 

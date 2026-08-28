@@ -23,7 +23,7 @@
 .secondHalf {
     padding: 50px;
     display: flex;
-    width: 40%;
+    width: 50%;
     flex-direction: column;
     gap: 30px;
     background-color: var(--popup-background-second);

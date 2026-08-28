@@ -28,6 +28,10 @@
     padding: 18px 5px 18px 5px;
 }
 
+.inputHorisantal input::placeholder {
+    color: color-mix(in srgb, var(--primary-color), transparent 70%);
+}
+
 .inputHorisantal input:focus {
     color: color-mix(in srgb, var(--primary-color), transparent 50%);
 }
@@ -81,11 +85,19 @@
     cursor: pointer;
 }
 
-.selectedSort {
+.selectedSortAsc {
     background-color: var(--popup-background);
     color: var(--primary-color);
     border-style: solid;
     border-width: 0 0 0 2px;
+}
+
+.selectedSortDesc {
+    background-color: var(--popup-background);
+    color: gray;
+    border-style: solid;
+    border-color: gray;
+    border-width: 0px 0 0 2px;
 }
 
 .mobileRating {

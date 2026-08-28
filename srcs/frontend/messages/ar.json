@@ -1,128 +1,259 @@
 {
     "Library": {
         "name": "المكتبة",
-        "filter_title": "مرشحات الأرشيف",
+        "filter_title": "فلاتر الأرشيف",
         "filter_genre": "النوع",
         "filter_allgenre": "جميع الأنواع",
         "filter_production_year": "سنة الإنتاج",
-        "filter_rating": "الحد الأدنى للتقييم (IMDb)",
-        "filter_sortby": "فرز حسب",
-        "filter_sort_views_count": "عدد المصادر/النظراء",
+        "filter_rating": "الحد الأدنى (IMDb)",
+        "filter_sortby": "ترتيب حسب",
         "filter_sort_add_date": "تاريخ الإضافة",
-        "filter_sort_alphabit": "أبجدياً",
-        "title": "كواليس",
+        "filter_sort_alphabit": "أبجديًا",
+        "title": "THE BACKLOT",
         "sub_title": "الأصول المفهرسة // المستودع العالمي",
         "resolution": "الدقة",
-        "seen": "تمت المشاهدة"
+        "seen": "تمت المشاهدة",
+        "continue": "متابعة",
+        "filter_search": "بحث",
+        "filter_search_placeholder": "بحث عن فيلم...",
+        "filter_sort_popularity": "الشعبية",
+        "filter_sort_rating": "التقييم"
     },
     "Genres": {
         "action": "أكشن",
         "adventure": "مغامرة",
         "animation": "رسوم متحركة",
         "biography": "سيرة ذاتية",
-        "comedy": "كوميدي",
+        "comedy": "كوميديا",
         "crime": "جريمة",
         "documentary": "وثائقي",
         "drama": "دراما",
         "family": "عائلي",
-        "fantasy": "خيال",
+        "fantasy": "فانتازيا",
         "film-noir": "فيلم نوار",
-        "history": "تاريخ",
+        "history": "تاريخي",
         "horror": "رعب",
         "music": "موسيقى",
-        "musical": "استعراضي",
+        "musical": "موسيقي",
         "mystery": "غموض",
         "romance": "رومانسي",
         "sci-fi": "خيال علمي",
         "sport": "رياضة",
-        "thriller": "تشويق",
+        "thriller": "إثارة",
         "war": "حرب",
-        "western": "وسترن"
+        "western": "ويسترن"
     },
     "Home": {
         "name": "الرئيسية",
-        "rec": "الكلاكيت مفتوح",
-        "hero_discription": "ادخل إلى الخزنة التقنية الأكثر أماناً (P2P) للروائع السينمائية. إطارات غير مضغوطة. بيانات وصفية احترافية. الحفاظ على رؤية المخرج.",
+        "rec": "CLAPPER_OPEN",
+        "hero_discription": "ادخل إلى الخزنة التقنية الأكثر أمانًا بنظام الند للند للأعمال السينمائية الخالدة. إطارات غير مضغوطة. بيانات وصفية احترافية. رؤية المخرج، محفوظة.",
         "watch_now": "شاهد الآن",
         "view_more": "عرض التفاصيل",
         "resolution": "الدقة",
         "codec": "الترميز",
         "bitrate": "معدل البت",
-        "tranding": "الشائع",
-        "selection": "مختارات تقنية منسقة",
-        "see_all": "عرض كافة الإدخالات",
+        "tranding": "الرائج",
+        "selection": "اختيارات تقنية منسقة",
+        "see_all": "عرض جميع الإدخالات",
         "minutes": "دقيقة",
-        "volt_type": "الخزنة المميزة"
+        "volt_type": "الخزنة المميزة",
+        "imdb": "IMDb {rating}"
     },
     "Login": {
-        "title": "جاهز للبث؟",
-        "description": "ادخل إلى الخزنة الأكثر شمولاً في العالم للمحتوى السينمائي عالي الدقة. نقرة واحدة لبدء العمل.",
+        "title": "مستعد للمشاهدة؟",
+        "description": "ادخل إلى أشمل خزنة في العالم لمحتوى الأفلام عالي الدقة. نقرة واحدة للبدء.",
         "scenes": [
             {
-                "number": "المشهد: 01",
-                "name": "التوثيق_العالمي"
+                "number": "المشهد:01",
+                "name": "المصادقة_العالمية"
             },
             {
-                "number": "لقطة: 04",
+                "number": "اللقطة:04",
                 "name": "نواة_التورنت"
             }
         ],
         "integration": "التكامل مع مزودين آمنين",
-        "integrations": ["المتابعة عبر شبكة 42", "المتابعة عبر شبكة 42"],
+        "integrations": [
+            "المتابعة 42 NETWORK",
+            "المتابعة GITHUB",
+            "المتابعة GOOGLE"
+        ],
         "second_title": "التعريف",
-        "second_discreption": "يرجى تقديم بيانات الاعتماد لدخول الخزنة.",
-        "label_address": "البريد_الإلكتروني",
+        "second_discreption": "يرجى إدخال بيانات الاعتماد للوصول إلى الخزنة.",
+        "label_address": "عنوان البريد الإلكتروني",
         "holder_address": "USER@DOMAIN.COM",
-        "label_pass": "رمز_المرور",
+        "label_pass": "رمز الدخول",
         "forgot_pass": "استعادة_المفتاح_المفقود",
-        "no_account": "ليس لديك مفتاح بعد؟",
-        "create_account": "التسجيل_هنا"
+        "no_account": "لا تملك مفتاحًا بعد؟",
+        "create_account": "سجّل_هنا"
     },
     "Register": {
-        "title": "المشهد 02: الانضمام - إنشاء حساب",
+        "title": "المشهد 02: التسجيل - إنشاء حساب",
         "scenes": [
             {
                 "number": "المشهد: 01",
-                "name": "التوثيق_العالمي"
+                "name": "المصادقة_العالمية"
             },
             {
-                "number": "لقطة: 04",
+                "number": "اللقطة: 04",
                 "name": "نواة_التورنت"
             }
         ],
-        "description": "ادخل إلى الخزنة الأكثر شمولاً في العالم للمحتوى السينمائي عالي الدقة. أنشئ حساباً لبدء التصوير.",
+        "description": "ادخل إلى أشمل خزنة في العالم لمحتوى الأفلام عالي الدقة. أنشئ حسابًا للبدء.",
         "label_first_name": "الاسم الأول",
-        "holder_first_name": "الاسم_المعطى",
+        "holder_first_name": "الاسم_الأول",
         "label_last_name": "اسم العائلة",
-        "holder_last_name": "الكنية",
+        "holder_last_name": "اسم_العائلة",
         "label_user_name": "اسم المستخدم",
         "holder_user_name": "اسم_فريد",
-        "label_address": "البريد_الإلكتروني",
+        "label_address": "عنوان البريد الإلكتروني",
         "holder_address": "USER@DOMAIN.COM",
-        "label_pass": "رمز_المرور",
-        "ye_account": "مسجل بالفعل؟",
-        "access_account": "دخول الخزنة"
+        "label_pass": "رمز الدخول",
+        "ye_account": "لديك حساب بالفعل؟",
+        "access_account": "الدخول إلى الخزنة"
+    },
+    "ResetPasswordEmail": {
+        "title": "المشهد 03: المونتاج الأولي - إعادة تعيين كلمة المرور",
+        "description": "ادخل إلى أشمل خزنة في العالم لمحتوى الأفلام عالي الدقة. أنشئ حسابًا للبدء.",
+        "label_address": "عنوان البريد الإلكتروني",
+        "holder_address": "USER@DOMAIN.COM",
+        "label_pass": "رمز الدخول",
+        "ye_account": "لديك حساب بالفعل؟",
+        "access_account": "الدخول إلى الخزنة"
+    },
+    "ResetPassword": {
+        "title": "المشهد 02: التسجيل - إنشاء حساب",
+        "description": "ادخل إلى أشمل خزنة في العالم لمحتوى الأفلام عالي الدقة. أنشئ حسابًا للبدء.",
+        "label_pass": "رمز الدخول",
+        "ye_account": "لديك حساب بالفعل؟",
+        "access_account": "الدخول إلى الخزنة"
     },
     "Header": {
-        "library": "المكتبة",
-        "trending": "الشائع",
-        "watchlist": "قائمة المشاهدة",
-        "my_vault": "خزنـتي",
-        "sign_in": "تسجيل الدخول",
-        "sign_out": "تسجيل الخروج"
+        "navigation": {
+            "library": "المكتبة",
+            "trending": "الرائج",
+            "watchlist": "قائمة المشاهدة",
+            "myVault": "خزنتي"
+        },
+        "actions": {
+            "search": "بحث",
+            "signIn": "الدخول",
+            "signOut": "الخروج"
+        }
     },
-
+    "Footer": {
+        "brand": "HYPERTUBE",
+        "rights": "© 2026 HYPERTUBE FILM VAULT. جميع الحقوق محفوظة.",
+        "links": {
+            "technicalSpecs": "المواصفات التقنية",
+            "privacyProtocol": "بروتوكول الخصوصية",
+            "apiDocumentation": "توثيق API"
+        }
+    },
+    "Common": {
+        "status": {
+            "loading": "انتظر، جارٍ تحميل البيانات...",
+            "loadingNextPage": "جارٍ تحميل الصفحة التالية...",
+            "connected": "متصل بالغرفة",
+            "connecting": "جارٍ الاتصال..."
+        },
+        "actions": {
+            "submit": "إرسال",
+            "close": "إغلاق",
+            "send": "إرسال",
+            "cancel": "إلغاء"
+        }
+    },
+    "Error": {
+        "recordLabel": "تم اكتشاف رمز خطأ",
+        "description": "الصفحة التي تبحث عنها لم يتم تسجيلها بعد. يرجى المحاولة لاحقًا.",
+        "authorizeSession": "تفويض الجلسة",
+        "backToHome": "العودة إلى الرئيسية",
+        "reportIssue": "الإبلاغ عن مشكلة"
+    },
+    "MovieDetail": {
+        "waitingForFriends": "في انتظار انضمام أصدقائك...",
+        "defaultRuntime": "ساعتان و14 دقيقة",
+        "defaultSize": "12.4 جيجابايت",
+        "watchNow": "شاهد الآن",
+        "watchLater": "شاهد لاحقًا",
+        "liveInvite": "دعوة مباشرة"
+    },
+    "WatchParty": {
+        "status": {
+            "label": "الحالة",
+            "connected": "متصل بالغرفة",
+            "connecting": "جارٍ الاتصال..."
+        },
+        "messages": {
+            "self": "أنت",
+            "other": "الآخر"
+        },
+        "chat": {
+            "placeholder": "اكتب رسالة...",
+            "send": "إرسال الرسالة"
+        }
+    },
+    "WatchWith": {
+        "title": "شاهد {title} مع أصدقائك!",
+        "imageAlt": "المشاهدة مع الأصدقاء",
+        "input": {
+            "label": "اسم المستخدم أو البريد الإلكتروني",
+            "placeholder": "اسم المستخدم أو البريد الإلكتروني"
+        },
+        "button": {
+            "sendInvite": "إرسال الدعوة"
+        },
+        "validation": {
+            "emptyInput": "حقل الإدخال فارغ."
+        },
+        "success": {
+            "sent": "تم إرسال الدعوة بنجاح."
+        },
+        "error": {
+            "sendFailed": "حدث خطأ أثناء إرسال الدعوة."
+        }
+    },
+    "Share": {
+        "title": "شارك {title} مع أصدقائك!",
+        "platforms": {
+            "facebook": "المشاركة على Facebook",
+            "x": "المشاركة على X",
+            "reddit": "المشاركة على Reddit",
+            "email": "المشاركة عبر البريد الإلكتروني"
+        }
+    },
+    "Auth": {
+        "waiting": "في انتظار المصادقة..."
+    },
+    "Language": {
+        "ariaLabel": "محدد اللغة"
+    },
+    "Profile": {
+        "stats": {
+            "approvedTitles": "العناوين المعتمدة",
+            "accumulatedExposure": "التعرّض المتراكم",
+            "hours": "الساعات",
+            "exposureDescription": "يتجاوز استهلاكك للبيانات الوصفية عبر شبكة HyperTube استهلاك 84% من المخرجين النشطين في هذا القطاع.",
+            "unknownTime": "وقت غير معروف",
+            "moviePoster": "ملصق الفيلم",
+            "interactionIcon": "أيقونة التفاعل",
+            "unknownTitle": "عنوان غير معروف",
+            "unknownOverview": "ملخص غير معروف"
+        }
+    },
     "Watch": {
-        "start_button": "ابدأ المشاهدة معاً",
+        "start_button": "بدء المشاهدة معًا",
         "invite_copied": "تم نسخ رابط الدعوة إلى الحافظة.",
-        "create_error": "فشل إنشاء الغرفة.",
+        "create_error": "تعذر إنشاء الغرفة.",
         "chat_send": "إرسال",
         "chat_placeholder": "اكتب رسالة..."
     },
     "Comments": {
-        "placeholder": "اكتب تعليقاً...",
+        "placeholder": "اكتب رسالة...",
         "post_button": "نشر التعليق",
         "hours_ago_2": "منذ ساعتين",
-        "reply": "رد"
+        "reply": "رد",
+        "avatarAlt": "الصورة الرمزية"
     }
 }

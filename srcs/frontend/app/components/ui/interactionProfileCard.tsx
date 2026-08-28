@@ -1,7 +1,10 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import DescriptionComponent from "./descriptionComponent";
 import styles from "./interactionProfileCard.module.css";
+import { formatDistance } from "date-fns";
+import Image from "next/image";
 
 export default function InteractionProfileCard({
     movie,
@@ -15,26 +18,14 @@ export default function InteractionProfileCard({
         poster: string;
     };
 }) {
-    console.log("movie", movie);
+    const t = useTranslations("Profile");
+    console.debug("movie", movie);
 
     const getInteractionTime = (actionDate: Date) => {
-        const now = new Date();
-        const actionDateObj = new Date(actionDate);
-        const diffInMs = now.getTime() - actionDateObj.getTime();
-        const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
-        const diffInHours = Math.floor(diffInMinutes / 60);
-        const diffInDays = Math.floor(diffInHours / 24);
-
-        if (diffInDays > 0) {
-            return `${diffInDays} day${diffInDays > 1 ? "s" : ""} ago`;
-        }
-        if (diffInHours > 0) {
-            return `${diffInHours} hour${diffInHours > 1 ? "s" : ""} ago`;
-        }
-        if (diffInMinutes > 0) {
-            return `${diffInMinutes} minute${diffInMinutes > 1 ? "s" : ""} ago`;
-        }
-        return "Just now";
+        const timeAgo = formatDistance(new Date(actionDate), new Date(), {
+            addSuffix: true,
+        });
+        return timeAgo;
     };
 
     const mapActionsToIcons = (action: string) => {
@@ -57,35 +48,40 @@ export default function InteractionProfileCard({
         : "/costumIcons/play.svg";
     const interactionTime = movie?.actionDate
         ? getInteractionTime(movie.actionDate)
-        : "Unknown time";
+        : t("stats.unknownTime");
 
     return (
         <div className={styles.cardBody}>
             <div className={styles.coverTitleInfo}>
-                <img
+                <Image
+                    height={64}
+                    width={48}
                     src={movie?.poster || "/hero.png"}
-                    alt=""
-                    width={"48px"}
-                    height={"64px"}
+                    alt={t("stats.moviePoster")}
                 />
                 <div>
                     <h3 className={styles.movieTitle}>
                         {movie?.title?.slice(0, 20) +
                             (movie?.title?.length && movie?.title?.length > 20
                                 ? "..."
-                                : "") || "Unknown Title"}
+                                : "") || t("stats.unknownTitle")}
                     </h3>
                     <DescriptionComponent
                         className={styles.discreptionMarginCorrection}
                         text={
                             movie?.overview?.slice(0, 100) + "..." ||
-                            "Unknown Overview"
+                            t("stats.unknownOverview")
                         }
                     />
                 </div>
             </div>
             <div className={styles.interactionInofs}>
-                <img src={interactionIcon} alt="interact" />
+                <Image
+                    height={20}
+                    width={20}
+                    src={interactionIcon}
+                    alt={t("stats.interactionIcon")}
+                />
                 <DescriptionComponent
                     className={styles.discreptionMarginCorrection}
                     text={interactionTime}

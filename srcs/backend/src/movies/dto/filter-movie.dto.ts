@@ -42,4 +42,12 @@ export class FilterMovieDto {
     @IsOptional()
     @IsString()
     sortBy?: string = "title"; // title, year, rating
+
+    @IsOptional()
+    @IsString()
+    order?: string = "asc"; // asc, desc
+
+    @IsOptional()
+    @IsString()
+    language?: string = "en";
 }

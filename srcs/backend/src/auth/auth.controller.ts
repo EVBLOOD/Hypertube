@@ -33,7 +33,7 @@ export class AuthController {
     async login(@Request() req, @Res({ passthrough: true }) res: Response) {
         const token = (await this.authService.login(req.user)).access_token;
         res.cookie("AUTH_TOKEN", token, {
-            httpOnly: true,
+            // httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: "lax",
             expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
@@ -52,6 +52,56 @@ export class AuthController {
         return this.authService.resetPassword(dto.token, dto.newPassword);
     }
 
+    @Get("login/google")
+    @UseGuards(AuthGuard("google"))
+    async loginGoogle() {
+        return { message: "Redirecting to google login page..." };
+    }
+
+    @Get("login/google/callback")
+    @UseGuards(AuthGuard("google"))
+    async loginGoogleCallback(@Request() req, @Res() res: Response) {
+        console.log("google Callback User:", req.user);
+        if (!req.user) {
+            return { message: "User not found" };
+        }
+        const token = (await this.authService.login(req.user)).access_token;
+        res.cookie("AUTH_TOKEN", token, {
+            // httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
+            path: "/",
+        });
+
+        res.redirect(`${process.env.FRONTEND_URL}/auth/callback`);
+    }
+
+    @Get("login/github")
+    @UseGuards(AuthGuard("github"))
+    async loginGithub() {
+        return { message: "Redirecting to github login page..." };
+    }
+
+    @Get("login/github/callback")
+    @UseGuards(AuthGuard("github"))
+    async loginGithubCallback(@Request() req, @Res() res: Response) {
+        console.log("github Callback User:", req.user);
+        if (!req.user) {
+            return { message: "User not found" };
+        }
+        const token = (await this.authService.login(req.user)).access_token;
+        res.cookie("AUTH_TOKEN", token, {
+            // httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
+            path: "/",
+        });
+
+        res.redirect(`${process.env.FRONTEND_URL}/auth/callback`);
+    }
+
     @Get("login/42")
     @UseGuards(AuthGuard("42"))
     async login42() {
@@ -67,7 +117,7 @@ export class AuthController {
         }
         const token = (await this.authService.login(req.user)).access_token;
         res.cookie("AUTH_TOKEN", token, {
-            httpOnly: true,
+            // httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: "lax",
             expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
@@ -137,7 +187,7 @@ export class AuthController {
     logout(@Request() req, @Res({ passthrough: true }) res: Response) {
         this.authService.logout(req.user, req.cookies?.AUTH_TOKEN);
         res.clearCookie("AUTH_TOKEN", {
-            httpOnly: true,
+            // httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: "lax",
             path: "/",

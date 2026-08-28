@@ -35,11 +35,15 @@ export default function ProfileSelectionInputs({
 
     const handleNonLanguageChange = (id: string) => {
         if (id === "public") {
-            isVisibilitySetter(setter) && setter("public");
+            if (isVisibilitySetter(setter)) {
+                setter("public");
+            }
             refrenceOff.current!.classList.remove(styles.clickedOn);
             refrenceOn.current!.classList.add(styles.clickedOn);
         } else {
-            isVisibilitySetter(setter) && setter("private");
+            if (isVisibilitySetter(setter)) {
+                setter("private");
+            }
             refrenceOn.current!.classList.remove(styles.clickedOn);
             refrenceOff.current!.classList.add(styles.clickedOn);
         }
@@ -50,29 +54,54 @@ export default function ProfileSelectionInputs({
     const refrenceFr = useRef<HTMLInputElement>(null);
     const handleLanguageChange = (id: string) => {
         if (id === "en") {
-            isLanguageSetter(setter) && setter("en");
+            if (isLanguageSetter(setter)) {
+                setter("en");
+            }
             refrenceAr.current!.classList.remove(styles.clickedOn);
             refrenceFr.current!.classList.remove(styles.clickedOn);
             refrenceEn.current!.classList.add(styles.clickedOn);
         } else if (id === "ar") {
-            isLanguageSetter(setter) && setter("ar");
+            if (isLanguageSetter(setter)) {
+                setter("ar");
+            }
             refrenceEn.current!.classList.remove(styles.clickedOn);
             refrenceFr.current!.classList.remove(styles.clickedOn);
             refrenceAr.current!.classList.add(styles.clickedOn);
         } else {
-            isLanguageSetter(setter) && setter("fr");
+            if (isLanguageSetter(setter)) {
+                setter("fr");
+            }
             refrenceEn.current!.classList.remove(styles.clickedOn);
             refrenceAr.current!.classList.remove(styles.clickedOn);
             refrenceFr.current!.classList.add(styles.clickedOn);
         }
     };
+
     useEffect(() => {
         if (type === "language") {
-            handleLanguageChange(init);
+            if (init === "en") {
+                refrenceAr.current!.classList.remove(styles.clickedOn);
+                refrenceFr.current!.classList.remove(styles.clickedOn);
+                refrenceEn.current!.classList.add(styles.clickedOn);
+            } else if (init === "ar") {
+                refrenceEn.current!.classList.remove(styles.clickedOn);
+                refrenceFr.current!.classList.remove(styles.clickedOn);
+                refrenceAr.current!.classList.add(styles.clickedOn);
+            } else {
+                refrenceEn.current!.classList.remove(styles.clickedOn);
+                refrenceAr.current!.classList.remove(styles.clickedOn);
+                refrenceFr.current!.classList.add(styles.clickedOn);
+            }
         } else {
-            handleNonLanguageChange(init);
+            if (init === "public") {
+                refrenceOff.current!.classList.remove(styles.clickedOn);
+                refrenceOn.current!.classList.add(styles.clickedOn);
+            } else {
+                refrenceOn.current!.classList.remove(styles.clickedOn);
+                refrenceOff.current!.classList.add(styles.clickedOn);
+            }
         }
-    }, [init, type]);
+    }, [type, init]);
 
     return (
         <div className={styles.selectionsSections}>

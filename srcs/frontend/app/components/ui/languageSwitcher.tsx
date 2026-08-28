@@ -1,10 +1,13 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState, useEffect } from "react";
 import styles from "./languageSwitcher.module.css";
 import { usePathname, useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function LanguageSwitcher({ local }: { local: string }) {
+    const t = useTranslations("Language");
     const [isAtTop, setIsAtTop] = useState(true);
     const [isOpen, setIsOpen] = useState(false);
     const [choose, setChoice] = useState(local);
@@ -40,8 +43,14 @@ export default function LanguageSwitcher({ local }: { local: string }) {
             <div
                 onClick={() => setIsOpen(!isOpen)}
                 className={styles.languageStyleOverView}
+                aria-label={t("ariaLabel")}
             >
-                <img src="/costumIcons/play.svg" alt="lang" />
+                <Image
+                    height={15}
+                    width={15}
+                    src="/costumIcons/play.svg"
+                    alt={t("ariaLabel")}
+                />
                 <span>{choose.toUpperCase()}</span>
             </div>
             <ul
@@ -53,11 +62,13 @@ export default function LanguageSwitcher({ local }: { local: string }) {
                     .map((e, i) => (
                         <li
                             key={i}
-                            onClick={() =>
+                            onClick={() => {
+                                document.cookie = `NEXT_LOCALE=${e.toLowerCase()}; path=/; max-age=31536000`;
                                 router.push(
                                     `/${e.toLowerCase()}/${pathname.slice(4)}`,
-                                )
-                            }
+                                );
+                                setChoice(e.toLowerCase());
+                            }}
                         >
                             {e}
                         </li>

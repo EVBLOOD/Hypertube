@@ -9,6 +9,9 @@ import { User } from "src/users/entities/user.entity";
 import { MailModule } from "src/mails/mails.module";
 import { LocalStrategy } from "./strategies/local.strategy";
 import { FortyTwoStrategy } from "./strategies/42.strategy";
+import { WsJwtGuard } from "./guards/ws-jwt.guard";
+import { GoogleStrategy } from "./strategies/google.strategy";
+import { GithubStrategy } from "./strategies/github.strategy";
 
 @Module({
     imports: [
@@ -22,9 +25,16 @@ import { FortyTwoStrategy } from "./strategies/42.strategy";
                 expiresIn: "1h",
             },
         }),
-        // FortyTwoStrategy,
     ],
     controllers: [AuthController],
-    providers: [AuthService, JwtStrategy, LocalStrategy, FortyTwoStrategy],
+    providers: [
+        AuthService,
+        JwtStrategy,
+        LocalStrategy,
+        FortyTwoStrategy,
+        WsJwtGuard,
+        GoogleStrategy,
+        GithubStrategy,
+    ],
 })
 export class AuthModule {}

@@ -1,0 +1,31 @@
+.watchWithContaining {
+    position: absolute;
+    top: 0;
+    inset-inline-end: 0;
+
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999;
+    backdrop-filter: blur(5px);
+}
+
+.watchWithContainer a img {
+    width: 100px;
+    height: 100px;
+}
+
+.watchWithPopOrginize {
+    padding: 15px;
+
+    color: var(--primary-color);
+    position: absolute;
+    top: 50%;
+    inset-inline-end: 50%;
+
+    transform: translate(50%, -50%);
+    background-color: var(--popup-background);
+    backdrop-filter: blur(150px);
+    display: flex;
+    flex-direction: column;
+    width: 400px;
+}

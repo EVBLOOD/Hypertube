@@ -8,16 +8,18 @@ import TitleCustom from "./titleCustom";
 import { MovieType } from "@/types/apiTypes";
 import { useRouter } from "next/navigation";
 
-export default function MovieCard({
-    movie,
-    className,
-}: {
-    movie: MovieType;
-    className?: string;
-}) {
+export default function MovieCard({ movie }: { movie: MovieType }) {
     const Library = useTranslations("Library");
     const router = useRouter();
+    const isWatched = (currentSeconds: number, durationInMinutes: number) => {
+        const totalSeconds = durationInMinutes * 60;
+        if (totalSeconds <= 0) return false;
 
+        if ((currentSeconds / totalSeconds) * 100 >= 85) {
+            return true;
+        }
+        return false;
+    };
     return (
         <div
             onClick={() => router.push(`/movie/${movie.id}`)}
@@ -28,9 +30,16 @@ export default function MovieCard({
                 className={styles.cardImage}
             >
                 <div className={styles.seenWrapper}>
-                    {movie.isWatched ? (
+                    {movie.lastWatchedTime > 0 ? (
                         <ButtonCustom
-                            textButton={Library("seen")}
+                            textButton={
+                                isWatched(
+                                    movie.lastWatchedTime,
+                                    movie.totalMinutes,
+                                )
+                                    ? Library("seen")
+                                    : Library("continue")
+                            }
                             buttonImage="/costumIcons/play.svg"
                             color="primary"
                             className={styles.wasSeen}

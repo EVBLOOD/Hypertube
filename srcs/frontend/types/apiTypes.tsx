@@ -24,16 +24,32 @@ export interface MovieType {
     poster: string;
     isWatched: boolean;
     isWishlisted: boolean;
+    totalMinutes: number;
+    lastWatchedTime: number;
+    liked: boolean;
+    disliked: boolean;
 }
 
 export interface CommentType {
     id: number;
     content: string;
     createdAt: string;
+    userReaction: number;
+    likeCount: number;
+    dislikeCount: number;
     user?: {
         id: number;
         username?: string;
         firstName?: string;
         lastName?: string;
     };
+}
+
+// User Search
+export interface UserSearchType {
+    id: string;
+    username: string;
+    firstName: string;
+    lastName: string;
+    profilePicture: string;
 }

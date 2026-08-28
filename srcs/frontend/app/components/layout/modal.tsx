@@ -13,6 +13,9 @@ export default function Modal({ children }: { children: ReactNode }) {
         pathname.includes("/reset-password") ||
         pathname.includes("/reset-password-email");
 
+    const alwaysOpenRoutes =
+        pathname.includes("/search") && !pathname.includes("/search/users");
+
     useEffect(() => {
         const currentPath = sessionStorage.getItem("currentPath");
         const isPrevPathAuthRoute =
@@ -20,19 +23,19 @@ export default function Modal({ children }: { children: ReactNode }) {
             currentPath?.includes("/register") ||
             currentPath?.includes("/reset-password");
 
-        console.log("perv Path:", currentPath);
-        console.log("isPrevPathAuthRoute:", isPrevPathAuthRoute);
-        console.log("isAuthRoute:", isAuthRoute);
+        console.debug("perv Path:", currentPath);
+        console.debug("isPrevPathAuthRoute:", isPrevPathAuthRoute);
+        console.debug("isAuthRoute:", isAuthRoute);
 
-        if (!isAuthRoute && isPrevPathAuthRoute) {
-            console.log("Not an auth route, navigating back");
+        if (!isAuthRoute && isPrevPathAuthRoute && !alwaysOpenRoutes) {
+            console.debug("Not an auth route, navigating back");
             router.replace("/");
         }
 
         sessionStorage.setItem("currentPath", pathname);
-    }, [isAuthRoute, pathname, router]);
+    }, [isAuthRoute, pathname, router, alwaysOpenRoutes]);
 
-    if (!isAuthRoute) {
+    if (!isAuthRoute && !alwaysOpenRoutes) {
         return null;
     }
 

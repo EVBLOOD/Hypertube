@@ -16,52 +16,143 @@ import AuthService from "@/lib/services/AuthService";
 import { useUserStore } from "@/stores/user";
 
 import { useRouter } from "next/navigation";
+import { AxiosError } from "axios";
 
 export default function Login() {
     const Login = useTranslations("Login");
     const router = useRouter();
 
-    const emailRef = useRef<HTMLInputElement>(null);
+    const emailOrUserNameRef = useRef<HTMLInputElement>(null);
     const passwordRef = useRef<HTMLInputElement>(null);
+
+    const changeLanguage = (lang: string) => {
+        document.cookie = `NEXT_LOCALE=${lang}; path=/; max-age=31536000`;
+        router.push(`/${lang}`);
+    };
 
     const handleLogin42 = () => {
         const backendUrl = process.env.NEXT_PUBLIC_BACK_API_URL || "";
 
         const targetOrigin = new URL(backendUrl).origin;
 
-        const childWindow = window.open(
+        const childWindow = open(
             `${backendUrl}/auth/login/42`,
             "_blank",
             "width=500,height=600",
         );
 
-        const messageListener = (event: MessageEvent) => {
+        const messageListener = async (event: MessageEvent) => {
             if (event.origin !== targetOrigin) return;
-            console.log("Received message:", event.data);
 
             if (event.data?.type === "login_success") {
-                console.log("User data:", event.data);
+                const userData = (await AuthService.whois())?.data;
 
                 useUserStore.getState().userLogged({
-                    username: event.data.username,
-                    language: event.data.preferredLanguage,
-                    avatar: event.data.profilePicture,
-                    isPublic: event.data.isPublic,
+                    username: userData.user.username,
+                    language: userData.user.preferredLanguage,
+                    avatar: userData.user.profilePicture,
+                    isPublic: userData.user.isPublic,
                 });
 
+                changeLanguage(userData.user.preferredLanguage || "en");
                 cleanup();
                 childWindow?.close();
-                router.push("/");
-                console.log("Login successful:", event.data);
             }
         };
 
         const cleanup = () => {
-            window.removeEventListener("message", messageListener);
+            removeEventListener("message", messageListener);
             clearInterval(checkClosedInterval);
         };
 
-        window.addEventListener("message", messageListener);
+        addEventListener("message", messageListener);
+
+        const checkClosedInterval = setInterval(() => {
+            if (childWindow?.closed) {
+                cleanup();
+            }
+        }, 1000);
+    };
+
+    const handleLoginGoogle = () => {
+        const backendUrl = process.env.NEXT_PUBLIC_BACK_API_URL || "";
+
+        const targetOrigin = new URL(backendUrl).origin;
+
+        const childWindow = open(
+            `${backendUrl}/auth/login/google`,
+            "_blank",
+            "width=500,height=600",
+        );
+
+        const messageListener = async (event: MessageEvent) => {
+            if (event.origin !== targetOrigin) return;
+            if (event.data?.type === "login_success") {
+                const userData = (await AuthService.whois())?.data;
+
+                useUserStore.getState().userLogged({
+                    username: userData.user.username,
+                    language: userData.user.preferredLanguage,
+                    avatar: userData.user.profilePicture,
+                    isPublic: userData.user.isPublic,
+                });
+
+                changeLanguage(userData.user.preferredLanguage || "en");
+                cleanup();
+                childWindow?.close();
+            }
+        };
+
+        const cleanup = () => {
+            removeEventListener("message", messageListener);
+            clearInterval(checkClosedInterval);
+        };
+
+        addEventListener("message", messageListener);
+
+        const checkClosedInterval = setInterval(() => {
+            if (childWindow?.closed) {
+                cleanup();
+            }
+        }, 1000);
+    };
+
+    const handleLoginGithub = () => {
+        const backendUrl = process.env.NEXT_PUBLIC_BACK_API_URL || "";
+
+        const targetOrigin = new URL(backendUrl).origin;
+
+        const childWindow = open(
+            `${backendUrl}/auth/login/github`,
+            "_blank",
+            "width=500,height=600",
+        );
+
+        const messageListener = async (event: MessageEvent) => {
+            if (event.origin !== targetOrigin) return;
+
+            if (event.data?.type === "login_success") {
+                const userData = (await AuthService.whois())?.data;
+
+                useUserStore.getState().userLogged({
+                    username: userData.user.username,
+                    language: userData.user.preferredLanguage,
+                    avatar: userData.user.profilePicture,
+                    isPublic: userData.user.isPublic,
+                });
+
+                changeLanguage(userData.user.preferredLanguage || "en");
+                cleanup();
+                childWindow?.close();
+            }
+        };
+
+        const cleanup = () => {
+            removeEventListener("message", messageListener);
+            clearInterval(checkClosedInterval);
+        };
+
+        addEventListener("message", messageListener);
 
         const checkClosedInterval = setInterval(() => {
             if (childWindow?.closed) {
@@ -71,11 +162,11 @@ export default function Login() {
     };
 
     async function handelLogin() {
-        const email = emailRef.current?.value;
+        const emailOrUserName = emailOrUserNameRef.current?.value;
         const password = passwordRef.current?.value;
 
-        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            alert("Please enter a valid email address.");
+        if (!emailOrUserName || emailOrUserName.trim() === "") {
+            alert("Please enter a valid emailOrUserName address.");
             return;
         }
         if (!password || password.length < 6) {
@@ -84,25 +175,34 @@ export default function Login() {
         }
         try {
             const result = (
-                await AuthService.login({ username: email, password })
+                await AuthService.login({ username: emailOrUserName, password })
             )?.data;
             if (!result || !result.user) {
                 alert("Login failed. Please check your credentials.");
                 return;
             }
             const user = result.user;
+
             useUserStore.getState().userLogged({
                 username: user.username,
                 language: user.preferredLanguage,
                 avatar: user.profilePicture,
                 isPublic: user.isPublic,
             });
-            console.log("Login successful:", user);
 
-            router.push("/");
-            // window.location.href = '/';
+            changeLanguage(user.preferredLanguage || "en");
         } catch (err) {
-            alert("Login failed. Please check your credentials.");
+            const errorMessage = (
+                (err as AxiosError).response?.data as
+                    { message: string } | { message: string[] }
+            )?.message;
+            if (typeof errorMessage === "string") {
+                alert(errorMessage);
+            } else if (Array.isArray(errorMessage) && errorMessage.length > 0) {
+                alert(errorMessage[0]);
+            } else {
+                alert("Login failed. Please check your credentials.");
+            }
         }
     }
 
@@ -144,7 +244,18 @@ export default function Login() {
                             <ButtonCustom
                                 textButton={Login.raw("integrations")[1]}
                                 buttonImage="/costumIcons/42icon.svg"
-                                onClick={handleLogin42}
+                                onClick={handleLoginGithub}
+                                style={{
+                                    display: "flex",
+                                    justifyContent: "start",
+                                    alignItems: "center",
+                                    paddingLeft: "10px",
+                                }}
+                            ></ButtonCustom>
+                            <ButtonCustom
+                                textButton={Login.raw("integrations")[2]}
+                                buttonImage="/costumIcons/42icon.svg"
+                                onClick={handleLoginGoogle}
                                 style={{
                                     display: "flex",
                                     justifyContent: "start",
@@ -164,7 +275,7 @@ export default function Login() {
 
                         <div className={styles.loginInfos}>
                             <InputCustom
-                                ref={emailRef}
+                                ref={emailOrUserNameRef}
                                 lableName={Login("label_address")}
                                 placeHolder={Login("label_address")}
                             />

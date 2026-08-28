@@ -6,28 +6,27 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useUserStore } from "@/stores/user";
 import AuthService from "@/lib/services/AuthService";
-import { useEffect, useState } from "react";
-import InputCustom from "../ui/inputCustom";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 
 export default function Header() {
     const header = useTranslations("Header");
     const user = useUserStore((state) => state.user);
-    const [openSearch, setOpenSearch] = useState(false);
+    const router = useRouter();
 
     async function handleLogout() {
         try {
             await AuthService.logout();
             useUserStore.getState().reset();
         } catch (err) {
-            console.log(err);
+            console.debug(err);
         } finally {
             useUserStore.getState().reset();
         }
     }
     function handleSearch() {
-        setOpenSearch(!openSearch);
+        router.push("/search");
     }
     const pathname = usePathname();
 
@@ -43,33 +42,35 @@ export default function Header() {
                             href="/library"
                             className={`${pathname.split("/")[2] == "library" ? styles.optionSelection : ""} ${styles.optionNotSelection}`}
                         >
-                            {header("library")}
+                            {header("navigation.library")}
                         </Link>
                         <Link
                             href="/trending"
                             className={`${pathname.split("/")[2] == "trending" ? styles.optionSelection : ""} ${styles.optionNotSelection}`}
                         >
-                            {header("trending")}
+                            {header("navigation.trending")}
                         </Link>
                         <Link
                             href="/watchlist"
                             className={`${pathname.split("/")[2] == "watchlist" ? styles.optionSelection : ""} ${styles.optionNotSelection}`}
                         >
-                            {header("watchlist")}
+                            {header("navigation.watchlist")}
                         </Link>
                         <Link
                             href="/profile"
                             className={`${pathname.split("/")[2] == "profile" ? styles.optionSelection : ""} ${styles.optionNotSelection}`}
                         >
-                            {header("my_vault")}
+                            {header("navigation.myVault")}
                         </Link>
                     </div>
                     <div className={styles.actionsWraper}>
-                        <img
+                        <Image
+                            height={20}
+                            width={20}
                             onClick={handleSearch}
                             style={{ cursor: "pointer" }}
                             src="/costumIcons/icon.svg"
-                            alt="search"
+                            alt={header("actions.search")}
                             className={styles.searchButton}
                         />
                         {!user ? (
@@ -77,7 +78,7 @@ export default function Header() {
                                 href="/login"
                                 style={{ width: "90px" }}
                                 buttonImage={undefined}
-                                textButton={header("sign_in")}
+                                textButton={header("actions.signIn")}
                                 color="var(--primary-color)"
                             />
                         ) : (
@@ -85,7 +86,7 @@ export default function Header() {
                                 onClick={handleLogout}
                                 style={{ width: "90px" }}
                                 buttonImage={undefined}
-                                textButton={header("sign_out")}
+                                textButton={header("actions.signOut")}
                                 color="var(--primary-color)"
                             />
                         )}
@@ -98,45 +99,49 @@ export default function Header() {
                     href="/library"
                     className={`${`${pathname.split("/")[2] == "library" ? styles.optionSelection : ""} ${styles.optionNotSelection}`}`}
                 >
-                    <img
-                        height={"20px"}
+                    <Image
+                        height={20}
+                        width={20}
                         src="/costumIcons/play.svg"
-                        alt="library"
+                        alt={header("navigation.library")}
                     />{" "}
-                    <span>library</span>
+                    <span>{header("navigation.library")}</span>
                 </Link>
                 <Link
                     href="/trending"
                     className={`${pathname.split("/")[2] == "trending" ? styles.optionSelection : ""} ${styles.optionNotSelection}`}
                 >
-                    <img
-                        height={"20px"}
+                    <Image
+                        height={20}
+                        width={20}
                         src="/costumIcons/play.svg"
-                        alt="trending"
+                        alt={header("navigation.trending")}
                     />{" "}
-                    <span>trending</span>
+                    <span>{header("navigation.trending")}</span>
                 </Link>
                 <Link
                     href="/watchlist"
                     className={`${pathname.split("/")[2] == "watchlist" ? styles.optionSelection : ""} ${styles.optionNotSelection}`}
                 >
-                    <img
-                        height={"20px"}
+                    <Image
+                        height={20}
+                        width={20}
                         src="/costumIcons/play.svg"
-                        alt="watchlist"
+                        alt={header("navigation.watchlist")}
                     />
-                    <span>watchlist</span>
+                    <span>{header("navigation.watchlist")}</span>
                 </Link>
                 <Link
                     href="/profile"
                     className={`${pathname.split("/")[2] == "profile" ? styles.optionSelection : ""} ${styles.optionNotSelection}`}
                 >
-                    <img
-                        height={"20px"}
+                    <Image
+                        height={20}
+                        width={20}
                         src="/costumIcons/play.svg"
-                        alt="my_vault"
+                        alt={header("navigation.myVault")}
                     />
-                    <span>my_vault</span>
+                    <span>{header("navigation.myVault")}</span>
                 </Link>
             </div>
         </>

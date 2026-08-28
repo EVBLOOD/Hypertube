@@ -1,9 +1,4 @@
-import {
-    forwardRef,
-    Inject,
-    Injectable,
-    NotFoundException,
-} from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { User } from "./entities/user.entity";
@@ -16,6 +11,7 @@ import { MoviesService } from "src/movies/movies.service";
 import { RedisService } from "src/common/redis/redis.service";
 import { MailsService } from "src/mails/mails.service";
 import { v4 as uuidv4 } from "uuid";
+import { PaginationFindUserDto } from "./dto/find-user.dto";
 
 @Injectable()
 export class UsersService {
@@ -60,7 +56,7 @@ export class UsersService {
         let tmpDto: UpdateUserDto = { ...dto };
         const actions: string[] = [];
 
-        const user = await this.userRepo.findOne({ where: { id } });
+        let user = await this.userRepo.findOne({ where: { id } });
         if (!user) throw new NotFoundException("User not found");
         if (dto.email && dto.email !== user.email) {
             const existingUser = await this.userRepo.findOne({
@@ -114,7 +110,12 @@ export class UsersService {
             tmpDto = { ...lol };
         }
 
-        actions.push("updated successfully");
+        if (tmpDto.password) {
+            delete tmpDto.password;
+        }
+
+        user = Object.assign(user, tmpDto);
+
         return { user: await this.userRepo.save(user), actions: actions };
     }
 
@@ -151,5 +152,52 @@ export class UsersService {
             stats,
             history: history,
         };
+    }
+
+    async findUsers(paging: PaginationFindUserDto, requestorId: number) {
+        console.log(
+            "findUsers called with paging:",
+            paging,
+            "requestorId:",
+            requestorId,
+        );
+        const { page = 1, limit = 20, username } = paging;
+        const query = this.userRepo
+            .createQueryBuilder("user")
+            .select([
+                "user.id",
+                "user.username",
+                "user.firstName",
+                "user.lastName",
+                "user.profilePicture",
+            ])
+            .where("user.username LIKE :username", {
+                username: `%${username}%`,
+            })
+            .andWhere("user.id != :requestorId", { requestorId })
+            .andWhere("user.privacy = :privacy", { privacy: "public" })
+            .orderBy("user.username", "ASC")
+            .skip((page - 1) * limit)
+            .take(limit);
+
+        const [users, total] = await query.getManyAndCount();
+
+        return {
+            data: users,
+            metadata: {
+                nextPage: page + 1,
+                hasMore: total > page * limit,
+            },
+        };
+    }
+
+    async updateAvatar(userId: number, path: string) {
+        const user = await this.userRepo.findOne({ where: { id: userId } });
+        if (!user) throw new NotFoundException("User not found");
+
+        user.profilePicture = path;
+        await this.userRepo.save(user);
+
+        return { message: "Profile picture updated successfully" };
     }
 }

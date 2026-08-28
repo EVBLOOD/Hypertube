@@ -1,11 +1,17 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import ButtonCustom from "../ui/buttonCustom";
 import DescriptionComponent from "../ui/descriptionComponent";
 import RecordComponent from "../ui/recordComponent";
 import TitleCustom from "../ui/titleCustom";
 import styles from "./heroSectionMovie.module.css";
 import { useRouter } from "next/navigation";
+import ShareTo from "./shareTo";
+import WatchWith from "./watchWith";
+import { useSocket } from "@/app/context/SocketContext";
+import LoadingPage from "./loading";
 
 export interface MovieInfos {
     id: string;
@@ -31,7 +37,7 @@ export default function HeroSectionMovie({
     isLiked = false,
     isDisliked = false,
 }: {
-    obj: any;
+    obj: MovieInfos;
     onLike?: () => void;
     onDislike?: () => void;
     onWishlist?: () => void;
@@ -40,6 +46,34 @@ export default function HeroSectionMovie({
     isDisliked?: boolean;
 }) {
     const router = useRouter();
+    const t = useTranslations("MovieDetail");
+
+    const [openShare, setOpenShare] = useState(false);
+    const [openWatch, setOpenWatch] = useState(false);
+    const { socket, isConnected } = useSocket();
+    const [inviteSentAndWaitingRoomId, setInviteSentAndWaitingRoomId] =
+        useState("");
+
+    useEffect(() => {
+        if (!socket || !isConnected) return;
+
+        socket.on("INVITE_ACCEPTED", (params: { roomId: string }) => {
+            console.debug(
+                `Received INVITE_ACCEPTED event with params: ${JSON.stringify(params)}`,
+            );
+            setInviteSentAndWaitingRoomId("");
+            router.push(`/watch/${obj.id}?token=${params.roomId}`);
+        });
+
+        return () => {
+            socket.emit("abort_stream", { roomId: obj.id });
+            socket.off("INVITE_ACCEPTED");
+            setInviteSentAndWaitingRoomId("");
+        };
+    }, [socket, isConnected, obj.id, router]);
+
+    if (inviteSentAndWaitingRoomId.length > 0)
+        return <LoadingPage message={t("waitingForFriends")}></LoadingPage>;
 
     if (obj)
         return (
@@ -70,7 +104,9 @@ export default function HeroSectionMovie({
                             />
                             <ButtonCustom
                                 className={styles.MovieHeroInfosItems}
-                                textButton={obj.time?.toString() || "2H 14MIN"}
+                                textButton={
+                                    obj.time?.toString() || t("defaultRuntime")
+                                }
                                 buttonImage={undefined}
                                 color={null}
                             />
@@ -82,7 +118,7 @@ export default function HeroSectionMovie({
                             />
                             <ButtonCustom
                                 className={styles.MovieHeroInfosItems}
-                                textButton={obj.size || "12.4 GB"}
+                                textButton={obj.size || t("defaultSize")}
                                 buttonImage={undefined}
                                 color={null}
                             />
@@ -95,14 +131,14 @@ export default function HeroSectionMovie({
 
                     <div className={styles.heroSectionInfos}>
                         <ButtonCustom
-                            textButton="WATCH NOW"
+                            textButton={t("watchNow")}
                             buttonImage="/costumIcons/play.svg"
                             color="primary"
                             onClick={() => router.push(`/watch/${obj.id}`)}
                         />
                         <div className={styles.heroSectionActions}>
                             <ButtonCustom
-                                textButton="WATCH LATER"
+                                textButton={t("watchLater")}
                                 buttonImage={"/costumIcons/watchLater.svg"}
                                 color={isWishlisted ? "primary" : null}
                                 onClick={onWishlist}
@@ -111,11 +147,14 @@ export default function HeroSectionMovie({
                                 }}
                             />
                             <ButtonCustom
-                                textButton="LIVE INVITE"
+                                textButton={t("liveInvite")}
                                 buttonImage={"/costumIcons/inviteWatch.svg"}
                                 color={null}
                                 style={{
                                     border: "var(--popup-background-second) 1px solid",
+                                }}
+                                onClick={() => {
+                                    setOpenWatch(!openWatch);
                                 }}
                             />
                         </div>
@@ -139,9 +178,29 @@ export default function HeroSectionMovie({
                             <ButtonCustom
                                 className={styles.MovieHeroInfosItems}
                                 textButton=""
+                                onClick={() => setOpenShare(!openShare)}
                                 buttonImage="/costumIcons/shareMovie.svg"
                                 color={null}
                             />
+                            {openShare && (
+                                <ShareTo
+                                    url={`${process.env.NEXT_PUBLIC_BACK_API_URL}/movie/${obj.id}`}
+                                    title={obj.title}
+                                    onClose={() => setOpenShare(false)}
+                                />
+                            )}
+                            {openWatch && (
+                                <WatchWith
+                                    imdbId={obj.id}
+                                    title={obj.title}
+                                    onClose={() => {
+                                        setOpenWatch(false);
+                                    }}
+                                    setInviteSentAndWaitingRoomId={
+                                        setInviteSentAndWaitingRoomId
+                                    }
+                                ></WatchWith>
+                            )}
                         </div>
                     </div>
                 </div>

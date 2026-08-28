@@ -8,6 +8,7 @@ import { getMessages } from "next-intl/server";
 import UseQueryProvider from "../components/providers/useQueryProvider";
 import Footer from "../components/layout/footer";
 import LanguageSwitcher from "../components/ui/languageSwitcher";
+import { SocketProvider } from "../context/SocketContext";
 
 const spaceGrotesk = Space_Grotesk({
     subsets: ["latin"],
@@ -49,11 +50,13 @@ export default async function RootLayout({
                 <NextIntlClientProvider messages={messages}>
                     <UseQueryProvider>
                         {/* <AuthProvider> */}
-                        <LanguageSwitcher local={locale} />
-                        <Header />
-                        {children}
-                        {modal}
-                        <Footer />
+                        <SocketProvider>
+                            <LanguageSwitcher local={locale} />
+                            <Header />
+                            {children}
+                            {modal}
+                            <Footer />
+                        </SocketProvider>
                         {/* </AuthProvider> */}
                     </UseQueryProvider>
                 </NextIntlClientProvider>

@@ -1,0 +1,36 @@
+.watchPartySection {
+    display: flex;
+    flex-direction: row;
+}
+.chatSection {
+    width: 300px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.chatInput {
+    display: flex;
+    flex-direction: row;
+}
+
+.message {
+    margin-bottom: 5px;
+    max-width: 100%;
+    word-wrap: break-word;
+}
+
+.yourMessage {
+    text-align: right;
+    background-color: var(--popup-background-second);
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.otherMessage {
+    text-align: left;
+    background-color: var(--popup-background-second);
+    padding: 5px;
+    border-radius: 5px;
+}

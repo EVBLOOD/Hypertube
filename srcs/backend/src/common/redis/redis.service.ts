@@ -48,21 +48,14 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
         return await this.client.lLen(key);
     }
 
-    // async pushMovies(key: string, ...value: string[]) {
-    //   await this.client.rPush(key, value);
-    //   await this.client.expire(key, 6000);
-    // }
-
-    // async getMovies(key: string, skip: number, limit: number) {
-    //   const start = skip;
-    //   const stop = skip + limit - 1;
-    //   return await this.client.lRange(key, start, stop);
-    // }
-
     async pushMovies(key: string, movies: any[]) {
+        if (!movies || movies.length === 0) return;
+
         const pipeline = this.client.multi();
 
-        let scoreBase = await this.client.incr(`${key}:counter`);
+        const count = movies.length;
+        const lastScore = await this.client.incrBy(`${key}:counter`, count);
+        let scoreBase = lastScore - count + 1;
         for (const movie of movies) {
             const id = movie.id;
             pipeline.set(`movie:${id}`, JSON.stringify(movie), { EX: 86400 });
@@ -77,9 +70,10 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     }
 
     async getMovies(key: string, start: number, size: number) {
-        const ids = await this.client.zRange(key, start, start + size - 1);
+        const stop = start + size - 1;
+        const ids = await this.client.zRange(key, start, stop);
 
-        if (!ids.length) return [];
+        if (!ids || ids.length === 0) return [];
 
         const pipeline = this.client.multi();
         for (const id of ids) {
