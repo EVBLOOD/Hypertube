@@ -7,11 +7,15 @@ import { useEffect } from "react";
 
 export default function AuthCallbackPage() {
     useEffect(() => {
+
         const finishAuth = async () => {
+
             try {
                 let user = null;
+
                 try {
                     user = (await AuthService.whois()).data;
+
                     useUserStore.getState().userLogged({
                         username: user.username,
                         language: user.preferredLanguage,
@@ -21,13 +25,27 @@ export default function AuthCallbackPage() {
                 } catch (err) {
                     console.debug(err);
                 }
+                const authChannel = new BroadcastChannel("auth_channel");
 
-                if (window.opener) {
-                    window.opener.postMessage(
-                        { type: "login_success", user },
-                        window.location.origin,
-                    );
+                if (!user) {
+                    authChannel.postMessage({ type: "login_failure" });
+                } else {
+                    authChannel.postMessage({
+                        type: "login_success",
+                        user: user
+                    });
                 }
+
+                authChannel.close();
+
+                // if (window.opener) {
+                //     console.debug("Sending login success message to opener window:", { type: "login_success", user });
+                //     window.opener.postMessage(
+                //         { type: "login_success", user },
+                //         window.location.origin,
+                //     );
+                // }
+
             } catch (error) {
                 console.debug("Error during auth callback:", error);
             } finally {

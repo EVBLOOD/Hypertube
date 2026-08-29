@@ -11,7 +11,7 @@ import Modal from "@/app/components/layout/modal";
 import PopupCard from "@/app/components/layout/popupCard";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import AuthService from "@/lib/services/AuthService";
 import { useUserStore } from "@/stores/user";
 import { useRouter } from "next/navigation";
@@ -23,12 +23,12 @@ export default function Login() {
 
     const emailOrUserNameRef = useRef<HTMLInputElement>(null);
     const passwordRef = useRef<HTMLInputElement>(null);
+    const childWindowRef = useRef<Window | null>(null);
 
     const changeLanguage = (lang: string) => {
         document.cookie = `NEXT_LOCALE=${lang}; path=/; max-age=31536000`;
         router.push(`/${lang}`);
     };
-
     async function handelLogin() {
         const emailOrUserName = emailOrUserNameRef.current?.value;
         const password = passwordRef.current?.value;
@@ -69,41 +69,43 @@ export default function Login() {
         }
     }
 
+    useEffect(() => {
+        const authChannel = new BroadcastChannel("auth_channel");
+
+        authChannel.onmessage = (event) => {
+            if (event.data?.type === "login_success") {
+                const user = event.data.user?.user;
+
+                const preferredLang = user.preferredLanguage || "en";
+                useUserStore.getState().userLogged({
+                    username: user.username,
+                    language: user.preferredLanguage,
+                    avatar: user.profilePicture,
+                    isPublic: user.isPublic,
+                });
+                changeLanguage(preferredLang);
+
+                if (childWindowRef.current && !childWindowRef.current.closed) {
+                    childWindowRef.current.close();
+                }
+            } else if (event.data?.type === "login_failure") {
+                alert("Login failed.");
+            }
+        };
+
+        return () => {
+            authChannel.close();
+        };
+    }, []);
+
     const handleLoginOauth = (type: "github" | "google" | "42") => {
         const backendUrl = process.env.NEXT_PUBLIC_BACK_API_URL || "";
 
-        const targetOrigin = new URL(backendUrl).origin;
-
-        const childWindow = open(
+        childWindowRef.current = window.open(
             `${backendUrl}/auth/login/${type}`,
-            "_blank",
+            "OAuthPopup",
             "width=500,height=600",
         );
-
-        const messageListener = async (event: MessageEvent) => {
-            if (event.origin !== targetOrigin) return;
-
-            if (event.data?.type === "login_success") {
-                changeLanguage(
-                    event.data.user?.user?.preferredLanguage || "en",
-                );
-                cleanup();
-                childWindow?.close();
-            }
-        };
-
-        const cleanup = () => {
-            removeEventListener("message", messageListener);
-            clearInterval(checkClosedInterval);
-        };
-
-        addEventListener("message", messageListener);
-
-        const checkClosedInterval = setInterval(() => {
-            if (childWindow?.closed) {
-                cleanup();
-            }
-        }, 1000);
     };
 
     return (
