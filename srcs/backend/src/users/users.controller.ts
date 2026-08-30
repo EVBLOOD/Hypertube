@@ -23,6 +23,7 @@ import {
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { WhitelistGuard } from "../auth/guards/whitelist.guard";
+import { ApiScopeGuard } from "../auth/guards/api-scope.guard";
 import { UsersService } from "./users.service";
 import { ApiDoc } from "../docs/decorators/api-doc.decorator";
 import { PaginationFindUserDto } from "./dto/find-user.dto";
@@ -34,10 +35,10 @@ import { get } from "axios";
 import fsPromises from "fs/promises";
 
 @Controller("users")
-@UseGuards(JwtAuthGuard, WhitelistGuard)
 export class UsersController {
     constructor(private readonly userService: UsersService) {}
 
+    @UseGuards(ApiScopeGuard)
     @Get()
     @ApiDoc({ target: "users.getAllUsers" })
     async getAllUsers() {
@@ -48,24 +49,28 @@ export class UsersController {
         }));
     }
 
+    @UseGuards(JwtAuthGuard, WhitelistGuard)
     @Patch("me")
     @ApiDoc({ target: "users.updateMe" })
     async updateMe(@Req() req, @Body() dto: UpdateUserDto) {
         return this.userService.update(req.user.id, dto);
     }
 
+    @UseGuards(JwtAuthGuard, WhitelistGuard)
     @Get("me/summary")
     @ApiDoc({ target: "users.getMySummary" })
     async getMySummary(@Req() req) {
         return this.userService.getProfileSummary(req.user.id);
     }
 
+    @UseGuards(JwtAuthGuard, WhitelistGuard)
     @Get("find/users")
     @ApiDoc({ target: "users.findUsers" })
     async findUsers(@Query() paging: PaginationFindUserDto, @Req() req) {
         return this.userService.findUsers(paging, req.user.id);
     }
 
+    @UseGuards(JwtAuthGuard, WhitelistGuard)
     @Post("avatar_update")
     @ApiDoc({ target: "users.uploadImage" })
     @UseInterceptors(FileInterceptor("file", { storage: memoryStorage() }))
@@ -110,6 +115,7 @@ export class UsersController {
         };
     }
 
+    @UseGuards(JwtAuthGuard, WhitelistGuard)
     @Get("avatar/:filename")
     @ApiDoc({ target: "users.getAvatar" })
     async getAvatar(@Param("filename") filename: string) {
@@ -136,14 +142,14 @@ export class UsersController {
         });
     }
 
+    @UseGuards(ApiScopeGuard)
     @Get(":id")
     @ApiDoc({ target: "users.getProfile" })
-    async getProfile(@Param("id", ParseIntPipe) targetId: number, @Req() req) {
-    //     return this.userService.findById(targetId, req.user.id);
-    // async getProfile(@Param("id", ParseIntPipe) targetId: number) {
+    async getProfile(@Param("id", ParseIntPipe) targetId: number) {
         return this.userService.findUserForApi(targetId);
     }
 
+    @UseGuards(ApiScopeGuard)
     @Patch(":id")
     async updateProfile(
         @Param("id", ParseIntPipe) targetId: number,

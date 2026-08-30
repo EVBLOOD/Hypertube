@@ -242,7 +242,15 @@ export class AuthService {
             throw new UnauthorizedException("Invalid client credentials");
         }
 
-        const { access_token } = await this.login(targetUser);
+        const payload = {
+            sub: targetUser.id,
+            username: targetUser.username,
+            scope: "api",
+        };
+        const access_token = this.jwtService.sign(payload, { expiresIn: "24h" });
+
+        await this.redisService.set(`session:${targetUser.id}`, access_token, 86400);
+
         return {
             access_token,
             token_type: "Bearer",

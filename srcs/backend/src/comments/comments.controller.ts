@@ -14,6 +14,7 @@ import {
 } from "@nestjs/common";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { WhitelistGuard } from "../auth/guards/whitelist.guard";
+import { ApiScopeGuard } from "../auth/guards/api-scope.guard";
 import { CommentsService } from "./comments.service";
 import { PaginationCommentDto } from "./dto/pagination-comments.dto ";
 import { OptionalJwtAuthGuard } from "src/auth/guards/optional-jwt-auth.guard";
@@ -45,7 +46,7 @@ export class CommentsController {
         return this.commentService.findByMovie(id, paging, userId);
     }
 
-    @UseGuards(JwtAuthGuard, WhitelistGuard)
+    @UseGuards(ApiScopeGuard)
     @Post()
     async createComment(@Body() dto: CreateCommentDto, @Req() req) {
         const movieId = dto.movie_id || dto.movieId || dto.imdbId;
@@ -61,7 +62,7 @@ export class CommentsController {
         return this.commentService.create(req.user?.id, movieId, content);
     }
 
-    @UseGuards(JwtAuthGuard, WhitelistGuard)
+    @UseGuards(ApiScopeGuard)
     @Patch(":id")
     async updateComment(
         @Param("id", ParseIntPipe) id: number,
@@ -81,7 +82,7 @@ export class CommentsController {
         );
     }
 
-    @UseGuards(JwtAuthGuard, WhitelistGuard)
+    @UseGuards(ApiScopeGuard)
     @Delete(":id")
     async deleteComment(
         @Param("id", ParseIntPipe) id: number,
