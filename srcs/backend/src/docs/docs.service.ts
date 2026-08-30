@@ -34,10 +34,8 @@ export type ApiDocumentation = Record<string, ApiEndpointDocumentation[]>;
 export class DocsService {
     constructor(private readonly discoveryService: DiscoveryService) {}
 
-    private readonly documentation = documentationFile as Record<
-        string,
-        DocumentationEntry
-    >;
+
+    private readonly documentation = documentationFile as Record<string, DocumentationEntry>;
 
     private getResourceName(path: string): string {
         return path.split("/").filter(Boolean)[1] ?? "root";
@@ -68,7 +66,10 @@ export class DocsService {
                 if (handlerName === "constructor") return [];
                 
                 const handler = controller.prototype[handlerName];
+                if (!Reflect.hasMetadata(API_DOC_METADATA, handler)) return [];
+
                 const requestMethod = Reflect.getMetadata(METHOD_METADATA, handler);
+                if (requestMethod === undefined) return [];
 
                 const method = RequestMethod[requestMethod];
 

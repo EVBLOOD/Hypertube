@@ -1,5 +1,4 @@
 import { Controller, Get } from "@nestjs/common";
-import { ApiDoc } from "./decorators/api-doc.decorator";
 import { DocsService } from "./docs.service";
 
 @Controller("docs")

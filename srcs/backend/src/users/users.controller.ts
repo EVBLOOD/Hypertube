@@ -51,28 +51,24 @@ export class UsersController {
 
     @UseGuards(JwtAuthGuard, WhitelistGuard)
     @Patch("me")
-    @ApiDoc({ target: "users.updateMe" })
     async updateMe(@Req() req, @Body() dto: UpdateUserDto) {
         return this.userService.update(req.user.id, dto);
     }
 
     @UseGuards(JwtAuthGuard, WhitelistGuard)
     @Get("me/summary")
-    @ApiDoc({ target: "users.getMySummary" })
     async getMySummary(@Req() req) {
         return this.userService.getProfileSummary(req.user.id);
     }
 
     @UseGuards(JwtAuthGuard, WhitelistGuard)
     @Get("find/users")
-    @ApiDoc({ target: "users.findUsers" })
     async findUsers(@Query() paging: PaginationFindUserDto, @Req() req) {
         return this.userService.findUsers(paging, req.user.id);
     }
 
     @UseGuards(JwtAuthGuard, WhitelistGuard)
     @Post("avatar_update")
-    @ApiDoc({ target: "users.uploadImage" })
     @UseInterceptors(FileInterceptor("file", { storage: memoryStorage() }))
     uploadImage(
         @UploadedFile(
@@ -117,7 +113,6 @@ export class UsersController {
 
     @UseGuards(JwtAuthGuard, WhitelistGuard)
     @Get("avatar/:filename")
-    @ApiDoc({ target: "users.getAvatar" })
     async getAvatar(@Param("filename") filename: string) {
         const safeFilename = basename(filename);
         const uploadDir = resolve(process.cwd(), "uploads");
@@ -151,6 +146,7 @@ export class UsersController {
 
     @UseGuards(ApiScopeGuard)
     @Patch(":id")
+    @ApiDoc({ target: "users.updateProfile" })
     async updateProfile(
         @Param("id", ParseIntPipe) targetId: number,
         @Body() dto: UpdateUserDto,
