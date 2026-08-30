@@ -14,6 +14,7 @@ import { useEffect, useRef, useState } from "react";
 import AuthService from "@/lib/services/AuthService";
 import { useRouter } from "next/navigation";
 import { getErrorMessage } from "@/lib/helper";
+import { toast } from "@/app/components/ui/toast";
 
 export default function ResetPasswordEmail() {
     const ResetPasswordEmail = useTranslations("ResetPasswordEmail");
@@ -26,17 +27,17 @@ export default function ResetPasswordEmail() {
         const email = emailRef.current?.value;
 
         if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            alert("Please enter a valid email address.");
+            toast.error("Please enter a valid email address.");
             return;
         }
 
         try {
             const result = await AuthService.requestResetPassword(email);
             if (!result || !result.data) {
-                alert("Email request failed. Please check your details.");
+                toast.error("Email request failed. Please check your details.");
                 return;
             } else {
-                alert(
+                toast.success(
                     "Email request sent successfully. Please check your email.",
                 );
             }
@@ -44,9 +45,9 @@ export default function ResetPasswordEmail() {
         } catch (err) {
             const errorMessage = getErrorMessage(err);
             if (errorMessage !== "an listed error occurred.") {
-                alert(errorMessage);
+                toast.error(errorMessage);
             } else {
-                alert("Email request failed. Please try again.");
+                toast.error("Email request failed. Please try again.");
             }
         }
     }

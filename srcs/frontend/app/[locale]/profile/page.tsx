@@ -26,6 +26,7 @@ import type {
     UpdateUserPayload,
 } from "@/types/app";
 import { getErrorMessage } from "@/lib/helper";
+import { toast } from "@/app/components/ui/toast";
 
 export default function ProfilePage() {
     const { data, isPending, error } = useProfileSummary();
@@ -106,7 +107,7 @@ function ProfileSectionPage({
         const actions = updated?.actions || [];
 
         actions.forEach((action) => {
-            alert(`Action: ${action}`);
+            toast.error(`Action: ${action}`);
         });
         console.debug("Updated user:", updatedUser);
         if (updatedUser?.preferredLanguage) {

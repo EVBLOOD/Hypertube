@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+// import "react-toastify/dist/ReactToastify.css";
 import Header from "../components/layout/header";
 import { Space_Grotesk, Manrope } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
@@ -9,6 +10,7 @@ import UseQueryProvider from "../components/providers/useQueryProvider";
 import Footer from "../components/layout/footer";
 import LanguageSwitcher from "../components/ui/languageSwitcher";
 import { SocketProvider } from "../context/SocketContext";
+import Toast from "../components/ui/toast";
 
 const spaceGrotesk = Space_Grotesk({
     subsets: ["latin"],
@@ -55,6 +57,7 @@ export default async function RootLayout({
                             <Header />
                             {children}
                             {modal}
+                            <Toast locale={locale} />
                             <Footer />
                         </SocketProvider>
                         {/* </AuthProvider> */}

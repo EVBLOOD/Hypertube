@@ -11,6 +11,7 @@ import DocsService from "@/lib/services/DocsService";
 import type { ApiCardProps, ApiDocumentation, Docs, LocalizedText,
 } from "@/types/app";
 import LoadingPage from "@/app/components/layout/loading";
+import { toast } from "@/app/components/ui/toast";
 
 function getLocalizedText(text: LocalizedText | undefined, locale: string) {
     if (!text) return undefined;

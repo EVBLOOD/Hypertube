@@ -14,6 +14,7 @@ import { useEffect, useRef, useState } from "react";
 import AuthService from "@/lib/services/AuthService";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getErrorMessage } from "@/lib/helper";
+import { toast } from "@/app/components/ui/toast";
 
 export default function ResetPassword() {
     const router = useRouter();
@@ -29,7 +30,7 @@ export default function ResetPassword() {
         const password = passwordRef.current?.value;
 
         if (!password || password.length < 6) {
-            alert("Password must be at least 6 characters long.");
+            toast.error("Password must be at least 6 characters long.");
             return;
         }
         try {
@@ -38,16 +39,16 @@ export default function ResetPassword() {
                 password,
             );
             if (!result || !result.data) {
-                alert("Reset password failed. Please check your details.");
+                toast.error("Reset password failed. Please check your details.");
                 return;
             }
             router.push("/?passwordReset=success");
         } catch (err) {
             const errorMessage = getErrorMessage(err);
             if (errorMessage !== "an listed error occurred.") {
-                alert(errorMessage);
+                toast.error(errorMessage);
             } else {
-                alert("Reset password failed. Please try again.");
+                toast.error("Reset password failed. Please try again.");
             }
         }
     }

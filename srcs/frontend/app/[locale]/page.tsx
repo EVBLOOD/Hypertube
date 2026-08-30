@@ -12,6 +12,7 @@ import { AxiosError } from "axios";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { getErrorMessage } from "@/lib/helper";
+import { toast } from "@/app/components/ui/toast";
 
 export default function Home() {
     const searchParams = useSearchParams();
@@ -21,24 +22,24 @@ export default function Home() {
     const passwordReset = searchParams.get("passwordReset");
     useEffect(() => {
         if (emailChange === "success") {
-            alert("Email change verified successfully");
+            toast.success("Email change verified successfully");
         } else if (emailChange === "failed") {
-            alert("Email change verification failed");
+            toast.error("Email change verification failed");
         }
         if (verify === "success") {
-            alert("Email verified successfully");
+            toast.success("Email verified successfully");
         } else if (verify === "failed") {
-            alert("Email verification failed");
+            toast.error("Email verification failed");
         }
         if (passwordChange === "success") {
-            alert("Password changed successfully");
+            toast.success("Password changed successfully");
         } else if (passwordChange === "failed") {
-            alert("Password change failed");
+            toast.error("Password change failed");
         }
         if (passwordReset === "success") {
-            alert("Password reset successfully");
+            toast.success("Password reset successfully");
         } else if (passwordReset === "failed") {
-            alert("Password reset failed");
+            toast.error("Password reset failed");
         }
     }, [emailChange, verify, passwordChange, passwordReset]);
 
