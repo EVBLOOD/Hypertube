@@ -5,6 +5,7 @@ import InputCustom from "../ui/inputCustom";
 import styles from "./watchWith.module.css";
 import { useRef } from "react";
 import Image from "next/image";
+import { toast } from "@/app/components/ui/toast";
 
 export default function WatchWith({
     imdbId,
@@ -24,7 +25,7 @@ export default function WatchWith({
         try {
             const userInput = inputRef.current?.value;
             if (!userInput) {
-                alert(t("validation.emptyInput"));
+                toast.error(t("validation.emptyInput"));
                 return;
             }
             const response = await MovieService.sendInvite(
@@ -34,13 +35,13 @@ export default function WatchWith({
             );
             console.debug("Invite sent successfully:", response);
 
-            alert(t("success.sent"));
+            toast.success(t("success.sent"));
             onClose();
             console.debug(response.data.token);
             setInviteSentAndWaitingRoomId(response.data.token || "");
         } catch (error) {
             console.debug("Error sending invite:", error);
-            alert(t("error.sendFailed"));
+            toast.error(t("error.sendFailed"));
         }
     }
 

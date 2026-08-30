@@ -14,6 +14,7 @@ import { useEffect, useRef, useState } from "react";
 import AuthService from "@/lib/services/AuthService";
 import { useRouter } from "next/navigation";
 import { getErrorMessage } from "@/lib/helper";
+import { toast } from "@/app/components/ui/toast";
 
 export default function Register() {
     const Register = useTranslations("Register");
@@ -34,23 +35,23 @@ export default function Register() {
         const password = passwordRef.current?.value;
 
         if (!firstname || !lastname || !username || !email || !password) {
-            alert("Please fill in all fields.");
+            toast.error("Please fill in all fields.");
             return;
         }
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            alert("Please enter a valid email address.");
+            toast.error("Please enter a valid email address.");
             return;
         }
         if (password.length < 6) {
-            alert("Password must be at least 6 characters long.");
+            toast.error("Password must be at least 6 characters long.");
             return;
         }
         if (username.length < 3) {
-            alert("Username must be at least 3 characters long.");
+            toast.error("Username must be at least 3 characters long.");
             return;
         }
         if (firstname.length < 2 || lastname.length < 2) {
-            alert(
+            toast.error(
                 "First name and last name must be at least 2 characters long.",
             );
             return;
@@ -66,7 +67,7 @@ export default function Register() {
             });
 
             if (!result || !result.data) {
-                alert("Registration failed. Please check your details.");
+                toast.error("Registration failed. Please check your details.");
                 return;
             }
             router.push("/login");
@@ -74,9 +75,9 @@ export default function Register() {
             const errorMessage = getErrorMessage(err);
 
             if (errorMessage !== "an listed error occurred.") {
-                alert(errorMessage);
+                toast.error(errorMessage);
             } else {
-                alert("Registration failed. Please try again.");
+                toast.error("Registration failed. Please try again.");
             }
         }
     }

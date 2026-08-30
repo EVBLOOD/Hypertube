@@ -16,6 +16,7 @@ import AuthService from "@/lib/services/AuthService";
 import { useUserStore } from "@/stores/user";
 import { useRouter } from "next/navigation";
 import { getErrorMessage } from "@/lib/helper";
+import { toast } from "@/app/components/ui/toast";
 
 export default function Login() {
     const Login = useTranslations("Login");
@@ -34,11 +35,11 @@ export default function Login() {
         const password = passwordRef.current?.value;
 
         if (!emailOrUserName || emailOrUserName.trim() === "") {
-            alert("Please enter a valid emailOrUserName address.");
+            toast.error("Please enter a valid emailOrUserName address.");
             return;
         }
         if (!password || password.length < 6) {
-            alert("Password must be at least 6 characters long.");
+            toast.error("Password must be at least 6 characters long.");
             return;
         }
         try {
@@ -46,7 +47,7 @@ export default function Login() {
                 await AuthService.login({ username: emailOrUserName, password })
             )?.data;
             if (!result || !result.user) {
-                alert("Login failed. Please check your credentials.");
+                toast.error("Login failed. Please check your credentials.");
                 return;
             }
             const user = result.user;
@@ -62,9 +63,9 @@ export default function Login() {
         } catch (err) {
             const errorMessage = getErrorMessage(err);
             if (errorMessage !== "An listed error occurred.") {
-                alert(errorMessage);
+                toast.error(errorMessage);
             } else {
-                alert("Login failed. Please check your credentials.");
+                toast.error("Login failed. Please check your credentials.");
             }
         }
     }
@@ -89,7 +90,7 @@ export default function Login() {
                     childWindowRef.current.close();
                 }
             } else if (event.data?.type === "login_failure") {
-                alert("Login failed.");
+                toast.error("Login failed.");
             }
         };
 
