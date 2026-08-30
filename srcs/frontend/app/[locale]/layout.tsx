@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-// import "react-toastify/dist/ReactToastify.css";
 import Header from "../components/layout/header";
 import { Space_Grotesk, Manrope } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
