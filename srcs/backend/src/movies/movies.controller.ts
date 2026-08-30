@@ -10,12 +10,16 @@ import {
     Headers,
     Res,
     NotFoundException,
+    BadRequestException,
     StreamableFile,
 } from "@nestjs/common";
 import { FilterMovieDto } from "./dto/filter-movie.dto";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { VerifiedGuard } from "../auth/guards/verified.guard";
 import { MoviesService } from "./movies.service";
+import { CommentsService } from "../comments/comments.service";
+import { CreateCommentDto } from "../comments/dto/create-comment.dto";
+import { PaginationCommentDto } from "../comments/dto/pagination-comments.dto ";
 import { PaginationMovieDto } from "./dto/pagination-movie.dto ";
 import { StreamsService } from "src/streams/streams.service";
 import { OptionalJwtAuthGuard } from "src/auth/guards/optional-jwt-auth.guard";
@@ -29,6 +33,7 @@ export class MoviesController {
     constructor(
         private readonly moviesService: MoviesService,
         private readonly streamService: StreamsService,
+        private readonly commentService: CommentsService,
     ) {}
 
     @UseGuards(OptionalJwtAuthGuard, OptionalVerifiedGuard)
@@ -38,6 +43,34 @@ export class MoviesController {
         @Req() req,
         @Language() lang: DefaultLanguage,
     ) {
+        const hasFilters =
+            filters.query ||
+            filters.genre ||
+            filters.minYear ||
+            filters.maxYear ||
+            filters.minRating ||
+            filters.sortBy ||
+            filters.order ||
+            (filters.page && filters.page > 1);
+
+        if (!hasFilters && Object.keys(filters).length === 0) {
+            const trending = await this.moviesService.getTrending(
+                { page: 1, limit: 20 },
+                lang,
+                req.user?.id,
+            );
+            const list = Array.isArray(trending?.data)
+                ? trending.data
+                : Array.isArray(trending)
+                  ? trending
+                  : [];
+            return list.map((m: any) => ({
+                id: m.id,
+                name: m.title,
+                title: m.title,
+            }));
+        }
+
         return this.moviesService.getLibrary(filters, req.user?.id, lang);
     }
 
@@ -248,5 +281,30 @@ export class MoviesController {
             );
         }
         return result;
+    }
+
+    @UseGuards(OptionalJwtAuthGuard)
+    @Get(":imdbId/comments")
+    async getMovieComments(
+        @Param("imdbId") imdbId: string,
+        @Query() paging: PaginationCommentDto,
+        @Req() req,
+    ) {
+        const userId = req.user?.id || -1;
+        return this.commentService.findByMovie(imdbId, paging, userId);
+    }
+
+    @UseGuards(JwtAuthGuard, VerifiedGuard)
+    @Post(":imdbId/comments")
+    async createMovieComment(
+        @Param("imdbId") imdbId: string,
+        @Body() dto: CreateCommentDto,
+        @Req() req,
+    ) {
+        const content = dto.comment || dto.content;
+        if (!content) {
+            throw new BadRequestException("comment content is required");
+        }
+        return this.commentService.create(req.user?.id, imdbId, content);
     }
 }

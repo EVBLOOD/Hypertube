@@ -18,6 +18,7 @@ import { UserMovieHistory } from "./entities/user-movie-history.entity";
 import { v4 as uuidv4 } from "uuid";
 import { MailsService } from "src/mails/mails.service";
 import { User } from "src/users/entities/user.entity";
+import { Comment } from "src/comments/entities/comment.entity";
 import { MovieGateway } from "./movies.gateway";
 import path from "path";
 import { existsSync } from "fs";
@@ -77,6 +78,8 @@ export class MoviesService {
         private progressRepo: Repository<UserMovieProgress>,
         @InjectRepository(User)
         private userRepo: Repository<User>,
+        @InjectRepository(Comment)
+        private commentRepo: Repository<Comment>,
         private redisservice: RedisService,
         private readonly emailsService: MailsService,
         @Inject(forwardRef(() => MovieGateway))
@@ -740,6 +743,43 @@ export class MoviesService {
                 }));
             movie = await this.getMovieYTS(movie, true);
 
+            const dbMovie = await this.movieRepo.findOne({
+                where: { imdbId },
+                relations: ["subtitles"],
+            });
+            let commentCount = 0;
+            if (dbMovie) {
+                commentCount = await this.commentRepo.count({
+                    where: { movie: { id: dbMovie.id } },
+                });
+            }
+            const dbSubtitles = dbMovie?.subtitles?.map((s) => s.language) || [];
+            const availableSubtitles = Array.from(new Set(["en", ...dbSubtitles]));
+
+            const movieName = movie?.title || "Unknown";
+            const movieRating = movie?.rating || 0;
+            const productionYear = movie?.year || 0;
+            const movieLength = movie?.time || 0;
+
+            const baseResult = {
+                id: imdbId,
+                name: movieName,
+                title: movieName,
+                imdb: movieRating,
+                rating: movieRating,
+                production_year: productionYear,
+                year: productionYear,
+                length: movieLength,
+                duration: movieLength,
+                available_subtitles: availableSubtitles,
+                subtitles: availableSubtitles,
+                number_of_comments: commentCount,
+                comments_count: commentCount,
+                movie,
+                director,
+                actors,
+            };
+
             if (userId) {
                 const userMovieDetails = await this.extractUserMovieDetails(
                     imdbId,
@@ -747,17 +787,11 @@ export class MoviesService {
                 );
 
                 return {
-                    movie,
+                    ...baseResult,
                     personnel: userMovieDetails,
-                    director,
-                    actors,
                 };
             }
-            return {
-                movie,
-                director,
-                actors,
-            };
+            return baseResult;
         } catch (err) {
             console.error(err);
         }

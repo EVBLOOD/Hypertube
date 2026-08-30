@@ -1,1 +1,20 @@
-View the profile of any other user
+1. Automated Movie Cleanup (Backend)
+- Requirement: -"Once the movie is entirely downloaded, it will be saved on the server... However, if a movie is unwatched for a month, it will be erased."-
+- What to do: You need to implement a background Cron Job (using `@nestjs/schedule`) that runs periodically (e.g., once a day) to scan the database/filesystem and delete movie files that haven't been accessed in the last 30 days.
+
+2. Public User Profile Page (Frontend)
+- Requirement: -"View the profile of any other user, including their profile picture and information. However, the email address will remain private."-
+- What to do: You need a page on the frontend (e.g., `/users/:id`) where users can see another user's avatar and username. The backend API for this (`GET /users/:id`) is already done and specifically omits the email address if the requester isn't the owner!
+
+3. Responsive Mobile Design (Frontend)
+- Requirement: -"Your website must be usable on a mobile phone and maintain an acceptable layout on small resolutions."-
+- What to do: Ensure your frontend CSS uses media queries so that the movie grid, video player, and navigation look good on mobile screens. 
+
+4. The "Zero Console Errors" Eliminatory Rule
+- Requirement: -"Your code cannot produce any errors, warnings or notices either from the server or the client side in the web console."-
+- What to do: Before evaluation, do a thorough sweep of the frontend browser console and the NestJS terminal logs to ensure absolutely zero warnings (e.g., missing React keys, unused imports, hydration errors).
+
+5. Docker Compose & Environment Setup
+- Ensure your `docker-compose.dev.yml` and `docker-compose.prod.yml` are fully configured to spin up the entire stack (Next.js, NestJS, PostgreSQL, Redis) with a single command. 
+
+Would you like to tackle the Automated Movie Cleanup Cron Job next, or would you prefer to move over to the Frontend to start connecting the APIs we built?

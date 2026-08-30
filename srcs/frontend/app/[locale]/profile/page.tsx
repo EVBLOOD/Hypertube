@@ -230,7 +230,7 @@ function ProfileSectionPage({
                             init={userData.privacy === "public" ? "public" : "private"}
                             setter={setUserPrivacy}
                             title="Public Preview"
-                            description="Hide primary email address from community members"
+                            description="Hide your account from community members"
                         />
                         <ProfileSelectionInputs
                             init={userData.preferredLanguage || "en"}

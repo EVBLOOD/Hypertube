@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, NotFoundException, BadRequestException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { User } from "./entities/user.entity";
@@ -199,5 +199,108 @@ export class UsersService {
         await this.userRepo.save(user);
 
         return { message: "Profile picture updated successfully" };
+    }
+
+    async findUserForApi(id: number) {
+        const user = await this.userRepo.findOne({
+            where: { id },
+            select: [
+                "id",
+                "username",
+                "email",
+                "profilePicture",
+                "firstName",
+                "lastName",
+            ],
+        });
+        if (!user) throw new NotFoundException("User not found");
+
+        const avatarUrl = user.profilePicture
+            ? user.profilePicture.startsWith("http")
+                ? user.profilePicture
+                : `/users/avatar/${user.profilePicture}`
+            : null;
+
+        return {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            email_address: user.email,
+            profile_picture_url: avatarUrl,
+            profilePicture: user.profilePicture,
+            firstName: user.firstName,
+            lastName: user.lastName,
+        };
+    }
+
+    async updateForApi(id: number, dto: UpdateUserDto) {
+        const user = await this.userRepo.findOne({
+            where: { id },
+            select: [
+                "id",
+                "username",
+                "email",
+                "password",
+                "profilePicture",
+                "firstName",
+                "lastName",
+            ],
+        });
+        if (!user) throw new NotFoundException("User not found");
+
+        if (dto.email && dto.email !== user.email) {
+            const existing = await this.userRepo.findOne({
+                where: { email: dto.email },
+            });
+            if (existing && existing.id !== id) {
+                throw new BadRequestException("Email already in use");
+            }
+            user.email = dto.email;
+        }
+
+        if (dto.username && dto.username !== user.username) {
+            const existing = await this.userRepo.findOne({
+                where: { username: dto.username },
+            });
+            if (existing && existing.id !== id) {
+                throw new BadRequestException("Username already in use");
+            }
+            user.username = dto.username;
+        }
+
+        const pic =
+            dto.profilePicture ||
+            dto.profile_picture_url ||
+            dto.profilePictureUrl;
+        if (pic !== undefined) {
+            user.profilePicture = pic;
+        }
+
+        if (dto.firstName) user.firstName = dto.firstName;
+        if (dto.lastName) user.lastName = dto.lastName;
+
+        if (dto.password) {
+            user.password = dto.password;
+        }
+
+        await this.userRepo.save(user);
+
+        const avatarUrl = user.profilePicture
+            ? user.profilePicture.startsWith("http")
+                ? user.profilePicture
+                : `/users/avatar/${user.profilePicture}`
+            : null;
+
+        return {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            email_address: user.email,
+            profile_picture_url: avatarUrl,
+            profilePicture: user.profilePicture,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            message: "Profile updated successfully",
+        };
     }
 }

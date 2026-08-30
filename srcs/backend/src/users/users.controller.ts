@@ -41,7 +41,11 @@ export class UsersController {
     @Get()
     @ApiDoc({ target: "users.getAllUsers" })
     async getAllUsers() {
-        return this.userService.findAll();
+        const users = await this.userService.findAll();
+        return users.map((u) => ({
+            id: u.id,
+            username: u.username,
+        }));
     }
 
     @Patch("me")
@@ -135,11 +139,16 @@ export class UsersController {
     @Get(":id")
     @ApiDoc({ target: "users.getProfile" })
     async getProfile(@Param("id", ParseIntPipe) targetId: number, @Req() req) {
-        return this.userService.findById(targetId, req.user.id);
+    //     return this.userService.findById(targetId, req.user.id);
+    // async getProfile(@Param("id", ParseIntPipe) targetId: number) {
+        return this.userService.findUserForApi(targetId);
     }
 
-    // @Put("avatar_update")
-    // async updateAvatar(@Req() req, @Body("path") path: string) {
-    //     return this.userService.updateAvatar(req.user.id, path);
-    // }
+    @Patch(":id")
+    async updateProfile(
+        @Param("id", ParseIntPipe) targetId: number,
+        @Body() dto: UpdateUserDto,
+    ) {
+        return this.userService.updateForApi(targetId, dto);
+    }
 }

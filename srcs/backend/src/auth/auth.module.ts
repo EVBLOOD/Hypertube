@@ -4,6 +4,7 @@ import { JwtStrategy } from "./strategies/jwt.strategy";
 import { UsersModule } from "src/users/users.module";
 import { JwtModule } from "@nestjs/jwt";
 import { AuthController } from "./auth.controller";
+import { OAuthController } from "./oauth.controller";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { User } from "src/users/entities/user.entity";
 import { MailModule } from "src/mails/mails.module";
@@ -26,7 +27,7 @@ import { GithubStrategy } from "./strategies/github.strategy";
             },
         }),
     ],
-    controllers: [AuthController],
+    controllers: [AuthController, OAuthController],
     providers: [
         AuthService,
         JwtStrategy,

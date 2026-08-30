@@ -1,3 +1,105 @@
+=========
+
+
+
+WEB HYPERTUBE - PROJECT IMPLEMENTATION CHECKLIST
+
+================================================================================
+1. ENVIRONMENT & ARCHITECTURE SETUP
+================================================================================
+[ ] Repository & Files: Initialize repository adhering to all mandatory folder and file naming constraints[cite: 1].
+[ ] Environment Security: Store all API keys, database credentials, third-party secrets, and JWT keys in a .env file[cite: 1].
+[ ] Git Hygiene: Ensure .env and sensitive credentials are added to .gitignore and excluded from Git history[cite: 1].
+[ ] Docker Setup: Configure Docker Compose for Next.js frontend, NestJS backend, PostgreSQL database, and media/torrent storage.
+
+================================================================================
+2. USER INTERFACE & AUTHENTICATION (SECTION III.1)
+================================================================================
+[ ] Registration: Implement signup requiring email, username, first name, last name, and password[cite: 1].
+[ ] Password Protection: Securely hash passwords (e.g., bcrypt/argon2) before DB storage; NEVER store plain text[cite: 1].
+[ ] OmniAuth Strategy 1: Implement 42 OAuth authentication strategy[cite: 1].
+[ ] OmniAuth Strategy 2: Implement a second OAuth strategy (e.g., GitHub or Google)[cite: 1].
+[ ] Native Login & Logout: Enable username/password authentication and a 1-click logout button accessible from all pages[cite: 1].
+[ ] Password Recovery: Send password reset links via email with secure reset tokens[cite: 1].
+[ ] Profile Viewing: Allow users to view any profile (displaying picture and info, keeping email strictly private)[cite: 1].
+[ ] Profile Editing: Allow authenticated users to edit their own email, info, and profile picture[cite: 1].
+[ ] Localization: Support language preference selection, defaulting to English[cite: 1].
+[ ] Layout & Mobile: Ensure standard site layout (header, main, footer) that is responsive on small mobile resolutions[cite: 1].
+
+================================================================================
+3. LIBRARY & MOVIE DISCOVERY (SECTION III.2)
+================================================================================
+[ ] Access Control: Restrict the library section exclusively to authenticated users[cite: 1].
+[ ] Dual Source Search: Query at least two external video sources (e.g., OMDb, TMDb, YTS API)[cite: 1].
+[ ] Default Library View: If no search query is entered, display popular videos sorted by criteria (e.g., seeds, downloads)[cite: 1].
+[ ] Search Results: Display search results as thumbnails sorted by name[cite: 1].
+[ ] Thumbnail Cards: Display title, production year, IMDb rating, and cover image on each thumbnail[cite: 1].
+[ ] Watched Status: Visually distinguish between watched and unwatched videos on thumbnails[cite: 1].
+[ ] Infinite Scroll: Load next page asynchronously upon scrolling (no manual page navigation links)[cite: 1].
+[ ] Sorting & Filtering: Allow sorting and filtering by title, genre, IMDb score, production year, etc.[cite: 1]
+
+================================================================================
+4. VIDEO STREAMING & BACKGROUND ENGINE (SECTION III.3)
+================================================================================
+[ ] Details Page: Display video player, summary, cast/crew (director, main cast, producer), year, length, IMDb score, cover image, and prior comments[cite: 1].
+[ ] Forbidden Libraries Rule: Ensure NO forbidden torrent streaming libraries are used (e.g., no webtorrent, pulsar, or peerflix)[cite: 1].
+[ ] Background Downloading: Initiate background Torrent download on the server in a non-blocking manner[cite: 1].
+[ ] On-The-Fly Streaming: Start streaming to the player via HTTP 206 Partial Content as soon as sufficient chunk data is buffered[cite: 1].
+[ ] Dynamic Transcoding: Transcode non-browser-native formats (at minimum .mkv) on-the-fly into compatible formats (e.g., MP4/WebM)[cite: 1].
+[ ] Subtitle Management: Automatically download and serve English subtitles, plus preferred language subtitles if video language differs[cite: 1].
+[ ] Server Cleanup: Save fully downloaded movies on disk; purge movies unwatched for over 1 month via a background worker[cite: 1].
+
+================================================================================
+5. COMMENTS SYSTEM (SECTION III.3 & III.4)
+================================================================================
+[ ] Post Comments: Allow authenticated users to leave comments on video pages[cite: 1].
+[ ] View Comments: Display a chronological list of prior comments under the video details[cite: 1].
+
+================================================================================
+6. MANDATORY RESTFUL API CONTRACT (SECTION III.4)
+================================================================================
+[ ] Authentication: Protect API routes with OAuth2 / Bearer Token authorization[cite: 1].
+[ ] Route Lockout: Reject any unlisted API call and return the appropriate HTTP error code (e.g., 404 or 405)[cite: 1].
+
+Expose the following exact endpoints:
+[ ] POST /oauth/token
+    - Expects client + secret (or username/password credentials)[cite: 1].
+    - Returns an auth token[cite: 1].
+[ ] GET /users
+    - Returns list of users with id and username[cite: 1].
+[ ] GET /users/:id
+    - Returns username, email address, profile picture URL[cite: 1].
+[ ] PATCH /users/:id
+    - Accepts username, email, password, profile picture URL[cite: 1].
+[ ] GET /movies
+    - Returns frontpage movies list with id and name[cite: 1].
+[ ] GET /movies/:id
+    - Returns name, id, IMDb mark, production year, length, available subtitles, comment count[cite: 1].
+[ ] GET /comments
+    - Returns list of latest comments with author username, date, content, id[cite: 1].
+[ ] GET /comments/:id
+    - Returns comment content, author username, comment id, date posted[cite: 1].
+[ ] PATCH /comments/:id
+    - Accepts comment, username[cite: 1].
+[ ] DELETE /comments/:id
+    - Deletes target comment by ID[cite: 1].
+[ ] POST /comments (OR POST /movies/:movie_id/comments)
+    - Accepts comment, movie_id; server populates rest[cite: 1].
+
+================================================================================
+7. SECURITY & EVALUATION DEFENSE (CHAPTER V)
+================================================================================
+[ ] SQL Injection: Verify full protection against SQL injection across all queries[cite: 1].
+[ ] XSS Prevention: Escape/sanitize user input across all forms, profile inputs, and comment fields[cite: 1].
+[ ] Form Validation: Implement robust server-side and client-side input validation[cite: 1].
+[ ] Console Hygiene: ZERO errors, warnings, or notices in server logs or browser developer console[cite: 1].
+[ ] Defense Readiness: Prepare demonstration showing that the API is fully RESTful and matches all specs[cite: 1].
+
+
+
+
+
+===========
 **Architecture & Environment Setup**
 * [x] Initialize repository structure and strictly add `.env` to `.gitignore` to protect API keys.
 * [x] Configure your web server and database schema for users, stored videos, and comments.
@@ -32,10 +134,10 @@
 
 
 **RESTful API Implementation**
-* [ ] Implement OAuth2 token route (`POST /oauth/token`).
+* [x] Implement OAuth2 token route (`POST /oauth/token`).
 * [x] Implement User routes (`GET /users`, `GET /users/:id`, `PATCH /users/:id`).
 * [x] Implement Movie routes (`GET /movies`, `GET /movies/:id`).
-* [ ] Implement Comment routes (`GET /comments`, `GET /comments/:id`, `POST /comments`).
+* [x] Implement Comment routes (`GET /comments`, `GET /comments/:id`, `POST /comments`).
 * [x] Configure explicit HTTP status error handling for invalid endpoints.
 
 
@@ -106,17 +208,17 @@
     [ ] Set up automated background cleanup script to erase movie files unwatched for over 1 month.
 
 
-[ ] POST /oauth/token          [ ] Accepts client credentials/secret, returns OAuth token.
-[ ] GET /users                 [ ] Returns list of users (IDs and usernames).
-[ ] GET /users/:id             [ ] Returns target user details (username, avatar, email).
-[ ] PATCH /users/:id           [ ] Updates user profile (expects username, email, password, avatar URL).
-[ ] GET /movies                [ ] Public endpoint; returns front-page top movie list (IDs and titles).
-[ ] GET /movies/:id            [ ] Returns movie metadata, IMDb rating, year, duration, subtitles, comment count.
-[ ] GET /comments              [ ] Returns latest comments (author username, date, content, ID).
-[ ] GET /comments/:id          [ ] Returns specific comment details.
-[ ] POST /comments             [ ] Creates comment (expects comment payload & movie_id).
-[ ] PATCH /comments/:id        [ ] Updates comment payload.
-[ ] DELETE /comments/:id       [ ] Deletes specific comment.
+[x] POST /oauth/token          [x] Accepts client credentials/secret, returns OAuth token.
+[x] GET /users                 [x] Returns list of users (IDs and usernames).
+[x] GET /users/:id             [x] Returns target user details (username, avatar, email).
+[x] PATCH /users/:id           [x] Updates user profile (expects username, email, password, avatar URL).
+[x] GET /movies                [x] Public endpoint; returns front-page top movie list (IDs and titles).
+[x] GET /movies/:id            [x] Returns movie metadata, IMDb rating, year, duration, subtitles, comment count.
+[x] GET /comments              [x] Returns latest comments (author username, date, content, ID).
+[x] GET /comments/:id          [x] Returns specific comment details.
+[x] POST /comments             [x] Creates comment (expects comment payload & movie_id).
+[x] PATCH /comments/:id        [x] Updates comment payload.
+[x] DELETE /comments/:id       [x] Deletes specific comment.
 [x] HTTP ERROR HANDLING        [x] Return appropriate HTTP error status codes for unauthorized/unsupported endpoints.
 
 [x] Additional OAuth2 strategies (e.g., Twitch, Spotify, GitLab).

@@ -164,4 +164,110 @@ export class CommentsService {
 
         return comment;
     }
+
+    async getLatestComments(limit = 50) {
+        const comments = await this.commentRepo.find({
+            relations: ["user", "movie"],
+            order: { createdAt: "DESC" },
+            take: limit,
+        });
+
+        return comments.map((c) => ({
+            id: c.id,
+            comment_id: c.id,
+            content: c.content,
+            comment: c.content,
+            author: c.user?.username || "Anonymous",
+            username: c.user?.username || "Anonymous",
+            date: c.createdAt,
+            date_posted: c.createdAt,
+            movie_id: c.movie?.imdbId,
+            likeCount: c.likeCount,
+            dislikeCount: c.dislikeCount,
+        }));
+    }
+
+    async getCommentById(id: number) {
+        const comment = await this.commentRepo.findOne({
+            where: { id },
+            relations: ["user", "movie"],
+        });
+
+        if (!comment) {
+            throw new NotFoundException(`Comment with ID ${id} not found.`);
+        }
+
+        return {
+            id: comment.id,
+            comment_id: comment.id,
+            content: comment.content,
+            comment: comment.content,
+            author: comment.user?.username || "Anonymous",
+            username: comment.user?.username || "Anonymous",
+            date: comment.createdAt,
+            date_posted: comment.createdAt,
+            movie_id: comment.movie?.imdbId,
+            likeCount: comment.likeCount,
+            dislikeCount: comment.dislikeCount,
+        };
+    }
+
+    async updateComment(
+        id: number,
+        content: string,
+        userId?: number,
+        username?: string,
+    ) {
+        const comment = await this.commentRepo.findOne({
+            where: { id },
+            relations: ["user", "movie"],
+        });
+
+        if (!comment) {
+            throw new NotFoundException(`Comment with ID ${id} not found.`);
+        }
+
+        const sanitizedContent = sanitizeHtml(content || "", {
+            allowedTags: [],
+            allowedAttributes: {},
+        }).trim();
+
+        if (!sanitizedContent) {
+            throw new BadRequestException("Comment cannot be empty");
+        }
+
+        comment.content = sanitizedContent;
+        await this.commentRepo.save(comment);
+
+        return {
+            id: comment.id,
+            comment_id: comment.id,
+            content: comment.content,
+            comment: comment.content,
+            author: comment.user?.username || username || "Anonymous",
+            username: comment.user?.username || username || "Anonymous",
+            date: comment.createdAt,
+            date_posted: comment.createdAt,
+            movie_id: comment.movie?.imdbId,
+            message: "Comment updated successfully",
+        };
+    }
+
+    async deleteComment(id: number, userId?: number) {
+        const comment = await this.commentRepo.findOne({
+            where: { id },
+            relations: ["user"],
+        });
+
+        if (!comment) {
+            throw new NotFoundException(`Comment with ID ${id} not found.`);
+        }
+
+        await this.commentRepo.remove(comment);
+
+        return {
+            message: "Comment deleted successfully",
+            id,
+        };
+    }
 }
