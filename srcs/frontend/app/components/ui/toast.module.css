@@ -1,0 +1,33 @@
+.container {
+    --toastify-toast-width: min(380px, calc(100vw - 32px));
+    --toastify-toast-offset: 20px;
+    --toastify-toast-bd-radius: 0;
+    --toastify-toast-shadow: 0 12px 32px rgb(0 0 0 / 45%);
+    --toastify-font-family: var(--body-font);
+    --toastify-icon-color-info: var(--font-color-white);
+    --toastify-icon-color-success: var(--primary-color);
+    --toastify-icon-color-warning: var(--font-color-white);
+    --toastify-icon-color-error: var(--font-color-white);
+    --toastify-color-progress-dark: var(--font-color-white);
+    --toastify-color-progress-info: var(--font-color-white);
+    --toastify-color-progress-success: var(--font-color-white);
+    --toastify-color-progress-warning: var(--font-color-white);
+    --toastify-color-progress-error: var(--font-color-white);
+}
+
+.toast {
+    min-height: 58px;
+    padding: 14px 16px;
+    border: 1px solid color-mix(in srgb, var(--primary-color), transparent 72%);
+    border-left: 3px solid var(--primary-color);
+    background: var(--popup-background) !important;
+    color: var(--font-color-white);
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+@media screen and (max-width: 480px) {
+    .container {
+        --toastify-toast-offset: 0px;
+    }
+}
