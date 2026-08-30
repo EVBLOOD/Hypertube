@@ -1,0 +1,86 @@
+{
+    "users.getAllUsers": {
+        "summary": {
+            "en": "Get all users",
+            "fr": "Récupérer tous les utilisateurs",
+            "ar": "الحصول على جميع المستخدمين"
+        },
+        "description": {
+            "en": "Returns a list of all users.",
+            "fr": "Retourne la liste de tous les utilisateurs.",
+            "ar": "يعيد قائمة بجميع المستخدمين."
+        }
+    },
+    "users.updateMe": {
+        "summary": {
+            "en": "Update my profile",
+            "fr": "Mettre à jour mon profil",
+            "ar": "تحديث ملفي الشخصي"
+        },
+        "description": {
+            "en": "Updates the profile of the currently authenticated user.",
+            "fr": "Met à jour le profil de l'utilisateur actuellement authentifié.",
+            "ar": "يقوم بتحديث ملف المستخدم الحالي المصادق عليه."
+        }
+    },
+    "users.getMySummary": {
+        "summary": {
+            "en": "Get my profile summary",
+            "fr": "Obtenir le résumé de mon profil",
+            "ar": "الحصول على ملخص ملفي الشخصي"
+        },
+        "description": {
+            "en": "Returns a summary of the currently authenticated user's profile.",
+            "fr": "Retourne un résumé du profil de l'utilisateur actuellement authentifié.",
+            "ar": "يعيد ملخصًا لملف المستخدم الحالي المصادق عليه."
+        }
+    },
+    "users.findUsers": {
+        "summary": {
+            "en": "Find users",
+            "fr": "Trouver des utilisateurs",
+            "ar": "البحث عن المستخدمين"
+        },
+        "description": {
+            "en": "Finds users based on the provided search criteria.",
+            "fr": "Trouve des utilisateurs en fonction des critères de recherche fournis.",
+            "ar": "يجد المستخدمين بناءً على معايير البحث المقدمة."
+        }
+    },
+    "users.uploadImage": {
+        "summary": {
+            "en": "Upload user avatar",
+            "fr": "Télécharger l'avatar de l'utilisateur",
+            "ar": "تحميل صورة المستخدم "
+        },
+        "description": {
+            "en": "Uploads a new avatar image for the currently authenticated user.",
+            "fr": "Télécharge une nouvelle image d'avatar pour l'utilisateur actuellement authentifié.",
+            "ar": "يقوم بتحميل صورة جديدة للمستخدم الحالي المصادق عليه."
+        }
+    },
+    "users.getAvatar": {
+        "summary": {
+            "en": "Get user avatar",
+            "fr": "Obtenir l'avatar de l'utilisateur",
+            "ar": "الحصول على صورة المستخدم"
+        },
+        "description": {
+            "en": "Retrieves the avatar image for a user by filename.",
+            "fr": "Récupère l'image de l'avatar d'un utilisateur par nom de fichier.",
+            "ar": "يسترجع صورة للمستخدم بواسطة اسم الملف."
+        }
+    },
+    "users.getProfile": {
+        "summary": {
+            "en": "Get user profile",
+            "fr": "Obtenir le profil de l'utilisateur",
+            "ar": "الحصول على ملف المستخدم الشخصي"
+        },
+        "description": {
+            "en": "Retrieves the profile information for a user by their ID.",
+            "fr": "Récupère les informations de profil d'un utilisateur par son ID.",
+            "ar": "يسترجع معلومات الملف الشخصي للمستخدم بواسطة معرفه."
+        }
+    }
+}

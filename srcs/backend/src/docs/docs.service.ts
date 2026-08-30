@@ -3,11 +3,29 @@ import { METHOD_METADATA, PATH_METADATA, PARAMTYPES_METADATA, ROUTE_ARGS_METADAT
 import { DiscoveryService } from "@nestjs/core";
 import { getMetadataStorage } from "class-validator";
 
-import { API_DOC_METADATA, type ApiDoc, type Params } from "./decorators/api-doc.decorator";
+import documentationFile from "./documentation.json";
+import {
+    API_DOC_METADATA,
+    type ApiDoc,
+    type Params,
+} from "./decorators/api-doc.decorator";
 
-export interface ApiEndpointDocumentation extends Omit<ApiDoc, "summary" | "description"> {
+export interface LocalizedText {
+    en: string;
+    fr: string;
+    ar: string;
+}
+
+interface DocumentationEntry {
+    summary: LocalizedText;
+    description: LocalizedText;
+}
+
+export interface ApiEndpointDocumentation extends ApiDoc {
     method: string;
     path: string;
+    summary?: LocalizedText;
+    description?: LocalizedText;
 }
 
 export type ApiDocumentation = Record<string, ApiEndpointDocumentation[]>;
@@ -15,6 +33,11 @@ export type ApiDocumentation = Record<string, ApiEndpointDocumentation[]>;
 @Injectable()
 export class DocsService {
     constructor(private readonly discoveryService: DiscoveryService) {}
+
+    private readonly documentation = documentationFile as Record<
+        string,
+        DocumentationEntry
+    >;
 
     private getResourceName(path: string): string {
         return path.split("/").filter(Boolean)[1] ?? "root";
@@ -56,13 +79,19 @@ export class DocsService {
                     Reflect.getMetadata(PATH_METADATA, handler),
                 );
                                 
-                const { ...metadata } = this.getDocumentationMetadata(handler);
+                const { target, ...metadata } = this.getDocumentationMetadata(handler);
+                const localizedDocumentation = target
+                    ? this.documentation[target]
+                    : undefined;
 
                 return controllerPaths.flatMap((controllerPath) =>
                     handlerPaths.map((handlerPath) => ({
                         method,
                         path: this.joinPaths(controllerPath, handlerPath),
                         params,
+                        target,
+                        summary: localizedDocumentation?.summary,
+                        description: localizedDocumentation?.description,
                         ...metadata,
                     })),
                 );

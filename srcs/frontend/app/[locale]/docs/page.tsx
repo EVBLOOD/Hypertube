@@ -1,27 +1,31 @@
 "use client";
 
 import Link from "next/link";
-import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
-
+import { useLocale, useTranslations } from "next-intl";
+import { useEffect, useState, type MouseEvent } from "react";
 import ApiCard from "./apiCard";
 import styles from "./page.module.css";
 import DescriptionComponent from "@/app/components/ui/descriptionComponent";
 import TitleCustom from "@/app/components/ui/titleCustom";
 import DocsService from "@/lib/services/DocsService";
-import type { ApiCardProps, ApiDocumentation, Docs } from "@/types/app";
+import type { ApiCardProps, ApiDocumentation, Docs, LocalizedText,
+} from "@/types/app";
+import LoadingPage from "@/app/components/layout/loading";
 
-const sections = [
-    "Getting Started",
-    "API Reference",
-    "Authentication",
-    "Webhooks",
-];
+function getLocalizedText(text: LocalizedText | undefined, locale: string) {
+    if (!text) return undefined;
 
-function detailsEndpoint(endpoint: Docs, resource: string): ApiCardProps {
+    return text[locale as keyof LocalizedText] ?? text.en;
+}
+
+function detailsEndpoint(
+    endpoint: Docs,
+    resource: string,
+    locale: string,
+): ApiCardProps {
     return {
-        title: endpoint.summary || `${endpoint.method} ${endpoint.path}`,
-        description: endpoint.description || "No description available.",
+        title: getLocalizedText(endpoint.summary, locale) || "",
+        description: getLocalizedText(endpoint.description, locale) || "No description available.",
         method: endpoint.method.toUpperCase(),
         path: endpoint.path,
         access: resource === "users" ? "private" : "public",
@@ -36,13 +40,18 @@ function detailsEndpoint(endpoint: Docs, resource: string): ApiCardProps {
 
 export default function DocsPage() {
     const Docs = useTranslations("docs");
+    const locale = useLocale();
     const [data, setData] = useState<ApiDocumentation | null>(null);
+    const [activeSection, setActiveSection] = useState("");
 
     useEffect(() => {
         const fetchDocs = async () => {
             try {
                 const response = await DocsService.getDocumentation();
                 setData(response.data);
+
+                const hash = window.location.hash.slice(1) || "";
+                setActiveSection(hash);
             } catch (error) {
                 console.error("Error fetching documentation:", error);
             }
@@ -51,23 +60,32 @@ export default function DocsPage() {
         fetchDocs();
     }, []);
 
+    function handleSectionClick(event: MouseEvent<HTMLAnchorElement>, doc: string) {
+        event.preventDefault();
+
+        const section = document.getElementById(doc);
+        if (!section) return;
+
+        setActiveSection(doc);
+        window.history.pushState(null, "", `#${encodeURIComponent(doc)}`);
+        section.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
     const docs = Object.entries(data ?? {});
+    if (!data) return <LoadingPage message={"API Documentation Loading..."} />;
 
     return (
         <main className={`container ${styles.docsPage}`}>
-            <div
-                className={styles.sidebar}
-                aria-label="Documentation navigation"
-            >
-                <p className={styles.sidebarEyebrow}>API REFERENCES</p>
+            <div className={styles.sidebar} aria-label="Documentation navigation">
+                <p className={styles.sidebarEyebrow}>{Docs("apiRef")}</p>
                 <nav className={styles.sidebarNav}>
-                    {sections.map((section, index) => (
-                        <Link
-                            key={section}
-                            href="#"
-                            className={`${styles.sidebarLink} ${index === 0 ? styles.sidebarLinkActive : ""}`}
-                        >
-                            {section}
+                    {docs.map(([doc]) => (
+                        <Link key={doc}
+                            href={`#${doc}`}
+                            onClick={(e) => handleSectionClick(e, doc)}
+                            className={`${styles.sidebarLink} ${activeSection === doc ? styles.sidebarLinkActive : ""}`}
+                            aria-current={activeSection === doc ? "location" : undefined}>
+                            {doc.toUpperCase()}
                         </Link>
                     ))}
                 </nav>
@@ -75,42 +93,24 @@ export default function DocsPage() {
 
             <section className={styles.content}>
                 <TitleCustom title={Docs("title")} />
-                <DescriptionComponent
-                    text={Docs("decription")}
-                    className={styles.docsDescription}
-                />
-
+                <DescriptionComponent text={Docs("decription")} />
                 <div className={styles.authentication}>
-                    <p className={styles.authenticationDescription}>
-                        To access private endpoints, include the following
-                        header in your request:
-                    </p>
+                    <p className={styles.authenticationDescription}>{Docs("authText")}</p>
                     <h4>HEADERS</h4>
-                    <pre>
-                        <code>{"Authorization: Bearer 'token'"}</code>
-                    </pre>
+                    <pre><code>{"Authorization: Bearer 'token'"}</code></pre>
                 </div>
-
-                {docs &&
-                    docs.map(([doc, endpoints]) => (
-                        <section
-                            className={styles.apiSection}
-                            id={doc}
-                            key={doc}
-                        >
-                            <div className={styles.sectionHeading}>
-                                <h2>{doc.toUpperCase()}</h2>
-                            </div>
-                            <div className={styles.apiCards}>
-                                {endpoints.map((endpoint, i) => (
-                                    <ApiCard
-                                        key={i}
-                                        {...detailsEndpoint(endpoint, doc)}
-                                    />
-                                ))}
-                            </div>
-                        </section>
-                    ))}
+                {docs.map(([doc, endpoints]) => (
+                    <section className={styles.apiSection} id={doc} key={doc}>
+                        <div className={styles.sectionHeading}>
+                            <h2>{doc.toUpperCase()}</h2>
+                        </div>
+                        <div className={styles.apiCards}>
+                            {endpoints.map((endpoint, i) => (
+                                <ApiCard key={i} {...detailsEndpoint(endpoint, doc, locale)} />
+                            ))}
+                        </div>
+                    </section>
+                ))}
             </section>
         </main>
     );

@@ -8,8 +8,11 @@
 }
 
 .sidebar {
+    position: sticky;
+    top: 112px;
     align-self: start;
     border-right: 1px solid #2a2929;
+    /* height: calc(100vh - 112px); */
     padding: 20px 32px 20px 0;
 }
 
@@ -20,6 +23,7 @@
     font-family: var(--label-font);
     font-size: 11px;
     letter-spacing: 2px;
+    margin-bottom: 12px;
 }
 
 .sidebarTitle {
@@ -75,13 +79,13 @@
 }
 
 .docsDescription {
-    max-width: 680px;
+    /* max-width: 680px; */
     margin: 20px 0 72px;
     line-height: 1.6;
 }
 
 .authentication {
-    max-width: 720px;
+    /* max-width: 720px; */
     margin-top: 24px;
 }
 
@@ -120,6 +124,7 @@
 
 .apiSection {
     margin-top: 72px;
+    scroll-margin-top: 112px;
 }
 
 .sectionHeading {
@@ -189,8 +194,9 @@
     display: flex;
     flex: 0 0 auto;
     align-items: center;
-    gap: 20px;
+    gap: 10px;
 }
+
 
 .cardArrow {
     color: var(--primary-color);
@@ -265,6 +271,12 @@
     color: color-mix(in srgb, var(--font-color-white), transparent 20%);
     font-size: 14px;
     line-height: 1.55;
+}
+
+.summary {
+    color: color-mix(in srgb, var(--font-color-white), transparent 20%);
+    font-size: 12px;
+    color: #938b72;
 }
 
 .apiCardBody {
@@ -379,6 +391,7 @@
     }
 
     .sidebar {
+        position: static;
         border-right: 0;
         border-bottom: 1px solid #2a2929;
         padding: 0 0 24px;
@@ -403,6 +416,7 @@
 
     .apiSection {
         margin-top: 48px;
+        scroll-margin-top: 24px;
     }
 
     .sectionHeading {

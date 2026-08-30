@@ -122,6 +122,12 @@ export interface ApiParameter {
     required?: boolean;
 }
 
+export interface LocalizedText {
+    en: string;
+    fr: string;
+    ar: string;
+}
+
 export interface ApiCardProps {
     title: string;
     description: string;
@@ -145,8 +151,9 @@ export interface DocParams {
 export interface Docs {
     method: string;
     path: string;
-    summary?: string;
-    description?: string;
+    target?: string;
+    summary?: LocalizedText;
+    description?: LocalizedText;
     params?: DocParams[];
 }
 

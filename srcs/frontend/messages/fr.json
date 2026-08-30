@@ -255,5 +255,13 @@
         "hours_ago_2": "IL Y A 2 HEURES",
         "reply": "répondre",
         "avatarAlt": "Avatar"
+    },
+    "docs": {
+        "title": "Documentation de l'API",
+        "decription": "La documentation de l'API fournit des informations détaillées sur les points de terminaison disponibles, les paramètres de requête. Elle sert de guide complet pour les développeurs afin de comprendre comment interagir efficacement avec l'API.",
+        "authText": "Pour accéder aux points de terminaison privés, incluez l'en-tête suivant dans votre requête :",
+        "apiRef": "RÉFÉRENCES DE L'API",
+        "privateAccess": "ACCÈS PRIVÉ",
+        "publicAccess": "ACCÈS PUBLIC"
     }
 }

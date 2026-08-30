@@ -25,6 +25,14 @@
     color: var(--font-color-white);
 }
 
+.borderInfos span {
+    cursor: pointer;
+}
+
+.borderInfos span:hover {
+    color: var(--font-color-white);
+}
+
 @media screen and (max-width: 768px) {
     .footerAll {
         display: none;

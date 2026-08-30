@@ -3,9 +3,11 @@
 import { useTranslations } from "next-intl";
 import styles from "./footer.module.css";
 // import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function Footer() {
     const t = useTranslations("Footer");
+    const router = useRouter();
 
     return (
         <div
@@ -18,7 +20,7 @@ export default function Footer() {
                 <div className={styles.borderInfos}>
                     <span>{t("links.technicalSpecs")}</span>
                     <span>{t("links.privacyProtocol")}</span>
-                    <span>{t("links.apiDocumentation")}</span>
+                    <span onClick={() => router.push("/docs")}>{t("links.apiDocumentation")}</span>
                 </div>
             </div>
         </div>

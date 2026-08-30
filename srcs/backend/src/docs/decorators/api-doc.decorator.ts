@@ -12,9 +12,10 @@ export interface Params {
 }
 
 export interface ApiDoc {
-    summary?: string;
-    description?: string;
+    target?: string;
     params?: Params[];
 }
 
-export const ApiDoc = (options: ApiDoc = {}): ClassDecorator & MethodDecorator => SetMetadata(API_DOC_METADATA, options);
+export const ApiDoc = (
+    options: ApiDoc = {},
+): ClassDecorator & MethodDecorator => SetMetadata(API_DOC_METADATA, options);

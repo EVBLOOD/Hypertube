@@ -39,30 +39,31 @@ export class UsersController {
     constructor(private readonly userService: UsersService) {}
 
     @Get()
-    @ApiDoc({
-        summary: "Get all users",
-        description: "Returns a list of all users",
-    })
+    @ApiDoc({ target: "users.getAllUsers" })
     async getAllUsers() {
         return this.userService.findAll();
     }
 
     @Patch("me")
+    @ApiDoc({ target: "users.updateMe" })
     async updateMe(@Req() req, @Body() dto: UpdateUserDto) {
         return this.userService.update(req.user.id, dto);
     }
 
     @Get("me/summary")
+    @ApiDoc({ target: "users.getMySummary" })
     async getMySummary(@Req() req) {
         return this.userService.getProfileSummary(req.user.id);
     }
 
     @Get("find/users")
+    @ApiDoc({ target: "users.findUsers" })
     async findUsers(@Query() paging: PaginationFindUserDto, @Req() req) {
         return this.userService.findUsers(paging, req.user.id);
     }
 
     @Post("avatar_update")
+    @ApiDoc({ target: "users.uploadImage" })
     @UseInterceptors(FileInterceptor("file", { storage: memoryStorage() }))
     uploadImage(
         @UploadedFile(
@@ -106,6 +107,7 @@ export class UsersController {
     }
 
     @Get("avatar/:filename")
+    @ApiDoc({ target: "users.getAvatar" })
     async getAvatar(@Param("filename") filename: string) {
         const safeFilename = basename(filename);
         const uploadDir = resolve(process.cwd(), "uploads");
@@ -131,6 +133,7 @@ export class UsersController {
     }
 
     @Get(":id")
+    @ApiDoc({ target: "users.getProfile" })
     async getProfile(@Param("id", ParseIntPipe) targetId: number, @Req() req) {
         return this.userService.findById(targetId, req.user.id);
     }
