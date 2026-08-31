@@ -21,7 +21,7 @@ export class Movie {
     title!: string;
 
     @Column({ nullable: true })
-    filePath!: string; // in the server
+    filePath!: string;
 
     @UpdateDateColumn()
     lastWatchedAt!: Date;

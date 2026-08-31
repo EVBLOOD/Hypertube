@@ -7,14 +7,15 @@ import {
 import { InjectRepository } from "@nestjs/typeorm";
 import { Response } from "express";
 import { Movie } from "src/movies/entities/movie.entity";
-import { Repository } from "typeorm";
+import { LessThan, Repository } from "typeorm";
 import * as net from "net";
 import * as crypto from "crypto";
-import { createReadStream, mkdirSync, existsSync, statSync } from "fs";
+import { createReadStream, mkdirSync, existsSync, statSync, unlinkSync } from "fs";
 import { MoviesService } from "src/movies/movies.service";
 import * as path from "path";
 import { PieceManager } from "./helpers/piece-manager";
-import { execFile } from "child_process";
+import { ChildProcess, execFile, spawn } from "child_process";
+import { Cron, CronExpression } from "@nestjs/schedule";
 
 interface Peer {
     host: string;
@@ -28,6 +29,7 @@ interface VideoFile {
     contentType: string;
     extension: string;
 }
+
 interface HashToImdbMap {
     infoHash: string;
     infoHashBuffer: Buffer;
@@ -72,14 +74,8 @@ export class StreamsService implements OnModuleInit, OnModuleDestroy {
     private readonly trackers = new Map<string, any>();
     private readonly infoHashToImdbId = new Map<string, HashToImdbMap[]>();
 
-    private streamingWindows = new Map<
-        string,
-        { startPiece: number; bufferSize: number }
-    >();
-    private readonly sessionWindows = new Map<
-        string,
-        { infoHash: string; startPiece: number; bufferSize: number }
-    >();
+    private streamingWindows = new Map<string, { startPiece: number; bufferSize: number }>();
+    private readonly sessionWindows = new Map<string, { infoHash: string; startPiece: number; bufferSize: number }>();
 
     private blacklistedPeers = new Set<string>();
     private blockOrigins = new Map<string, string[]>();
@@ -92,15 +88,9 @@ export class StreamsService implements OnModuleInit, OnModuleDestroy {
     private readonly inFlight = new WeakMap<object, number>();
     private readonly peerBitfields = new WeakMap<object, Buffer>();
 
-    private readonly blockQueues = new WeakMap<
-        object,
-        Array<{ index: number; offset: number; length: number }>
-    >();
+    private readonly blockQueues = new WeakMap<object, Array<{ index: number; offset: number; length: number }>>();
     private readonly activePieces = new WeakMap<object, Set<number>>();
-    private readonly metadataWaiters = new Map<
-        string,
-        Array<(pm: PieceManager) => void>
-    >();
+    private readonly metadataWaiters = new Map<string, Array<(pm: PieceManager) => void>>();
     private readonly activeTorrents = new Set<string>();
     private readonly videoQuality = new Map<string, string>();
     private readonly videoFiles = new Map<string, VideoFile>();
@@ -268,10 +258,6 @@ export class StreamsService implements OnModuleInit, OnModuleDestroy {
         };
     }
 
-    // private getStoragePath(infoHash: string): string {
-    //     return path.join(this.downloadDir, infoHash);
-    // }
-
     private getStoragePath(imdbId: string): string {
         return path.join(this.downloadDir, imdbId);
     }
@@ -308,97 +294,22 @@ export class StreamsService implements OnModuleInit, OnModuleDestroy {
             const filename = `${imdbId}-${quality}${extension}`;
             const destPath = path.join(this.downloadDir, filename);
 
-            if (BROWSER_SUPPORTED_FORMATS.includes(extension)) {
-                require("fs").renameSync(sourcePath, destPath);
-
-                await this.movieRepo
-                    .update(
-                        { imdbId },
-                        {
-                            filePath: destPath,
-                            isFullyDownloaded: true,
-                            lastWatchedAt: new Date(),
-                        },
-                    )
-                    .catch((err) =>
-                        console.error("Failed to update movie DB:", err),
-                    );
-            } else if (extension === ".mkv" || extension === ".mov") {
-                const convertedPath = path.join(
-                    this.downloadDir,
-                    `${imdbId}-${quality}.mp4`,
+            require("fs").renameSync(sourcePath, destPath);
+            await this.movieRepo
+                .update(
+                    { imdbId },
+                    {
+                        filePath: destPath,
+                        isFullyDownloaded: true,
+                        lastWatchedAt: new Date(),
+                    },
+                )
+                .catch((err) =>
+                    console.error("Failed to update movie DB:", err),
                 );
-                this.convertMKVtoMP4(
-                    sourcePath,
-                    convertedPath,
-                    imdbId,
-                    quality,
-                ).catch((err) =>
-                    console.error(
-                        `[Conversion Error] ${imdbId}-${quality}:`,
-                        err,
-                    ),
-                );
-            }
         } catch (err) {
             console.error(`[Storage Error] Failed to save ${imdbId}:`, err);
         }
-    }
-
-    private async convertMKVtoMP4(
-        inputPath: string,
-        outputPath: string,
-        imdbId: string,
-        quality: string,
-    ): Promise<void> {
-        return new Promise((resolve, reject) => {
-            const ffmpegArgs = [
-                "-i",
-                inputPath,
-                "-c:v",
-                "libx264",
-                "-preset",
-                "fast",
-                "-crf",
-                "23",
-                "-c:a",
-                "aac",
-                "-b:a",
-                "128k",
-                outputPath,
-            ];
-
-            execFile("ffmpeg", ffmpegArgs, { timeout: 3600000 }, (err, _) => {
-                if (err) {
-                    console.error(
-                        `[Conversion Failed] ${imdbId}-${quality}: ${err.message}`,
-                    );
-                    reject(err);
-                    return;
-                }
-
-                try {
-                    require("fs").unlinkSync(inputPath);
-
-                    this.movieRepo
-                        .update(
-                            { imdbId },
-                            { filePath: outputPath, isFullyDownloaded: true },
-                        )
-                        .catch((err) =>
-                            console.error("Failed to update movie DB:", err),
-                        );
-
-                    resolve();
-                } catch (unlinkErr) {
-                    console.error(
-                        `[Cleanup Failed] Could not remove ${inputPath}:`,
-                        unlinkErr,
-                    );
-                    reject(unlinkErr);
-                }
-            });
-        });
     }
 
     async getMoviesWithSeedersQuality(
@@ -425,13 +336,49 @@ export class StreamsService implements OnModuleInit, OnModuleDestroy {
             .sort(
                 (a, b) =>
                     (b.quality === quality ? 1 : 0) -
-                        (a.quality === quality ? 1 : 0) ||
+                    (a.quality === quality ? 1 : 0) ||
                     (QUALITY_RANK[b.quality] ?? 0) -
-                        (QUALITY_RANK[a.quality] ?? 0) ||
+                    (QUALITY_RANK[a.quality] ?? 0) ||
                     b.seeds - a.seeds,
             );
 
         return seeded[0];
+    }
+
+    @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+    async cleanupUnwatchedMovies(): Promise<void> {
+
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+        try {
+            const expiredMovies = await this.movieRepo.find({
+                where: {
+                    lastWatchedAt: LessThan(thirtyDaysAgo),
+                    isFullyDownloaded: true,
+                },
+            });
+
+            for (const movie of expiredMovies) {
+                if (movie.filePath && existsSync(movie.filePath)) {
+                    try {
+                        unlinkSync(movie.filePath);
+                    } catch (fsErr) {
+                        console.error(`Failed to delete physical file ${movie.filePath}:`, fsErr);
+                    }
+                }
+
+                await this.movieRepo.update(
+                    { id: movie.id },
+                    {
+                        filePath: undefined,
+                        isFullyDownloaded: false,
+                    },
+                );
+            }
+        } catch (err) {
+            console.error("Error executing unwatched movie cleanup cron:", err);
+        }
     }
 
     async stream(
@@ -440,6 +387,10 @@ export class StreamsService implements OnModuleInit, OnModuleDestroy {
         range?: string,
         res?: Response,
     ) {
+        await this.movieRepo
+            .update({ imdbId }, { lastWatchedAt: new Date() })
+            .catch((err) => console.error("Failed to update lastWatchedAt:", err));
+
         const savedPath = this.getSavedFilePath(imdbId, quality);
         if (savedPath && existsSync(savedPath)) {
             if (res) return this.streamLocalFile(savedPath, range, res);
@@ -536,6 +487,9 @@ export class StreamsService implements OnModuleInit, OnModuleDestroy {
         try {
             const { size } = statSync(filePath);
             const ext = path.extname(filePath).toLowerCase();
+            if (!BROWSER_SUPPORTED_FORMATS.includes(ext)) {
+                return this.pipeFFmpegToResponse(filePath, res);
+            }
             const contentType = MIME_TYPES[ext] || "video/mp4";
 
             if (!range) {
@@ -604,6 +558,18 @@ export class StreamsService implements OnModuleInit, OnModuleDestroy {
         imdbId: string,
         quality: string,
     ): Promise<void> {
+        const ext = videoFile.extension.toLowerCase();
+        if (!BROWSER_SUPPORTED_FORMATS.includes(ext)) {
+            return this.streamTranscodedTorrentPieces(
+                infoHash,
+                manager,
+                videoFile,
+                res,
+                imdbId,
+                quality,
+            );
+        }
+
         const sessionId = crypto.randomUUID();
 
         const fileSize = videoFile.length;
@@ -628,10 +594,6 @@ export class StreamsService implements OnModuleInit, OnModuleDestroy {
             20,
             Math.ceil((fileSize / manager.pieceLength) * 0.1),
         );
-        // this.streamingWindows.set(infoHash, {
-        //     startPiece: firstPiece,
-        //     bufferSize
-        // });
 
         this.sessionWindows.set(sessionId, {
             infoHash,
@@ -652,7 +614,6 @@ export class StreamsService implements OnModuleInit, OnModuleDestroy {
 
         let nextByteToSend = absoluteStart;
         let bufferedPieceCount = 0;
-        // let lastBufferLogAt = 0;
 
         res.once("close", () => {
             this.sessionWindows.delete(sessionId);
@@ -748,6 +709,94 @@ export class StreamsService implements OnModuleInit, OnModuleDestroy {
         }
     }
 
+    private async streamTranscodedTorrentPieces(
+        infoHash: string,
+        manager: PieceManager,
+        videoFile: VideoFile,
+        res: Response,
+        imdbId: string,
+        quality: string,
+    ): Promise<void> {
+        // Wait for essential header pieces so FFmpeg can parse container metadata
+        const initialPiecesToBuffer = Math.min(5, manager.totalPieces);
+        for (let i = 0; i < initialPiecesToBuffer; i++) {
+            if (!manager.isPieceVerified(i)) {
+                await manager.waitForPiece(i).catch((err) => {
+                    console.warn(`[Transcode Buffer Timeout] Piece ${i} delayed: ${err.message}`);
+                });
+            }
+        }
+
+        this.pipeFFmpegToResponse(manager.filePath, res);
+
+        // Check download status upon completion to save file to DB
+        const checkCompletion = setInterval(() => {
+            if (manager.isComplete()) {
+                clearInterval(checkCompletion);
+                const storagePath = this.getStoragePath(imdbId);
+                const selectedQuality = this.videoQuality.get(infoHash) ?? quality;
+
+                this.saveDownloadedFile(
+                    imdbId,
+                    storagePath,
+                    videoFile.extension,
+                    selectedQuality,
+                ).catch((err) =>
+                    console.error("Error saving downloaded file:", err),
+                );
+            }
+        }, 5000);
+
+        res.once("close", () => clearInterval(checkCompletion));
+    }
+
+    private pipeFFmpegToResponse(sourceFilePath: string, res: Response): void {
+        res.writeHead(200, {
+            "Content-Type": "video/mp4",
+            "Connection": "keep-alive",
+            "Accept-Ranges": "none",
+            "Cache-Control": "no-cache",
+        });
+
+        const ffmpegArgs = [
+            "-loglevel", "error",
+            "-re",                                                  // Read input at native framerate
+            "-i", sourceFilePath,                                   // Input growing or local file
+            "-c:v", "libx264",                                      // Encode H.264 video
+            "-preset", "ultrafast",                                 // Minimal latency
+            "-tune", "zerolatency",
+            "-c:a", "aac",                                          // Encode AAC audio
+            "-b:a", "128k",
+            "-movflags", "frag_keyframe+empty_moov+default_base_moof", // Streamable fMP4 chunks
+            "-f", "mp4",                                            // Container format
+            "pipe:1",                                               // Output to stdout
+        ];
+
+        const ffmpegProcess: ChildProcess = spawn("ffmpeg", ffmpegArgs);
+
+        if (ffmpegProcess.stdout) {
+            ffmpegProcess.stdout.pipe(res);
+        }
+
+        ffmpegProcess.stderr?.on("data", (data) => {
+            console.error(`[FFmpeg Error]: ${data.toString()}`);
+        });
+
+        ffmpegProcess.on("error", (err) => {
+            console.error("[FFmpeg Process Spawn Error]:", err);
+            if (!res.headersSent) {
+                res.status(500).end();
+            }
+        });
+
+        // Terminate FFmpeg child process on client disconnect
+        res.once("close", () => {
+            if (!ffmpegProcess.killed) {
+                ffmpegProcess.kill("SIGKILL");
+            }
+        });
+    }
+
     private startTracker(
         infoHash: string,
         infoHashBuffer: Buffer,
@@ -770,10 +819,10 @@ export class StreamsService implements OnModuleInit, OnModuleDestroy {
         );
         tracker.on(
             "update",
-            (d: any) => 
-            console.log(
-                `Update from Tracker: ${d.complete} seeds / ${d.incomplete} leechers`,
-            ),
+            (d: any) =>
+                console.log(
+                    `Update from Tracker: ${d.complete} seeds / ${d.incomplete} leechers`,
+                ),
         );
 
         tracker.on("peer", (addr: string) => {
@@ -1128,7 +1177,7 @@ export class StreamsService implements OnModuleInit, OnModuleDestroy {
                                         0,
                                         manager["getPieceSize"](index),
                                     );
-                                } catch {}
+                                } catch { }
                             }
                         }
                     }
@@ -1136,7 +1185,7 @@ export class StreamsService implements OnModuleInit, OnModuleDestroy {
                     wires?.forEach((w) => {
                         try {
                             w.have(index);
-                        } catch {}
+                        } catch { }
                     });
 
                     this.updateTrackerStats(infoHash, manager);
@@ -1290,8 +1339,8 @@ export class StreamsService implements OnModuleInit, OnModuleDestroy {
                 reject(
                     new Error(
                         `Metadata timeout for ${infoHash}. ` +
-                            `Connected: ${this.connectedPeers.get(infoHash)?.size ?? 0} peers, ` +
-                            `Active wires: ${this.activeWires.get(infoHash)?.size ?? 0}`,
+                        `Connected: ${this.connectedPeers.get(infoHash)?.size ?? 0} peers, ` +
+                        `Active wires: ${this.activeWires.get(infoHash)?.size ?? 0}`,
                     ),
                 );
             }, METADATA_TIMEOUT);

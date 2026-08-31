@@ -3,16 +3,19 @@
 import AuthService from "@/lib/services/AuthService";
 import { useUserStore } from "@/stores/user";
 import { AxiosError } from "axios";
-import { redirect } from "next/dist/client/components/navigation";
+import { redirect, usePathname } from "next/dist/client/components/navigation";
 import { useTranslations } from "next-intl";
 import { ReactNode, useEffect, useState } from "react";
+import path from "path";
 
 export default function AuthProvider({ children }: { children: ReactNode }) {
     const [isReady, setIsReady] = useState(false);
     const { user, userLogged, reset } = useUserStore();
     const t = useTranslations("Auth");
+    const pathname = usePathname();
 
     useEffect(() => {
+        const requiredAuthRoutes = pathname.includes("/library") || pathname.includes("/watchlist") || pathname.includes("/profile") || pathname.includes("/watch");
         const initAuth = async () => {
             if (!user) {
                 try {
@@ -30,7 +33,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
                         "Error fetching user info:",
                         (err as AxiosError).message,
                     );
-                    if ((err as AxiosError).response?.status === 401) {
+                    if ((err as AxiosError).response?.status === 401 && requiredAuthRoutes) {
                         console.debug(
                             "Unauthorized, redirecting to login page...",
                         );

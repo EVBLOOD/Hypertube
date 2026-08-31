@@ -27,9 +27,32 @@
     justify-content: center;
     color: #d0c6ab;
 }
+
 .extraQs a {
     color: var(--font-color-white);
 }
 
+.buttonSpaceMobile {
+    display: none;
+}
+
+.buttonMobile {
+    display: none;
+}
+
 @media screen and (max-width: 768px) {
+    .buttonSpaceMobile {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        width: 50%;
+        flex-wrap: wrap;
+    }
+
+    .buttonMobile {
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
+        width: 100%;
+    }
 }

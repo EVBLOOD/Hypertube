@@ -24,6 +24,7 @@ export class PieceManager {
     readonly lastPieceLength: number;
     readonly totalSize: number;
     private fd!: number;
+    public filePath: string;
 
     constructor(
         private readonly metadata: any,
@@ -36,6 +37,7 @@ export class PieceManager {
             this.totalSize - (this.totalPieces - 1) * this.pieceLength;
         this.pieceStatus = new Array(this.totalPieces).fill("pending");
         this.availability = new Array(this.totalPieces).fill(0);
+        this.filePath = storagePath;
     }
 
     public static async create(

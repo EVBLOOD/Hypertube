@@ -78,6 +78,12 @@
             "CONTINUE WITH GITHUB",
             "CONTINUE WITH GOOGLE"
         ],
+        "integration_mobile": "login with",
+        "integrations_mobile": [
+            "42 NETWORK",
+            "GITHUB",
+            "GOOGLE"
+        ],
         "second_title": "IDENTIFICATION",
         "second_discreption": "Please provide credentials to enter the vault.",
         "label_address": "EMAIL_ADDRESS",

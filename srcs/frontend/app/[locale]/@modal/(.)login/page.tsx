@@ -210,6 +210,46 @@ export default function Login() {
                                 </Link>
                             </div>
                         </div>
+
+
+                        <div className={styles.buttonSpaceMobile}>
+                            <div>{Login("integration_mobile")}</div>
+                            <div className={styles.buttonMobile}>
+                                <ButtonCustom
+                                    textButton={Login.raw("integrations_mobile")[0]}
+                                    buttonImage="/costumIcons/42icon.svg"
+                                    onClick={() => handleLoginOauth("42")}
+                                    style={{
+                                        display: "flex",
+                                        justifyContent: "start",
+                                        alignItems: "center",
+                                        paddingLeft: "10px",
+                                    }}
+                                ></ButtonCustom>
+                                <ButtonCustom
+                                    textButton={Login.raw("integrations_mobile")[1]}
+                                    buttonImage="/costumIcons/42icon.svg"
+                                    onClick={() => handleLoginOauth("github")}
+                                    style={{
+                                        display: "flex",
+                                        justifyContent: "start",
+                                        alignItems: "center",
+                                        paddingLeft: "10px",
+                                    }}
+                                ></ButtonCustom>
+                                <ButtonCustom
+                                    textButton={Login.raw("integrations_mobile")[2]}
+                                    buttonImage="/costumIcons/42icon.svg"
+                                    onClick={() => handleLoginOauth("google")}
+                                    style={{
+                                        display: "flex",
+                                        justifyContent: "start",
+                                        alignItems: "center",
+                                        paddingLeft: "10px",
+                                    }}
+                                ></ButtonCustom>
+                            </div>
+                        </div>
                     </>
                 }
             />

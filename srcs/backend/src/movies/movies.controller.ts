@@ -230,9 +230,6 @@ export class MoviesController {
         @Req() req,
         @Language() lang: DefaultLanguage,
     ) {
-        console.log(
-            `Fetching movie details for imdbId: ${imdbId}, userId: ${req.user?.id}, language: ${lang}`,
-        );
         const movie = await this.moviesService.getMovieDetails(
             imdbId,
             lang,

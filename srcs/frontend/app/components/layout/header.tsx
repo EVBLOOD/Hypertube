@@ -10,11 +10,17 @@ import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 
+const getCookie = (name: string) => {
+    if (typeof document === "undefined") return undefined;
+    const parts = `; ${document.cookie}`.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop()?.split(";").shift();
+};
+
 export default function Header() {
     const header = useTranslations("Header");
     const router = useRouter();
     const pathname = usePathname();
-    const user = useUserStore((state) => state.user);
+    const user = useUserStore((state) => state.user) && getCookie("AUTH_TOKEN");
 
     async function handleLogout() {
         try {

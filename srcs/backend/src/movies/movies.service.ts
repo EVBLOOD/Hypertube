@@ -711,6 +711,7 @@ export class MoviesService {
                     },
                 },
             );
+
             movie = data.movie_results?.[0]
                 ? this.normalizeMovie(data.movie_results?.[0])
                 : null;
