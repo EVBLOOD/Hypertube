@@ -21,15 +21,17 @@ function getLocalizedText(text: LocalizedText | undefined, locale: string) {
 
 function detailsEndpoint(
     endpoint: Docs,
-    resource: string,
     locale: string,
+    authorizationToken: string,
 ): ApiCardProps {
     return {
         title: getLocalizedText(endpoint.summary, locale) || "",
         description: getLocalizedText(endpoint.description, locale) || "No description available.",
         method: endpoint.method.toUpperCase(),
         path: endpoint.path,
-        access: resource === "users" ? "private" : "public",
+        access: endpoint.authorization === "bearer" ? "private" : "public",
+        authorization: endpoint.authorization,
+        authorizationToken,
         parameters: endpoint.params?.map((parameter) => ({
             name: parameter.name,
             in: parameter.in,
@@ -44,6 +46,8 @@ export default function DocsPage() {
     const locale = useLocale();
     const [data, setData] = useState<ApiDocumentation | null>(null);
     const [activeSection, setActiveSection] = useState("");
+    const [authorizationToken, setAuthorizationToken] = useState("");
+    const [isAuthorizing, setIsAuthorizing] = useState(false);
 
     useEffect(() => {
         const fetchDocs = async () => {
@@ -96,9 +100,25 @@ export default function DocsPage() {
                 <TitleCustom title={Docs("title")} />
                 <DescriptionComponent text={Docs("decription")} />
                 <div className={styles.authentication}>
-                    <p className={styles.authenticationDescription}>{Docs("authText")}</p>
-                    <h4>HEADERS</h4>
-                    <pre><code>{"Authorization: Bearer 'token'"}</code></pre>
+                    <div className={styles.authenticationHeading}>
+                        <div>
+                            <p className={styles.authenticationDescription}>{Docs("authText")}</p>
+                            <h4>BEARER AUTHENTICATION</h4>
+                        </div>
+                        <button className={styles.authorizeButton} type="button"
+                            onClick={() => setIsAuthorizing((open) => !open)}>
+                            {authorizationToken ? Docs("authorized") : Docs("authorize")}
+                        </button>
+                    </div>
+                    {isAuthorizing ? (
+                        <label className={styles.tokenField}>
+                            <span>{Docs("token")}</span>
+                            <input type="password" value={authorizationToken}
+                                onChange={(event) => setAuthorizationToken(event.target.value.trim())}
+                                placeholder={Docs("tokenPlaceholder")} autoComplete="off" />
+                        </label>
+                    ) : null}
+                    <pre><code>{authorizationToken ? "Authorization: Bearer ••••••••" : "Authorization: Bearer <token>"}</code></pre>
                 </div>
                 {docs.map(([doc, endpoints]) => (
                     <section className={styles.apiSection} id={doc} key={doc}>
@@ -107,7 +127,7 @@ export default function DocsPage() {
                         </div>
                         <div className={styles.apiCards}>
                             {endpoints.map((endpoint, i) => (
-                                <ApiCard key={i} {...detailsEndpoint(endpoint, doc, locale)} />
+                                <ApiCard key={i} {...detailsEndpoint(endpoint, locale, authorizationToken)} />
                             ))}
                         </div>
                     </section>

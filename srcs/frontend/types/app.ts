@@ -137,6 +137,8 @@ export interface ApiCardProps {
     permission?: string;
     parameters?: ApiParameter[];
     response?: string;
+    authorization?: "bearer" | "none";
+    authorizationToken?: string;
 }
 
 export type DocParamType = string | [field: string, type: string][];
@@ -155,6 +157,7 @@ export interface Docs {
     summary?: LocalizedText;
     description?: LocalizedText;
     params?: DocParams[];
+    authorization?: "bearer" | "none";
 }
 
 export type ApiDocumentation = Record<string, Docs[]>;

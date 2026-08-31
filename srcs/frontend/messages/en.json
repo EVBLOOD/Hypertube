@@ -268,6 +268,22 @@
         "authText": "To access private endpoints, include the following header in your request:",
         "apiRef": "API REFERENCES",
         "privateAccess": "PRIVATE ACCESS",
-        "publicAccess": "PUBLIC ACCESS"
+        "publicAccess": "PUBLIC ACCESS",
+        "authorize": "AUTHORIZE",
+        "authorized": "AUTHORIZED",
+        "token": "BEARER TOKEN",
+        "tokenPlaceholder": "Paste access token",
+        "tryItOut": "TRY IT OUT",
+        "cancel": "CANCEL",
+        "request": "REQUEST",
+        "requestUrl": "REQUEST URL",
+        "requestBody": "REQUEST BODY (JSON)",
+        "execute": "EXECUTE",
+        "sending": "SENDING…",
+        "response": "RESPONSE",
+        "authorizationRequired": "Authorize with a Bearer token before executing this endpoint.",
+        "invalidJson": "The request body must contain valid JSON.",
+        "requestFailed": "The request could not be completed. Check the API URL and your connection.",
+        "emptyResponse": "No response body"
     }
 }

@@ -2,12 +2,14 @@ import { Body, Controller, Headers, Post, Req } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { OAuthTokenDto } from "./dto/oauth-token.dto";
 import type { Request } from "express";
+import { ApiDoc } from "../docs/decorators/api-doc.decorator";
 
 @Controller("oauth")
 export class OAuthController {
     constructor(private readonly authService: AuthService) {}
 
     @Post("token")
+    @ApiDoc({ target: "oauth.token" })
     async token(
         @Body() body: OAuthTokenDto,
         @Headers("authorization") authHeader?: string,

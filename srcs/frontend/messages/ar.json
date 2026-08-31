@@ -268,6 +268,22 @@
         "authText": "للوصول إلى نقاط النهاية الخاصة، قم بتضمين رأس الطلب التالي:",
         "apiRef": "مراجع API",
         "privateAccess": "الوصول الخاص",
-        "publicAccess": "الوصول العام"
+        "publicAccess": "الوصول العام",
+        "authorize": "تفويض",
+        "authorized": "تم التفويض",
+        "token": "رمز BEARER",
+        "tokenPlaceholder": "ألصق رمز الوصول",
+        "tryItOut": "جرّبه",
+        "cancel": "إلغاء",
+        "request": "الطلب",
+        "requestUrl": "رابط الطلب",
+        "requestBody": "نص الطلب (JSON)",
+        "execute": "تنفيذ",
+        "sending": "جارٍ الإرسال…",
+        "response": "الاستجابة",
+        "authorizationRequired": "قم بالتفويض باستخدام رمز Bearer قبل تنفيذ نقطة النهاية هذه.",
+        "invalidJson": "يجب أن يحتوي نص الطلب على JSON صالح.",
+        "requestFailed": "تعذر إكمال الطلب. تحقق من رابط API والاتصال.",
+        "emptyResponse": "لا يوجد نص للاستجابة"
     }
 }

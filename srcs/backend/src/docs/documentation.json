@@ -1,4 +1,16 @@
 {
+    "oauth.token": {
+        "summary": {
+            "en": "Get OAuth token",
+            "fr": "Obtenir un jeton OAuth",
+            "ar": "الحصول على رمز OAuth"
+        },
+        "description": {
+            "en": "Returns an OAuth token for authentication.",
+            "fr": "Retourne un jeton OAuth pour l'authentification.",
+            "ar": "يعيد رمز OAuth للمصادقة."
+        }
+    },
     "users.getAllUsers": {
         "summary": {
             "en": "Get all users",
@@ -11,66 +23,6 @@
             "ar": "يعيد قائمة بجميع المستخدمين."
         }
     },
-    "users.updateMe": {
-        "summary": {
-            "en": "Update my profile",
-            "fr": "Mettre à jour mon profil",
-            "ar": "تحديث ملفي الشخصي"
-        },
-        "description": {
-            "en": "Updates the profile of the currently authenticated user.",
-            "fr": "Met à jour le profil de l'utilisateur actuellement authentifié.",
-            "ar": "يقوم بتحديث ملف المستخدم الحالي المصادق عليه."
-        }
-    },
-    "users.getMySummary": {
-        "summary": {
-            "en": "Get my profile summary",
-            "fr": "Obtenir le résumé de mon profil",
-            "ar": "الحصول على ملخص ملفي الشخصي"
-        },
-        "description": {
-            "en": "Returns a summary of the currently authenticated user's profile.",
-            "fr": "Retourne un résumé du profil de l'utilisateur actuellement authentifié.",
-            "ar": "يعيد ملخصًا لملف المستخدم الحالي المصادق عليه."
-        }
-    },
-    "users.findUsers": {
-        "summary": {
-            "en": "Find users",
-            "fr": "Trouver des utilisateurs",
-            "ar": "البحث عن المستخدمين"
-        },
-        "description": {
-            "en": "Finds users based on the provided search criteria.",
-            "fr": "Trouve des utilisateurs en fonction des critères de recherche fournis.",
-            "ar": "يجد المستخدمين بناءً على معايير البحث المقدمة."
-        }
-    },
-    "users.uploadImage": {
-        "summary": {
-            "en": "Upload user avatar",
-            "fr": "Télécharger l'avatar de l'utilisateur",
-            "ar": "تحميل صورة المستخدم "
-        },
-        "description": {
-            "en": "Uploads a new avatar image for the currently authenticated user.",
-            "fr": "Télécharge une nouvelle image d'avatar pour l'utilisateur actuellement authentifié.",
-            "ar": "يقوم بتحميل صورة جديدة للمستخدم الحالي المصادق عليه."
-        }
-    },
-    "users.getAvatar": {
-        "summary": {
-            "en": "Get user avatar",
-            "fr": "Obtenir l'avatar de l'utilisateur",
-            "ar": "الحصول على صورة المستخدم"
-        },
-        "description": {
-            "en": "Retrieves the avatar image for a user by filename.",
-            "fr": "Récupère l'image de l'avatar d'un utilisateur par nom de fichier.",
-            "ar": "يسترجع صورة للمستخدم بواسطة اسم الملف."
-        }
-    },
     "users.getProfile": {
         "summary": {
             "en": "Get user profile",
@@ -81,6 +33,102 @@
             "en": "Retrieves the profile information for a user by their ID.",
             "fr": "Récupère les informations de profil d'un utilisateur par son ID.",
             "ar": "يسترجع معلومات الملف الشخصي للمستخدم بواسطة معرفه."
+        }
+    },
+    "users.updateProfile": {
+        "summary": {
+            "en": "Update user profile",
+            "fr": "Mettre à jour le profil de l'utilisateur",
+            "ar": "تحديث ملف المستخدم الشخصي"
+        },
+        "description": {
+            "en": "Updates the profile information for a user by their ID.",
+            "fr": "Met à jour les informations de profil d'un utilisateur par son ID.",
+            "ar": "يقوم بتحديث معلومات الملف الشخصي للمستخدم بواسطة معرفه."
+        }
+    },
+    "movies.findAll": {
+        "summary": {
+            "en": "Get all movies",
+            "fr": "Récupérer tous les films",
+            "ar": "الحصول على جميع الأفلام"
+        },
+        "description": {
+            "en": "Returns a list of all movies.",
+            "fr": "Retourne la liste de tous les films.",
+            "ar": "يعيد قائمة بجميع الأفلام."
+        }
+    },
+    "movies.findOne": {
+        "summary": {
+            "en": "Get movie details",
+            "fr": "Obtenir les détails du film",
+            "ar": "الحصول على تفاصيل الفيلم"
+        },
+        "description": {
+            "en": "Retrieves the details of a movie by its IMDb ID.",
+            "fr": "Récupère les détails d'un film par son ID IMDb.",
+            "ar": "يسترجع تفاصيل الفيلم بواسطة معرف IMDb الخاص به."
+        }
+    },
+    "comments.getLatestComments": {
+        "summary": {
+            "en": "Get latest comments",
+            "fr": "Récupérer les derniers commentaires",
+            "ar": "الحصول على أحدث التعليقات"
+        },
+        "description": {
+            "en": "Returns a list of the latest comments.",
+            "fr": "Retourne la liste des derniers commentaires.",
+            "ar": "يعيد قائمة بأحدث التعليقات."
+        }
+    },
+    "comments.getCommentOrMovieComments": {
+        "summary": {
+            "en": "Get comment or movie comments",
+            "fr": "Récupérer un commentaire ou les commentaires d'un film",
+            "ar": "الحصول على تعليق أو تعليقات الفيلم"
+        },
+        "description": {
+            "en": "Retrieves a specific comment by its ID or all comments for a specific movie by its ID.",
+            "fr": "Récupère un commentaire spécifique par son ID ou tous les commentaires pour un film spécifique par son ID.",
+            "ar": "يسترجع تعليقًا محددًا بواسطة معرفه أو جميع التعليقات لفيلم محدد بواسطة معرفه."
+        }
+    },
+    "comments.createComment": {
+        "summary": {
+            "en": "Create a new comment",
+            "fr": "Créer un nouveau commentaire",
+            "ar": "إنشاء تعليق جديد"
+        },
+        "description": {
+            "en": "Creates a new comment for a specific movie.",
+            "fr": "Crée un nouveau commentaire pour un film spécifique.",
+            "ar": "ينشئ تعليقًا جديدًا لفيلم محدد."
+        }
+    },
+    "comments.updateComment": {
+        "summary": {
+            "en": "Update a comment",
+            "fr": "Mettre à jour un commentaire",
+            "ar": "تحديث تعليق"
+        },
+        "description": {
+            "en": "Updates an existing comment by its ID.",
+            "fr": "Met à jour un commentaire existant par son ID.",
+            "ar": "يقوم بتحديث تعليق موجود بواسطة معرفه."
+        }
+    },
+    "comments.deleteComment": {
+        "summary": {
+            "en": "Delete a comment",
+            "fr": "Supprimer un commentaire",
+            "ar": "حذف تعليق"
+        },
+        "description": {
+            "en": "Deletes an existing comment by its ID.",
+            "fr": "Supprime un commentaire existant par son ID.",
+            "ar": "يقوم بحذف تعليق موجود بواسطة معرفه."
         }
     }
 }

@@ -1,5 +1,5 @@
 import { Injectable, RequestMethod } from "@nestjs/common";
-import { METHOD_METADATA, PATH_METADATA, PARAMTYPES_METADATA, ROUTE_ARGS_METADATA } from "@nestjs/common/constants";
+import { GUARDS_METADATA, METHOD_METADATA, PATH_METADATA, PARAMTYPES_METADATA, ROUTE_ARGS_METADATA } from "@nestjs/common/constants";
 import { DiscoveryService } from "@nestjs/core";
 import { getMetadataStorage } from "class-validator";
 
@@ -24,6 +24,7 @@ interface DocumentationEntry {
 export interface ApiEndpointDocumentation extends ApiDoc {
     method: string;
     path: string;
+    authorization: "bearer" | "none";
     summary?: LocalizedText;
     description?: LocalizedText;
 }
@@ -34,13 +35,11 @@ export type ApiDocumentation = Record<string, ApiEndpointDocumentation[]>;
 export class DocsService {
     constructor(private readonly discoveryService: DiscoveryService) {}
 
-    private readonly documentation = documentationFile as Record<
-        string,
-        DocumentationEntry
-    >;
+
+    private readonly documentation = documentationFile as Record<string, DocumentationEntry>;
 
     private getResourceName(path: string): string {
-        return path.split("/").filter(Boolean)[1] ?? "root";
+        return path.split("/").filter(Boolean)[0] ?? "root";
     }
 
     getDocumentation(): ApiDocumentation {
@@ -68,7 +67,10 @@ export class DocsService {
                 if (handlerName === "constructor") return [];
                 
                 const handler = controller.prototype[handlerName];
+                if (!Reflect.hasMetadata(API_DOC_METADATA, handler)) return [];
+
                 const requestMethod = Reflect.getMetadata(METHOD_METADATA, handler);
+                if (requestMethod === undefined) return [];
 
                 const method = RequestMethod[requestMethod];
 
@@ -89,6 +91,7 @@ export class DocsService {
                         method,
                         path: this.joinPaths(controllerPath, handlerPath),
                         params,
+                        authorization: this.requiresBearerToken(controller, handler)? "bearer": "none",
                         target,
                         summary: localizedDocumentation?.summary,
                         description: localizedDocumentation?.description,
@@ -96,6 +99,17 @@ export class DocsService {
                     })),
                 );
             },
+        );
+    }
+
+    private requiresBearerToken(controller: any, handler: any): boolean {
+        const guards = [
+            ...(Reflect.getMetadata(GUARDS_METADATA, controller) ?? []),
+            ...(Reflect.getMetadata(GUARDS_METADATA, handler) ?? []),
+        ];
+
+        return guards.some((guard: any) =>
+            ["JwtAuthGuard", "ApiScopeGuard"].includes(guard?.name),
         );
     }
 
@@ -112,7 +126,7 @@ export class DocsService {
     }
 
     private joinPaths(controllerPath: string, handlerPath: string): string {
-        const segments = ["api", controllerPath, handlerPath]
+        const segments = [controllerPath, handlerPath]
             .flatMap((path) => path.split("/"))
             .filter(Boolean);
         return `/${segments.join("/")}`;
