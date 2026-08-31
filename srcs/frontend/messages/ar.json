@@ -78,6 +78,12 @@
             "المتابعة GITHUB",
             "المتابعة GOOGLE"
         ],
+        "integration_mobile": "ادخل إلى",
+        "integrations_mobile": [
+            "42 NETWORK",
+            "GITHUB",
+            "GOOGLE"
+        ],
         "second_title": "التعريف",
         "second_discreption": "يرجى إدخال بيانات الاعتماد للوصول إلى الخزنة.",
         "label_address": "عنوان البريد الإلكتروني",

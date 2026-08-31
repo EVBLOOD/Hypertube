@@ -53,7 +53,7 @@
 [ ] Video Details & Storage Maintenance
     [x] Build video page showing summary, cast (director, producer, main actors), duration, rating, cover, player, and user comments.
     [x] Allow authenticated users to write comments on video pages.
-    [ ] Set up automated background cleanup script to erase movie files unwatched for over 1 month.
+    [x] Set up automated background cleanup script to erase movie files unwatched for over 1 month.
 
 
 [x] POST /oauth/token          [x] Accepts client credentials/secret, returns OAuth token.

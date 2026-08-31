@@ -1,11 +1,6 @@
-1. Automated Movie Cleanup (Backend)
-- Requirement: -"Once the movie is entirely downloaded, it will be saved on the server... However, if a movie is unwatched for a month, it will be erased."-
-- What to do: You need to implement a background Cron Job (using `@nestjs/schedule`) that runs periodically (e.g., once a day) to scan the database/filesystem and delete movie files that haven't been accessed in the last 30 days.
-
-
 - For My own Bonus:
-Stats for each user
+0 -> Stats for each user
 - Based on Subject:
-View the profile of any other user, including their profile picture and information. // Mohcine task
-Additionally, if the language of the video does not.
-Match the preferred language of the user and subtitles are available,the subtitles will be downloaded and selectable.
+0 -> View the profile of any other user, including their profile picture and information. // Mohcine task
+1 -> Additionally, if the language of the video does not.
+3 -> Match the preferred language of the user and subtitles are available,the subtitles will be downloaded and selectable.

@@ -23,16 +23,4 @@ api.interceptors.request.use((config) => {
     return config;
 });
 
-// api.interceptors.response.use(
-//     (response) => {
-//         return response;
-//     },
-//     (error: AxiosError) => {
-//         if (error.response?.status === 401) {
-//             redirect("/login");
-//         }
-//         return Promise.reject(error);
-//     },
-// );
-
 export default api;

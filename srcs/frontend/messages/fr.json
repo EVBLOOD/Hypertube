@@ -78,6 +78,12 @@
             "CONTINUER AVEC GITHUB",
             "CONTINUER AVEC GOOGLE"
         ],
+        "integration_mobile": "Accéder avec",
+        "integrations_mobile": [
+            "42 NETWORK",
+            "GITHUB",
+            "GOOGLE"
+        ],
         "second_title": "IDENTIFICATION",
         "second_discreption": "Veuillez fournir vos identifiants pour accéder au coffre.",
         "label_address": "ADRESSE E-MAIL",
