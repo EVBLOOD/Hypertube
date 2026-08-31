@@ -262,6 +262,22 @@
         "authText": "Pour accéder aux points de terminaison privés, incluez l'en-tête suivant dans votre requête :",
         "apiRef": "RÉFÉRENCES DE L'API",
         "privateAccess": "ACCÈS PRIVÉ",
-        "publicAccess": "ACCÈS PUBLIC"
+        "publicAccess": "ACCÈS PUBLIC",
+        "authorize": "AUTORISER",
+        "authorized": "AUTORISÉ",
+        "token": "JETON BEARER",
+        "tokenPlaceholder": "Collez le jeton d'accès",
+        "tryItOut": "ESSAYER",
+        "cancel": "ANNULER",
+        "request": "REQUÊTE",
+        "requestUrl": "URL DE LA REQUÊTE",
+        "requestBody": "CORPS DE LA REQUÊTE (JSON)",
+        "execute": "EXÉCUTER",
+        "sending": "ENVOI…",
+        "response": "RÉPONSE",
+        "authorizationRequired": "Autorisez avec un jeton Bearer avant d'exécuter ce point de terminaison.",
+        "invalidJson": "Le corps de la requête doit contenir du JSON valide.",
+        "requestFailed": "La requête n'a pas pu être exécutée. Vérifiez l'URL de l'API et votre connexion.",
+        "emptyResponse": "Aucun corps de réponse"
     }
 }

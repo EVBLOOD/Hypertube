@@ -20,16 +20,19 @@ import { PaginationCommentDto } from "./dto/pagination-comments.dto ";
 import { OptionalJwtAuthGuard } from "src/auth/guards/optional-jwt-auth.guard";
 import { CreateCommentDto, UpdateCommentDto } from "./dto/create-comment.dto";
 import { InteractionCommentDto } from "./dto/interaction-comment.dto";
+import { ApiDoc } from "src/docs/decorators/api-doc.decorator";
 
 @Controller("comments")
 export class CommentsController {
     constructor(private readonly commentService: CommentsService) {}
 
+    @ApiDoc({ target: "comments.getLatestComments" })
     @Get()
     async getLatestComments() {
         return this.commentService.getLatestComments();
     }
 
+    @ApiDoc({ target: "comments.getCommentOrMovieComments" })
     @UseGuards(OptionalJwtAuthGuard)
     @Get(":id")
     async getCommentOrMovieComments(
@@ -46,6 +49,7 @@ export class CommentsController {
         return this.commentService.findByMovie(id, paging, userId);
     }
 
+    @ApiDoc({ target: "comments.createComment" })
     @UseGuards(ApiScopeGuard)
     @Post()
     async createComment(@Body() dto: CreateCommentDto, @Req() req) {
@@ -62,6 +66,7 @@ export class CommentsController {
         return this.commentService.create(req.user?.id, movieId, content);
     }
 
+    @ApiDoc({ target: "comments.updateComment" })
     @UseGuards(ApiScopeGuard)
     @Patch(":id")
     async updateComment(
@@ -82,6 +87,7 @@ export class CommentsController {
         );
     }
 
+    @ApiDoc({ target: "comments.deleteComment" })
     @UseGuards(ApiScopeGuard)
     @Delete(":id")
     async deleteComment(

@@ -27,6 +27,7 @@ import { OptionalVerifiedGuard } from "src/auth/guards/optional-verified.guard";
 import fsPromises from "fs/promises";
 import type { DefaultLanguage } from "src/common/decorators/language.decorator";
 import { Language } from "src/common/decorators/language.decorator";
+import { ApiDoc } from "../docs/decorators/api-doc.decorator";
 
 @Controller("movies")
 export class MoviesController {
@@ -35,7 +36,7 @@ export class MoviesController {
         private readonly streamService: StreamsService,
         private readonly commentService: CommentsService,
     ) {}
-
+    @ApiDoc({ target: "movies.findAll" })
     @UseGuards(OptionalJwtAuthGuard, OptionalVerifiedGuard)
     @Get()
     async findAll(
@@ -223,6 +224,7 @@ export class MoviesController {
         );
     }
 
+    @ApiDoc({ target: "movies.findOne" })
     @UseGuards(OptionalJwtAuthGuard, OptionalVerifiedGuard)
     @Get(":imdbId")
     async findOne(

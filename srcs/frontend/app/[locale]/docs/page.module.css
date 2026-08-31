@@ -89,6 +89,60 @@
     margin-top: 24px;
 }
 
+.authenticationHeading,
+.tryHeading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.authorizeButton,
+.tryButton,
+.executeButton {
+    border: 1px solid var(--primary-color);
+    background: transparent;
+    color: var(--primary-color);
+    padding: 8px 12px;
+    font-family: var(--label-font);
+    font-size: 11px;
+    letter-spacing: .5px;
+    cursor: pointer;
+}
+
+.authorizeButton:hover,
+.tryButton:hover,
+.executeButton:hover:not(:disabled) {
+    background: var(--primary-color);
+    color: var(--popup-background-second);
+}
+
+.tokenField,
+.tryForm label {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    margin: 16px 0;
+    color: #938b72;
+    font-family: var(--label-font);
+    font-size: 10px;
+    letter-spacing: .7px;
+}
+
+.tokenField input,
+.tryForm input,
+.tryForm textarea {
+    box-sizing: border-box;
+    width: 100%;
+    border: 1px solid #3c3c3c;
+    background: #0c0c0c;
+    color: #d0c6ab;
+    padding: 10px 12px;
+    font: 12px monospace;
+}
+
+.tryForm textarea { min-height: 130px; resize: vertical; }
+
 .authenticationDescription {
     margin: 0 0 16px;
     color: color-mix(in srgb, var(--font-color-white), transparent 20%);
@@ -164,11 +218,15 @@
 }
 
 .methodPATCH {
-    border-left-color: #e0dcd8;
+    border-left-color: #ffad5c;
 }
 
 .methodPOST {
     border-left-color: #e0dcd8;
+}
+
+.methodDELETE {
+    border-left-color: #f98a8a;
 }
 
 .apiCardHeader {
@@ -235,11 +293,15 @@
 }
 
 .methodPATCH .method {
-    background: #e0dcd8;
+    background: #ffad5c;
 }
 
 .methodPOST .method {
     background: #e0dcd8;
+}
+
+.methodDELETE .method {
+    background: #f98a8a;
 }
 
 .endpointPath {
@@ -366,6 +428,28 @@
     line-height: 1.6;
     white-space: pre;
 }
+
+.tryPanel {
+    min-width: 0;
+    border: 1px solid #3c3c3c;
+    background: #151515;
+    padding: 16px;
+}
+
+.tryHeading > span {
+    color: #938b72;
+    font-family: var(--label-font);
+    font-size: 13px;
+    letter-spacing: 1px;
+}
+
+.tryForm { margin-top: 12px; }
+.tryForm label { margin: 12px 0; }
+.executeButton:disabled { cursor: wait; opacity: .65; }
+.requestError { margin: 10px 0; color: #e8a0a0; font-size: 12px; }
+
+.response { margin-top: 28px; }
+.responseLabel { display: block; margin-bottom: 10px; }
 
 .title {
     margin: 14px 0 0;

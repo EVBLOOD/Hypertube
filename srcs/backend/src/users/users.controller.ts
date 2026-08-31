@@ -38,9 +38,9 @@ import fsPromises from "fs/promises";
 export class UsersController {
     constructor(private readonly userService: UsersService) {}
 
+    @ApiDoc({ target: "users.getAllUsers" })
     @UseGuards(ApiScopeGuard)
     @Get()
-    @ApiDoc({ target: "users.getAllUsers" })
     async getAllUsers() {
         const users = await this.userService.findAll();
         return users.map((u) => ({
@@ -137,16 +137,16 @@ export class UsersController {
         });
     }
 
+    @ApiDoc({ target: "users.getProfile" })
     @UseGuards(ApiScopeGuard)
     @Get(":id")
-    @ApiDoc({ target: "users.getProfile" })
     async getProfile(@Param("id", ParseIntPipe) targetId: number) {
         return this.userService.findUserForApi(targetId);
     }
 
+    @ApiDoc({ target: "users.updateProfile" })
     @UseGuards(ApiScopeGuard)
     @Patch(":id")
-    @ApiDoc({ target: "users.updateProfile" })
     async updateProfile(
         @Param("id", ParseIntPipe) targetId: number,
         @Body() dto: UpdateUserDto,
