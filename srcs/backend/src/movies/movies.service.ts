@@ -896,6 +896,7 @@ export class MoviesService {
                     peers: t.peers as number,
                     quality: t.quality as string,
                     size: t.size as string,
+                    language: data?.data?.movie?.language as string,
                 };
             });
         } catch (err) {
@@ -1251,7 +1252,12 @@ export class MoviesService {
         const qualities = await this.getTorrentMagnetsFromYTS(imdbId);
         const availableQualitiesSeeds =
             qualities?.filter((q) => q.seeds > 0) || [];
-        return availableQualitiesSeeds?.map((q) => q.quality) || [];
+
+        if (availableQualitiesSeeds.length === 0) {
+            throw new NotFoundException("No qualities available for this movie.");
+        }
+
+        return { qualities: Array.from(new Set(availableQualitiesSeeds.map((q) => q.quality))) || [], language: qualities?.[0].language || "en" };
     }
 
     async searchSubtitles(imdbId: string) {

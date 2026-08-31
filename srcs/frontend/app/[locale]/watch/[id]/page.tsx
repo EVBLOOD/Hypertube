@@ -27,7 +27,7 @@ export default function WatchPageMoviePage({
     const id = resolvedParams.id;
     const { data, isPending, error } = useMovieDetails(id);
     const {
-        data: qualitiesData,
+        data: metadataData,
         isPending: isQualitiesPending,
         error: qualitiesError,
     } = useMovieQualities(id);
@@ -99,7 +99,7 @@ export default function WatchPageMoviePage({
                     title={data.data.movie.title}
                     description={data.data.movie.description}
                     thumbnail={data.data.movie.poster}
-                    qualities={qualitiesData?.data}
+                    metadata={metadataData?.data}
                     subtitles={subtitlesData?.data}
                     handlePlayMovie={handlePlayMovie}
                     handlePauseMovie={handlePauseMovie}
@@ -114,7 +114,7 @@ export default function WatchPageMoviePage({
                 movieId={id}
                 roomToken={token}
                 movie={data.data.movie}
-                qualities={qualitiesData?.data}
+                metadata={metadataData?.data}
                 subtitles={subtitlesData?.data}
                 handlePlayMovie={handlePlayMovie}
                 handlePauseMovie={handlePauseMovie}

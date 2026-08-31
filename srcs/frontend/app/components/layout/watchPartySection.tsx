@@ -14,7 +14,7 @@ export default function WatchPartySection({
     movieId,
     roomToken,
     movie,
-    qualities,
+    metadata,
     subtitles,
     handlePlayMovie,
     handlePauseMovie,
@@ -130,7 +130,7 @@ export default function WatchPartySection({
                 handleSeekStream={HandleSeekStream}
                 isPlaying={isPlaying}
                 time={currentTime}
-                qualities={qualities}
+                metadata={metadata}
                 subtitles={subtitles}
                 handlePlayMovie={handlePlayMovie}
                 handlePauseMovie={handlePauseMovie}

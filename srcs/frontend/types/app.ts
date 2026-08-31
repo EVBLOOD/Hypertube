@@ -107,7 +107,7 @@ export interface WatchPartyProps {
     movieId: string;
     roomToken: string | null;
     movie: WatchPartyMovie;
-    qualities?: string[];
+    metadata?: { qualities: string[]; language: string[] };
     subtitles?: WatchPartySubtitle[];
     handlePlayMovie?: () => void;
     handlePauseMovie?: () => void;

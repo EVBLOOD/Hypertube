@@ -4,6 +4,7 @@ import styles from "./videoSection.module.css";
 import ErrorPage from "./error";
 import api from "@/lib/api";
 import { getErrorMessage } from "@/lib/helper";
+import { useUserStore } from "@/stores/user";
 
 export default function VideoSection(props: {
     id: string;
@@ -15,7 +16,7 @@ export default function VideoSection(props: {
     handleSeekStream?: (time: number) => void;
     time?: number;
     isPlaying?: boolean;
-    qualities?: string[];
+    metadata?: { qualities: string[]; language: string[] };
     subtitles?: { lang: string; language: string; urlLink: string }[];
     handlePlayMovie?: () => void;
     handlePauseMovie?: () => void;
@@ -25,14 +26,15 @@ export default function VideoSection(props: {
     const isRemoteUpdate = useRef(false);
     const refVideo = useRef<HTMLVideoElement>(null);
     const [currentQuality, setCurrentQuality] = useState(
-        props.qualities?.find((q) => q === "720p")
+        props.metadata?.qualities.find((q) => q === "720p")
             ? "720p"
-            : props.qualities?.[0],
+            : props.metadata?.qualities?.[0],
     );
     const [errorMessage, setErrorMessage] = useState<string | null>(
-        props.qualities?.length ? null : "No Turrents Found for this Movie !",
+        props.metadata?.qualities?.length ? null : "No Turrents Found for this Movie !",
     );
     const videoUrl = `${process.env.NEXT_PUBLIC_BACK_API_URL}/movies/watch/${props.id}?quality=${currentQuality}`;
+    const getUserPreferredLanguage = useUserStore().user?.language;
 
     const handleQualityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const newQuality = e.target.value;
@@ -103,7 +105,7 @@ export default function VideoSection(props: {
 
         isRemoteUpdate.current = true;
         if (props.isPlaying) {
-            refVideo.current.play().catch(() => {});
+            refVideo.current.play().catch(() => { });
         } else {
             refVideo.current.pause();
         }
@@ -142,13 +144,13 @@ export default function VideoSection(props: {
     }
     return (
         <div className={styles.videoSection}>
-            {props.qualities && (
+            {props.metadata?.qualities && (
                 <div className={styles.qualityControls}>
                     <select
                         value={currentQuality}
                         onChange={handleQualityChange}
                     >
-                        {props.qualities.map((q, index) => (
+                        {props.metadata?.qualities.map((q, index) => (
                             <option key={index} value={q}>
                                 {q}
                             </option>
@@ -168,7 +170,7 @@ export default function VideoSection(props: {
                 onSeeked={handleSeek}
                 onSeeking={handleSeeking}
                 onError={handleVideoError}
-                // onTimeUpdate={handleTimeUpdate}
+            // onTimeUpdate={handleTimeUpdate}
             >
                 {props.subtitles &&
                     props.subtitles.map((s, index) => (
@@ -178,6 +180,7 @@ export default function VideoSection(props: {
                             src={s.urlLink}
                             srcLang={s.language}
                             label={s.lang}
+                            default={s.language.toLowerCase() === getUserPreferredLanguage}
                         ></track>
                     ))}
             </video>
