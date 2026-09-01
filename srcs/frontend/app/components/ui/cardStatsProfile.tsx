@@ -5,21 +5,16 @@ import styles from "./cardStatsProfile.module.css";
 import DescriptionComponent from "./descriptionComponent";
 import Image from "next/image";
 
-export default function CardStatsProfile() {
+export default function CardStatsProfile({title, count, icon}: {title: string, count: string | number, icon?: string}) {
     const t = useTranslations("Profile");
 
     return (
         <div className={styles.StatSingleCard}>
-            <Image
-                height={24}
-                width={24}
-                src="/costumIcons/play.svg"
-                alt={t("stats.approvedTitles")}
-            />
-            <h2>482</h2>
-            <DescriptionComponent
-                text={t("stats.approvedTitles")}
-            ></DescriptionComponent>
+            <div className={styles.iconAndCount}>
+                <Image height={24} width={24} src={icon || "/costumIcons/play.svg"} alt={t("stats.approvedTitles")} />
+                <h2>{count}</h2>
+            </div>
+            <DescriptionComponent text={title} />
         </div>
     );
 }

@@ -4,7 +4,9 @@ import { useTranslations } from "next-intl";
 import styles from "./cardInfosProfile.module.css";
 import DescriptionComponent from "./descriptionComponent";
 
-export default function CardInfosProfile() {
+export default function CardInfosProfile(
+    {hours}: { hours: string}
+) {
     const t = useTranslations("Profile");
 
     return (
@@ -13,12 +15,10 @@ export default function CardInfosProfile() {
                 {t("stats.accumulatedExposure")}
             </span>
             <div className={styles.cardMain}>
-                <h1>1,428</h1>
+                <h1>{hours}</h1>
                 <h2>{t("stats.hours")}</h2>
             </div>
-            <DescriptionComponent
-                text={t("stats.exposureDescription")}
-            ></DescriptionComponent>
+            <DescriptionComponent text={t("stats.exposureDescription")} />
         </div>
     );
 }

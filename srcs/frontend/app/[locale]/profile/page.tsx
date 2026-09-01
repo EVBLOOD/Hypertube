@@ -277,14 +277,14 @@ function ProfileSectionPage({
                 </div>
                 {/* second part */}
                 <div className={styles.secondPartHolder}>
-                    <CardInfosProfile />
+                    <CardInfosProfile hours="0" />
                     <div className={styles.statisticCards}>
-                        <CardStatsProfile />
-                        <CardStatsProfile />
+                        <CardStatsProfile title="Movies Watched" icon="/costumIcons/movie-film.svg" count={stats.watched} />
+                        <CardStatsProfile title="Movies Wishlisted" icon="/costumIcons/bookmark.svg" count={stats.wishlisted} />
                     </div>
                     <div className={styles.statisticCards}>
-                        <CardStatsProfile />
-                        <CardStatsProfile />
+                        <CardStatsProfile title="Movies Liked" icon="/costumIcons/like.svg" count={stats.liked} />
+                        <CardStatsProfile title="Movies Disliked" icon="/costumIcons/dislike.svg" count={stats.disliked} />
                     </div>
 
                     <div className={styles.logsContainer}>

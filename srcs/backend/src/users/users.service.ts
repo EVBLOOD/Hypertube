@@ -133,6 +133,7 @@ export class UsersService {
             take: 8,
         });
 
+
         const stats = {
             watched: progress.filter((item) => item.isWatched).length,
             wishlisted: progress.filter((item) => item.isWishlisted).length,
