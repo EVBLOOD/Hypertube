@@ -14,23 +14,37 @@ function exampleValue(type: string) {
 
 function defaultBody(parameters?: ApiParameter[]) {
     const body = parameters?.find((parameter) => parameter.in === "body");
+
     if (!body) return "";
+
     if (Array.isArray(body.type)) {
         return JSON.stringify(Object.fromEntries(body.type.map(([field, type]) => [field, exampleValue(type)])), null, 2);
     }
+
     return JSON.stringify({ [body.name]: exampleValue(body.type) }, null, 2);
 }
 
 function defaultUrl(path: string, parameters?: ApiParameter[]) {
     const withPlaceholders = path.replace(/:([^/]+)/g, "{$1}");
+
     const query = parameters?.flatMap((parameter) => parameter.in !== "query" ? [] : Array.isArray(parameter.type)
         ? parameter.type.map(([field]) => `${encodeURIComponent(field)}=`)
         : [`${encodeURIComponent(parameter.name)}=`]) ?? [];
+
     return query.length ? `${withPlaceholders}?${query.join("&")}` : withPlaceholders;
 }
 
-export default function ApiCard({ title, description, method, path, access, permission, parameters, authorizationToken }: ApiCardProps) {
-    const isPrivate = access === "private";
+export default function ApiCard({ 
+        title, 
+        description, 
+        method, 
+        path, 
+        access, 
+        permission, 
+        parameters, 
+        authorizationToken 
+    } : ApiCardProps) {
+
     const [isExpanded, setIsExpanded] = useState(false);
     const [isTrying, setIsTrying] = useState(false);
     const [requestUrl, setRequestUrl] = useState(() => defaultUrl(path, parameters));
@@ -40,11 +54,8 @@ export default function ApiCard({ title, description, method, path, access, perm
     const [isSending, setIsSending] = useState(false);
     const contentId = useId();
     const Docs = useTranslations("docs");
+    const isPrivate = access === "private";
     const needsBody = useMemo(() => parameters?.some((parameter) => parameter.in === "body"), [parameters]);
-
-    useEffect(() => {
-        console.log("Request URL changed:", requestUrl);
-    }, [requestUrl]);
 
     async function executeRequest() {
         setRequestError(""); 
