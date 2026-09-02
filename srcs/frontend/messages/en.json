@@ -17,7 +17,8 @@
         "filter_search": "SEARCH",
         "filter_search_placeholder": "SEARCH FOR A MOVIE...",
         "filter_sort_popularity": "POPULARITY",
-        "filter_sort_rating": "RATING"
+        "filter_sort_rating": "RATING",
+        "empty_state": "No movies found in watchlist."
     },
     "Genres": {
         "action": "Action",
@@ -236,6 +237,8 @@
         "ariaLabel": "Language selector"
     },
     "Profile": {
+        "title": "Director’s Office",
+        "description": "Your Profile and Interaction Statistics",
         "stats": {
             "approvedTitles": "Approved Titles",
             "accumulatedExposure": "Accumulated Exposure",
@@ -289,5 +292,11 @@
         "invalidJson": "The request body must contain valid JSON.",
         "requestFailed": "The request could not be completed. Check the API URL and your connection.",
         "emptyResponse": "No response body"
+    },
+    "History": {
+        "title": "History",
+        "empty_state": "No recent activity to display.",
+        "total_interactions": "total interactions",
+        "no_interactions": "No interaction logs yet."
     }
 }

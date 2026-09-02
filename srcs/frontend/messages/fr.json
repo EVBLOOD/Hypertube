@@ -17,7 +17,8 @@
         "filter_search": "RECHERCHER",
         "filter_search_placeholder": "RECHERCHER UN FILM...",
         "filter_sort_popularity": "POPULARITÉ",
-        "filter_sort_rating": "NOTE"
+        "filter_sort_rating": "NOTE",
+        "empty_state": "Aucun film trouvé dans la liste de suivi."
     },
     "Genres": {
         "action": "Action",
@@ -236,6 +237,8 @@
         "ariaLabel": "Sélecteur de langue"
     },
     "Profile": {
+        "title": "Bureau du réalisateur",
+        "description": "Votre profil et vos statistiques d'interaction",
         "stats": {
             "approvedTitles": "Titres approuvés",
             "accumulatedExposure": "Exposition cumulée",
@@ -289,5 +292,11 @@
         "invalidJson": "Le corps de la requête doit contenir du JSON valide.",
         "requestFailed": "La requête n'a pas pu être exécutée. Vérifiez l'URL de l'API et votre connexion.",
         "emptyResponse": "Aucun corps de réponse"
+    },
+    "History": {
+        "title": "Historique",
+        "empty_state": "Aucune activité récente à afficher.",
+        "total_interactions": "Interactions totales",
+        "no_interactions": "Aucune interaction"
     }
 }

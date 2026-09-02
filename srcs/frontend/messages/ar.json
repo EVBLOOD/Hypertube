@@ -17,7 +17,8 @@
         "filter_search": "بحث",
         "filter_search_placeholder": "بحث عن فيلم...",
         "filter_sort_popularity": "الشعبية",
-        "filter_sort_rating": "التقييم"
+        "filter_sort_rating": "التقييم",
+        "empty_state": "لم يتم العثور على أفلام في قائمة المشاهدة."
     },
     "Genres": {
         "action": "أكشن",
@@ -236,6 +237,8 @@
         "ariaLabel": "محدد اللغة"
     },
     "Profile": {
+        "title": "مكتب المخرج",
+        "description": "ملفك الشخصي وإحصائيات التفاعل",
         "stats": {
             "approvedTitles": "العناوين المعتمدة",
             "accumulatedExposure": "التعرّض المتراكم",
@@ -289,5 +292,11 @@
         "invalidJson": "يجب أن يحتوي نص الطلب على JSON صالح.",
         "requestFailed": "تعذر إكمال الطلب. تحقق من رابط API والاتصال.",
         "emptyResponse": "لا يوجد نص للاستجابة"
+    },
+    "History": {
+        "title": "السجل",
+        "empty_state": "لا توجد أنشطة حديثة للعرض.",
+        "total_interactions": "إجمالي التفاعلات",
+        "no_interactions": "لا توجد تفاعلات"
     }
 }

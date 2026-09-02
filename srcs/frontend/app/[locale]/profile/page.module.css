@@ -34,6 +34,18 @@
     flex-direction: column;
 }
 
+.history{
+    background-color: #1c1b1b;
+    padding: 30px;
+
+}
+
+.titleAndLink{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 .personalInfosField {
     display: flex;
     align-items: start;

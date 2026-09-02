@@ -50,6 +50,11 @@ export default function Trending() {
                     <DescriptionComponent text={Library("sub_title")} />
                 </div>
             </div>
+            { data?.pages[0]?.data.length === 0 && (
+                <div className={styles.emptyState}>
+                    {Library("empty_state")}
+                </div>
+            )}
             <div className={`${styles.moviesList}`}>
                 {data?.pages.map((page, pageIndex) => (
                     <React.Fragment key={pageIndex}>

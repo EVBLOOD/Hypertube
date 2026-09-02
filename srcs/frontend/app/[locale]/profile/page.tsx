@@ -77,6 +77,9 @@ function ProfileSectionPage({
     const [profilePicture, setProfilePicture] = useState<string>(userData?.profilePicture || "/hero.png");
 
     const t = useTranslations("Profile.stats");
+    const Profile = useTranslations("Profile");
+
+    const recentHistory = history.slice(0, 3);
 
     const ifSavedInServer = (path: string) => {
         if (path) {
@@ -164,10 +167,9 @@ function ProfileSectionPage({
         <div className={`container ${styles.browseContent}`}>
             <div className={styles.mainBrowseContentHead}>
                 <div>
-                    <TitleCustom title={"Director’s Office"} nb_color={-2} />
-                    <DescriptionComponent
-                        text={`Watched: ${stats.watched} // Wishlisted: ${stats.wishlisted}`}
-                    />
+                    <TitleCustom title={Profile("title")} nb_color={-2} />
+                    <DescriptionComponent text={Profile("description")} />
+                    {/* <DescriptionComponent text={`Watched: ${stats.watched} // Wishlisted: ${stats.wishlisted}`} /> */}
                 </div>
             </div>
 
@@ -259,14 +261,14 @@ function ProfileSectionPage({
                                 icon="/costumIcons/recent.svg"
                             />
                             <Link
-                                href=""
+                                href="/history"
                                 className={styles.interactionsOpenMore}
                             >
                                 View All Logs
                             </Link>
                         </div>
                         <div className={styles.interactionsSection}>
-                            {history.map(
+                            {recentHistory.map(
                                 (item: ProfileHistoryItem, index: number) => (
                                     <InteractionProfileCard
                                         key={index}
@@ -290,7 +292,7 @@ function ProfileSectionPage({
                         <CardStatsProfile title={t('moviesDisliked')} icon="/costumIcons/dislike.svg" count={stats.disliked} />
                     </div>
 
-                    <div className={styles.logsContainer}>
+                    {/* <div className={styles.logsContainer}>
                         <h2>Security Logs</h2>
                         <div className={styles.SecurityLogs}>
                             <DescriptionComponent
@@ -310,7 +312,7 @@ function ProfileSectionPage({
                                 {stats.wishlisted} WATCHLATER
                             </p>
                         </div>
-                    </div>
+                    </div> */}
                 </div>
             </div>
         </div>
