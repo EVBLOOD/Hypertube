@@ -6,6 +6,8 @@ import styles from "./interactionProfileCard.module.css";
 import { formatDistance } from "date-fns";
 import Image from "next/image";
 import type { ProfileHistoryItem } from "@/types/app";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function InteractionProfileCard({
     movie,
@@ -14,6 +16,7 @@ export default function InteractionProfileCard({
 }) {
     const t = useTranslations("Profile");
     console.debug("movie", movie);
+    const router = useRouter();
 
     const getInteractionTime = (actionDate: string | Date) => {
         const timeAgo = formatDistance(new Date(actionDate), new Date(), {
@@ -44,22 +47,42 @@ export default function InteractionProfileCard({
         ? getInteractionTime(movie.actionDate)
         : t("stats.unknownTime");
 
+    const moviePoster = movie?.poster || "/default-poster.png";
+
+    useEffect(() => {
+        console.log(movie);
+    }, [movie]);
+
+    const handleCardClick = () => {
+        const movieId = movie ? (movie as { id?: string | number }).id : undefined;
+        if (movie && movieId) {
+            router.push(`movie/${movieId}`);
+        }
+    }
+
     return (
-        <div className={styles.cardBody}>
+        <div className={styles.cardBody} onClick={handleCardClick}>
             <div className={styles.coverTitleInfo}>
-                <Image
+                {/* <Image
                     height={64}
                     width={48}
-                    src={movie?.poster || "/hero.png"}
+                    src={moviePoster}
                     alt={t("stats.moviePoster")}
-                />
-                <div>
-                    <h3 className={styles.movieTitle}>
-                        {movie?.title?.slice(0, 20) +
-                            (movie?.title?.length && movie?.title?.length > 20
-                                ? "..."
-                                : "") || t("stats.unknownTitle")}
-                    </h3>
+                /> */}
+                <img className={styles.moviePoster} src={moviePoster} alt={t("stats.moviePoster")} />
+                <div className={styles.infos}>
+                    <div className={styles.titleAndTime}>
+                        <h3 className={styles.movieTitle}>
+                            {movie?.title?.slice(0, 20) +
+                                (movie?.title?.length && movie?.title?.length > 20
+                                    ? "..."
+                                    : "") || t("stats.unknownTitle")}
+                        </h3>
+                        <div className={styles.interactionInfos}>
+                            <Image height={15} width={15} src={interactionIcon} alt={t("stats.interactionIcon")}/>
+                            <p>{interactionTime}</p>
+                        </div>
+                    </div>
                     <DescriptionComponent
                         className={styles.discreptionMarginCorrection}
                         text={
@@ -68,18 +91,6 @@ export default function InteractionProfileCard({
                         }
                     />
                 </div>
-            </div>
-            <div className={styles.interactionInofs}>
-                <Image
-                    height={20}
-                    width={20}
-                    src={interactionIcon}
-                    alt={t("stats.interactionIcon")}
-                />
-                <DescriptionComponent
-                    className={styles.discreptionMarginCorrection}
-                    text={interactionTime}
-                />
             </div>
         </div>
     );

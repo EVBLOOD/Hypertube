@@ -7,10 +7,17 @@
     align-items: flex-start;
     gap: 10px;
     background-color: #1c1b1b;
+    transition: 0.3s ease;
+
 }
 
 .StatSingleCard h2 {
     margin: 0;
+}
+
+.StatSingleCard:hover {
+    background-color: #2a2a2a;
+    transition: 0.3s ease;
 }
 
 .iconAndCount {

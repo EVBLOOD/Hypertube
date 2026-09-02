@@ -6,10 +6,13 @@
 }
 
 .heroSection {
-    display: flex;
-    justify-content: space-between;
+    /* display: flex; */
+    /* justify-content: space-between; */
+    display: grid;
+    grid-template-columns: 60% 40%;
     align-items: flex-end;
     padding: 64px 96px 64px 96px;
+
 }
 
 .heroSectionTitle {
@@ -32,7 +35,7 @@
 }
 
 .heroSectionInfos {
-    width: 30%;
+    /* width: 30%; */
     border-style: solid;
     border-width: 0px 0px 0px 2px;
     border-color: var(--primary-color);
@@ -83,7 +86,7 @@
 @media screen and (max-width: 768px) {
     .heroSection {
         padding: 15px;
-        flex-direction: column;
+        grid-template-columns: 100%;        
     }
 
     .heroSectionInfos {

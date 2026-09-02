@@ -245,7 +245,11 @@
             "moviePoster": "Affiche du film",
             "interactionIcon": "Icône d'interaction",
             "unknownTitle": "Titre inconnu",
-            "unknownOverview": "Synopsis inconnu"
+            "unknownOverview": "Synopsis inconnu",
+            "moviesWatched": "Films regardés",
+            "moviesWishlisted": "Films sur la liste de souhaits",
+            "moviesLiked": "Films aimés",
+            "moviesDisliked": "Films non aimés"
         }
     },
     "Watch": {

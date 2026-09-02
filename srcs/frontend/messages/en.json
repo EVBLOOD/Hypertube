@@ -245,7 +245,11 @@
             "moviePoster": "Movie poster",
             "interactionIcon": "Interaction icon",
             "unknownTitle": "Unknown Title",
-            "unknownOverview": "Unknown Overview"
+            "unknownOverview": "Unknown Overview",
+            "moviesWatched": "Movies Watched",
+            "moviesWishlisted": "Movies Wishlisted",
+            "moviesLiked": "Movies Liked",
+            "moviesDisliked": "Movies Disliked"
         }
     },
     "Watch": {

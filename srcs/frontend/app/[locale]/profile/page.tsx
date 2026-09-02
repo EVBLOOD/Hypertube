@@ -27,6 +27,7 @@ import type {
 } from "@/types/app";
 import { getErrorMessage } from "@/lib/helper";
 import { toast } from "@/app/components/ui/toast";
+import { useTranslations } from "next-intl";
 
 export default function ProfilePage() {
     const { data, isPending, error } = useProfileSummary();
@@ -74,6 +75,8 @@ function ProfileSectionPage({
     const [userLanguage, setUserLanguage] = useState<"en" | "ar" | "fr">(userData?.preferredLanguage || "en");
     const [userPrivacy, setUserPrivacy] = useState<"public" | "private">(userData?.privacy || "public");
     const [profilePicture, setProfilePicture] = useState<string>(userData?.profilePicture || "/hero.png");
+
+    const t = useTranslations("Profile.stats");
 
     const ifSavedInServer = (path: string) => {
         if (path) {
@@ -279,12 +282,12 @@ function ProfileSectionPage({
                 <div className={styles.secondPartHolder}>
                     <CardInfosProfile hours="0" />
                     <div className={styles.statisticCards}>
-                        <CardStatsProfile title="Movies Watched" icon="/costumIcons/movie-film.svg" count={stats.watched} />
-                        <CardStatsProfile title="Movies Wishlisted" icon="/costumIcons/bookmark.svg" count={stats.wishlisted} />
+                        <CardStatsProfile title={t('moviesWatched')} icon="/costumIcons/movie-film.svg" count={stats.watched} />
+                        <CardStatsProfile title={t('moviesWishlisted')} href="/watchlist" icon="/costumIcons/bookmark.svg" count={stats.wishlisted} />
                     </div>
                     <div className={styles.statisticCards}>
-                        <CardStatsProfile title="Movies Liked" icon="/costumIcons/like.svg" count={stats.liked} />
-                        <CardStatsProfile title="Movies Disliked" icon="/costumIcons/dislike.svg" count={stats.disliked} />
+                        <CardStatsProfile title={t('moviesLiked')} icon="/costumIcons/like.svg" count={stats.liked} />
+                        <CardStatsProfile title={t('moviesDisliked')} icon="/costumIcons/dislike.svg" count={stats.disliked} />
                     </div>
 
                     <div className={styles.logsContainer}>

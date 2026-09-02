@@ -125,7 +125,7 @@ export default function HeroSectionMovie({
                         <div className={styles.heroSectionActions}>
                             <ButtonCustom
                                 textButton={t("watchLater")}
-                                buttonImage={"/costumIcons/watchLater.svg"}
+                                buttonImage={isWishlisted ? "/costumIcons/success.svg" : "/costumIcons/watchLater.svg"}
                                 color={isWishlisted ? "primary" : null}
                                 onClick={onWishlist}
                                 style={{

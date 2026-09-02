@@ -88,6 +88,14 @@
     gap: 10px;
 }
 
+.cards {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
 .interactionTitleSection {
     display: flex;
     justify-content: space-between;

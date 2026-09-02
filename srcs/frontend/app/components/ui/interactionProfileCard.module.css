@@ -1,6 +1,5 @@
 .cardBody {
-    display: flex;
-    justify-content: space-between;
+    gap: 30px;
     align-items: center;
     background-color: #2a2a2a;
     padding: 16px 16px 16px 16px;
@@ -17,17 +16,45 @@
     margin: 0px;
 }
 
+.moviePoster{
+    width: 64px;
+    height: 96px;
+    object-fit: cover;
+}
+
 .discreptionMarginCorrection {
     margin: 0;
     /* text-align: center; */
 }
 
-.interactionInofs {
+.titleAndTime{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.infos {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    gap: 10px;
+}
+
+.interactionInfos {
+    display: flex;
     align-items: center;
-    gap: 4px;
+    font-size: 14px;
+    gap: 10px;
+    color: #d0c6ab;
+}
+
+.cardBody{
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.cardBody:hover {
+    background-color: #3a3a3a;
+    transition: 0.3s ease;
 }
 
 @media screen and (max-width: 768px) {

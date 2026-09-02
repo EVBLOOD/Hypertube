@@ -245,7 +245,11 @@
             "moviePoster": "ملصق الفيلم",
             "interactionIcon": "أيقونة التفاعل",
             "unknownTitle": "عنوان غير معروف",
-            "unknownOverview": "ملخص غير معروف"
+            "unknownOverview": "ملخص غير معروف",
+            "moviesWatched": "الأفلام التي تمت مشاهدتها",
+            "moviesWishlisted": "الأفلام في قائمة الرغبات",
+            "moviesLiked": "الأفلام التي أعجبتك",
+            "moviesDisliked": "الأفلام التي لم تعجبك"
         }
     },
     "Watch": {
