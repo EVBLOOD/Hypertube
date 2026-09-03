@@ -28,6 +28,12 @@ export default function Search() {
         }
     };
 
+    const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter") {
+            handleSearch();
+        }
+    }
+
     return (
         <Modal>
             <div className={styles.searchContainer}>
@@ -37,6 +43,7 @@ export default function Search() {
                     ref={searchRef}
                     placeHolder="Search Here"
                     className={styles.input}
+                    onKeyPress={handleKeyPress}
                 ></InputCustom>
                 <ButtonCustom
                     onClick={handleSearch}

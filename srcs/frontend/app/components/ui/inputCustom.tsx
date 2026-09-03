@@ -9,12 +9,14 @@ export default function InputCustom({
     typeInput = "text",
     ref,
     className,
+    onKeyPress,
 }: {
     lableName: string;
     placeHolder: string;
     typeInput?: string;
     ref?: Ref<HTMLInputElement>;
     className?: string;
+    onKeyPress?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 }) {
     return (
         <div className={`${styles.inputSection} ${className}`}>
@@ -24,6 +26,7 @@ export default function InputCustom({
                 placeholder={placeHolder}
                 className={styles.inputElem}
                 type={typeInput}
+                onKeyPress={onKeyPress}
             />
         </div>
     );
