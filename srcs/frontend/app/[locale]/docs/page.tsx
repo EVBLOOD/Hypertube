@@ -11,7 +11,30 @@ import DocsService from "@/lib/services/DocsService";
 import type { ApiCardProps, ApiDocumentation, Docs, LocalizedText,
 } from "@/types/app";
 import LoadingPage from "@/app/components/layout/loading";
-import { toast } from "@/app/components/ui/toast";
+
+const AUTH_TOKEN_COOKIE = "authTokenDocs";
+const AUTH_TOKEN_MAX_AGE = 60 * 60;
+
+function getAuthTokenFromCookie() {
+    if (typeof document === "undefined") 
+        return "";
+
+    const cookie = document.cookie.split("; ")
+        .find((value) => value.startsWith(`${AUTH_TOKEN_COOKIE}=`));
+
+    return cookie ? decodeURIComponent(cookie.slice(AUTH_TOKEN_COOKIE.length + 1)) : "";
+}
+
+function setAuthTokenCookie(token: string) {
+    if (typeof document === "undefined") return;
+
+    if (!token) {
+        document.cookie = `${AUTH_TOKEN_COOKIE}=; path=/; max-age=0`;
+        return;
+    }
+
+    document.cookie = `${AUTH_TOKEN_COOKIE}=${encodeURIComponent(token)}; path=/; max-age=${AUTH_TOKEN_MAX_AGE}`;
+}
 
 function getLocalizedText(text: LocalizedText | undefined, locale: string) {
     if (!text) return undefined;
@@ -46,7 +69,7 @@ export default function DocsPage() {
     const locale = useLocale();
     const [data, setData] = useState<ApiDocumentation | null>(null);
     const [activeSection, setActiveSection] = useState("");
-    const [authorizationToken, setAuthorizationToken] = useState("");
+    const [authToken, setAuthToken] = useState(getAuthTokenFromCookie);
     const [isAuthorizing, setIsAuthorizing] = useState(false);
 
     useEffect(() => {
@@ -64,6 +87,12 @@ export default function DocsPage() {
 
         fetchDocs();
     }, []);
+
+    function handleAuthTokenChange(token: string) {
+        const trimmedToken = token.trim();
+        setAuthToken(trimmedToken);
+        setAuthTokenCookie(trimmedToken);
+    }
 
     function handleSectionClick(event: MouseEvent<HTMLAnchorElement>, doc: string) {
         event.preventDefault();
@@ -107,18 +136,23 @@ export default function DocsPage() {
                         </div>
                         <button className={styles.authorizeButton} type="button"
                             onClick={() => setIsAuthorizing((open) => !open)}>
-                            {authorizationToken ? Docs("authorized") : Docs("authorize")}
+                            {authToken ? Docs("authorized") : Docs("authorize")}
                         </button>
                     </div>
                     {isAuthorizing ? (
                         <label className={styles.tokenField}>
                             <span>{Docs("token")}</span>
-                            <input type="password" value={authorizationToken}
-                                onChange={(event) => setAuthorizationToken(event.target.value.trim())}
+                            <input type="password" value={authToken}
+                                onChange={(event) => 
+                                    handleAuthTokenChange(event.target.value)}
                                 placeholder={Docs("tokenPlaceholder")} autoComplete="off" />
                         </label>
                     ) : null}
-                    <pre><code>{authorizationToken ? "Authorization: Bearer ••••••••" : "Authorization: Bearer <token>"}</code></pre>
+                    <pre><code>
+                    {authToken ?
+                    "Authorization: Bearer ••••••••" 
+                    : "Authorization: Bearer <token>"}
+                    </code></pre>
                 </div>
                 {docs.map(([doc, endpoints]) => (
                     <section className={styles.apiSection} id={doc} key={doc}>
@@ -127,7 +161,7 @@ export default function DocsPage() {
                         </div>
                         <div className={styles.apiCards}>
                             {endpoints.map((endpoint, i) => (
-                                <ApiCard key={i} {...detailsEndpoint(endpoint, locale, authorizationToken)} />
+                                <ApiCard key={i} {...detailsEndpoint(endpoint, locale, authToken)} />
                             ))}
                         </div>
                     </section>
