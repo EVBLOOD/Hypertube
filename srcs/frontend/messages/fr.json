@@ -298,5 +298,8 @@
         "empty_state": "Aucune activité récente à afficher.",
         "total_interactions": "Interactions totales",
         "no_interactions": "Aucune interaction"
+    },
+    "NotFound": {
+        "errorMessage": "La page que vous recherchez n'existe pas."
     }
 }

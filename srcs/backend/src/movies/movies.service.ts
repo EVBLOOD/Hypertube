@@ -695,7 +695,7 @@ export class MoviesService {
 
                 if (!data.response?.docs || data.response.docs.length === 0) break;
 
-                await data.response?.docs?.forEach(async (doc: any) => {
+                const movies = await Promise.all(data.response.docs.map(async (doc: any) => {
                     const movie = await this.findByTitleTMDB(doc.title, filters.language as DefaultLanguage, "archive");
                     if (movie) {
                         console.log(`Fetched movie from Archive.org: ${doc.title} (ID: ${movie?.id})`);
@@ -703,9 +703,10 @@ export class MoviesService {
                         movie.quality = doc.subject?.includes("HD") ? "HD" : "SD";
                         movie.size = doc?.description?.match(/Size:\s*([\d.]+\s*[KMG]B)/i)?.[1] || "Unknown";
                         movie.time = doc?.description?.match(/Runtime:\s*([\d.]+\s*min)/i)?.[1] ? parseInt(doc.description.match(/Runtime:\s*([\d.]+\s*min)/i)?.[1]) : 0;
-                        results.push(movie);
                     }
-                });
+                    return movie;
+                }));
+                results.push(...movies.filter((movie): movie is MovieInfos => !!movie));
                 page++;
             }
         } catch (err) {
@@ -741,7 +742,7 @@ export class MoviesService {
                 if (!data.data || data.data.length === 0)
                     break;
 
-                data.data?.forEach(async (video: any) => {
+                const movies = await Promise.all(data.data.map(async (video: any) => {
                     const movie = await this.findByTitleTMDB(video.name, filters.language as DefaultLanguage, "sepia");
                     if (movie) {
                         console.log(`Fetched movie from SepiaSearch: ${video.name} (ID: ${movie?.id})`);
@@ -750,9 +751,10 @@ export class MoviesService {
                         movie.quality = video.quality || "SD";
                         movie.size = video.size || "Unknown";
                         movie.time = video.time || 0;
-                        results.push(movie);
                     }
-                });
+                    return movie;
+                }));
+                results.push(...movies.filter((movie): movie is MovieInfos => !!movie));
 
                 page++;
             }
@@ -1433,7 +1435,7 @@ export class MoviesService {
     async insertOrUpdateInteraction(
         userId: number,
         imdbId: string,
-        interaction: number,
+        interaction: number
     ) {
         const movie = await this.ensureMovie(imdbId);
 
@@ -1449,7 +1451,7 @@ export class MoviesService {
         } else {
             if (progress.likedOrDisliked === interaction) {
                 progress.likedOrDisliked = 0;
-                const result = this.progressRepo.save(progress);
+                const result = await this.progressRepo.save(progress);
                 await this.addToHistory(userId, movie.id, "nutral");
                 return result;
             } else {
@@ -1457,7 +1459,7 @@ export class MoviesService {
             }
         }
 
-        const result = this.progressRepo.save(progress);
+        const result = await this.progressRepo.save(progress);
 
         await this.addToHistory(
             userId,
@@ -1483,19 +1485,23 @@ export class MoviesService {
         } else {
             if (progress.isWishlisted) {
                 progress.isWishlisted = false;
-                const result = this.progressRepo.save(progress);
-                this.redisservice.del(`wishlist:${userId}`);
-                this.addToHistory(userId, movie.id, "removed_from_wishlist");
+                const result = await this.progressRepo.save(progress);
+                await this.redisservice.del(`wishlist:${userId}:ar`);
+                await this.redisservice.del(`wishlist:${userId}:en`);
+                await this.redisservice.del(`wishlist:${userId}:fr`);
+                await this.addToHistory(userId, movie.id, "removed_from_wishlist");
                 return result;
             }
         }
 
         progress.isWishlisted = !progress.isWishlisted;
 
-        const result = this.progressRepo.save(progress);
+        const result = await this.progressRepo.save(progress);
 
-        this.redisservice.del(`wishlist:${userId}`);
-        this.addToHistory(
+        await this.redisservice.del(`wishlist:${userId}:ar`);
+        await this.redisservice.del(`wishlist:${userId}:en`);
+        await this.redisservice.del(`wishlist:${userId}:fr`);
+        await this.addToHistory(
             userId,
             movie.id,
             progress.isWishlisted
@@ -1973,7 +1979,7 @@ export class MoviesService {
                 }),
             );
 
-            this.redisservice.set(
+            await this.redisservice.set(
                 `subtitles:${imdbId}`,
                 JSON.stringify(reformedData),
                 36000,

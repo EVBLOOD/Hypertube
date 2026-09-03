@@ -298,5 +298,8 @@
         "empty_state": "لا توجد أنشطة حديثة للعرض.",
         "total_interactions": "إجمالي التفاعلات",
         "no_interactions": "لا توجد تفاعلات"
+    },
+    "NotFound": {
+        "errorMessage": "الصفحة التي تبحث عنها غير موجودة."
     }
 }
