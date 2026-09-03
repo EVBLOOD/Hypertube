@@ -21,9 +21,9 @@ export default function Search() {
         const searchValue = searchRef.current?.value.trim();
         if (searchValue && searchValue.length > 0) {
             if (userPrivacy === "private") {
-                router.push(`/library?search=${searchValue}`);
+                router.push(`/library?search=${encodeURIComponent(searchValue).replace(/\./g, '%2E')}`);
             } else {
-                router.push(`/search/users/${searchValue}`);
+                router.push(`/search/users/${encodeURIComponent(searchValue).replace(/\./g, '%2E')}`);
             }
         }
     };

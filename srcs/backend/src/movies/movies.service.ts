@@ -972,8 +972,7 @@ export class MoviesService {
             return randomItem;
         } catch (err) {
             console.error(err);
-        } finally {
-            return {};
+            return null;
         }
     }
 
