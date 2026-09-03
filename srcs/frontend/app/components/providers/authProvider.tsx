@@ -7,6 +7,7 @@ import { redirect, usePathname } from "next/dist/client/components/navigation";
 import { useTranslations } from "next-intl";
 import { ReactNode, useEffect, useState } from "react";
 import path from "path";
+import LoadingPage from "../layout/loading";
 
 export default function AuthProvider({ children }: { children: ReactNode }) {
     const [isReady, setIsReady] = useState(false);
@@ -29,6 +30,8 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
                     });
                 } catch (err) {
                     reset();
+                    setIsReady(true);
+
                     console.debug(
                         "Error fetching user info:",
                         (err as AxiosError).message,
@@ -38,6 +41,9 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
                             "Unauthorized, redirecting to login page...",
                         );
                         redirect("/login");
+                    } else {
+                        console.debug(`Error fetching user info: ${(err as AxiosError).message}, error code: ${(err as AxiosError).response?.status}, redirecting to login page...`);
+                        redirect("/login");
                     }
                 } finally {
                     setIsReady(true);
@@ -46,6 +52,6 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
         };
         initAuth();
     }, [user, userLogged, reset]);
-    if (!isReady) return <div>{t("waiting")}</div>;
+    if (!isReady) return <LoadingPage message={t("waiting")} />;
     return <>{children}</>;
 }
