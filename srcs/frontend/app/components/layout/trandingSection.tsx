@@ -38,28 +38,28 @@ export default function TrandingSection({
                 </div>
             </div>
             <div className={styles.trandingSection}>
-                <CardElementHighlight
+                {movies[0] && <CardElementHighlight
                     movie={movies[0]}
                     className={styles.mainTrand}
-                />
-                <CardElementHighlight
+                />}
+                {movies[1] && <CardElementHighlight
                     movie={movies[1]}
                     classNameTitle={styles.smallerTitle}
                     className={styles.subtrand}
                     yeExtra={false}
-                />
-                <CardElementHighlight
+                />}
+                {movies[2] && <CardElementHighlight
                     movie={movies[2]}
                     classNameTitle={styles.smallerTitle}
                     className={styles.subtrand}
                     yeExtra={false}
-                />
-                <CardElementHighlight
+                />}
+                {movies[3] && <CardElementHighlight
                     movie={movies[3]}
                     classNameTitle={styles.smallTitle}
                     className={`${styles.subcollection} ${styles.collectionElement}`}
                     yeIfos={false}
-                />
+                />}
             </div>
         </div>
     );

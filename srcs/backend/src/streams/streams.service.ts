@@ -317,33 +317,77 @@ export class StreamsService implements OnModuleInit, OnModuleDestroy {
         quality: string,
         res?: Response,
     ) {
-        const torrents =
-            await this.movieService.getTorrentMagnetsFromYTS(imdbId);
-        if (!torrents?.length) {
-            res?.status(404).json({
-                message: "No torrent found for this title.",
-            });
-            return undefined;
+        if (!!process.env.FORTY_TWO_MODE) {
+            const torrents = await this.movieService.ftGetTorrentMagnets(imdbId, quality);
+            if (!torrents?.length) {
+                res?.status(404).json({
+                    message: "No torrent found for this title.",
+                });
+                return undefined;
+            }
+            return torrents[0];
+        } else {
+            const torrents =
+                await this.movieService.getTorrentMagnetsFromYTS(imdbId);
+            if (!torrents?.length) {
+                res?.status(404).json({
+                    message: "No torrent found for this title.",
+                });
+                return undefined;
+            }
+
+            // const QUALITY_RANK: Record<string, number> = {
+            //     "2160p": 3,
+            //     "1080p": 2,
+            //     "720p": 1,
+            // };
+            const seeded = torrents.filter((t) => t.quality === quality)
+                .filter((t) => t.seeds > 0);
+            // .sort(
+            //     (a, b) =>
+            //         (b.quality === quality ? 1 : 0) -
+            //         (a.quality === quality ? 1 : 0) ||
+            //         (QUALITY_RANK[b.quality] ?? 0) -
+            //         (QUALITY_RANK[a.quality] ?? 0) ||
+            //         b.seeds - a.seeds,
+            // );
+
+            return seeded[0];
         }
-
-        const QUALITY_RANK: Record<string, number> = {
-            "2160p": 3,
-            "1080p": 2,
-            "720p": 1,
-        };
-        const seeded = torrents
-            .filter((t) => t.seeds > 0)
-            .sort(
-                (a, b) =>
-                    (b.quality === quality ? 1 : 0) -
-                    (a.quality === quality ? 1 : 0) ||
-                    (QUALITY_RANK[b.quality] ?? 0) -
-                    (QUALITY_RANK[a.quality] ?? 0) ||
-                    b.seeds - a.seeds,
-            );
-
-        return seeded[0];
     }
+
+    // async getMoviesWithSeedersQuality(
+    //     imdbId: string,
+    //     quality: string,
+    //     res?: Response,
+    // ) {
+    //     const torrents =
+    //         await this.movieService.getTorrentMagnetsFromYTS(imdbId);
+    //     if (!torrents?.length) {
+    //         res?.status(404).json({
+    //             message: "No torrent found for this title.",
+    //         });
+    //         return undefined;
+    //     }
+
+    //     const QUALITY_RANK: Record<string, number> = {
+    //         "2160p": 3,
+    //         "1080p": 2,
+    //         "720p": 1,
+    //     };
+    //     const seeded = torrents
+    //         .filter((t) => t.seeds > 0)
+    //         .sort(
+    //             (a, b) =>
+    //                 (b.quality === quality ? 1 : 0) -
+    //                 (a.quality === quality ? 1 : 0) ||
+    //                 (QUALITY_RANK[b.quality] ?? 0) -
+    //                 (QUALITY_RANK[a.quality] ?? 0) ||
+    //                 b.seeds - a.seeds,
+    //         );
+
+    //     return seeded[0];
+    // }
 
     @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
     async cleanupUnwatchedMovies(): Promise<void> {

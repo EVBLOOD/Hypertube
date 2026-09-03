@@ -48,7 +48,7 @@ export default function HeroSectionMovie({
                 `Received INVITE_ACCEPTED event with params: ${JSON.stringify(params)}`,
             );
             setInviteSentAndWaitingRoomId("");
-            router.push(`/watch/${obj.id}?token=${params.roomId}`);
+            router.push(`/watch/${encodeURIComponent(obj.id).replace(/\./g, '%2E')}?token=${params.roomId}`);
         });
 
         return () => {
@@ -120,7 +120,7 @@ export default function HeroSectionMovie({
                             textButton={t("watchNow")}
                             buttonImage="/costumIcons/play.svg"
                             color="primary"
-                            onClick={() => router.push(`/watch/${obj.id}`)}
+                            onClick={() => router.push(`/watch/${encodeURIComponent(obj.id).replace(/\./g, '%2E')}`)}
                         />
                         <div className={styles.heroSectionActions}>
                             <ButtonCustom

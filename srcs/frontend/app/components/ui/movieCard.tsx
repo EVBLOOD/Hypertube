@@ -24,7 +24,7 @@ export default function MovieCard({ movie }: { movie: MovieType }) {
 
     return (
         <div
-            onClick={() => router.push(`/movie/${movie.id}`)}
+            onClick={() => router.push(`/movie/${encodeURIComponent(movie.id).replace(/\./g, '%2E')}`)}
             className={styles.bodyCard}
         >
             <div

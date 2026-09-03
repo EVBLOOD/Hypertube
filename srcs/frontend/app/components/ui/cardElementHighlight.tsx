@@ -26,7 +26,7 @@ export default function CardElementHighlight({
 
     return (
         <div
-            onClick={() => router.push(`movie/${movie.id}`)}
+            onClick={() => router.push(`movie/${encodeURIComponent(movie.id).replace(/\./g, '%2E')}`)}
             className={`${styles.mainCard} ${className ? className : ""}`}
             style={{ backgroundImage: `url('${movie.poster}')` }}
         >

@@ -49,13 +49,13 @@ export default function HeroSection({
                 </div>
                 <div className={styles.heroSectionActions}>
                     <ButtonCustom
-                        onClick={() => router.push(`watch/${movie.id}`)}
+                        onClick={() => router.push(`watch/${encodeURIComponent(movie.id).replace(/\./g, '%2E')}`)}
                         textButton={Home("watch_now")}
                         buttonImage="/costumIcons/play.svg"
                         color="primary"
                     />
                     <ButtonCustom
-                        onClick={() => router.push(`movie/${movie.id}`)}
+                        onClick={() => router.push(`movie/${encodeURIComponent(movie.id).replace(/\./g, '%2E')}`)}
                         textButton={Home("view_more")}
                         buttonImage={undefined}
                         color={null}
