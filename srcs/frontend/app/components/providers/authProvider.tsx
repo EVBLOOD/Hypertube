@@ -3,10 +3,9 @@
 import AuthService from "@/lib/services/AuthService";
 import { useUserStore } from "@/stores/user";
 import { AxiosError } from "axios";
-import { redirect, usePathname } from "next/dist/client/components/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { ReactNode, useEffect, useState } from "react";
-import path from "path";
 import LoadingPage from "../layout/loading";
 
 export default function AuthProvider({ children }: { children: ReactNode }) {
@@ -14,44 +13,50 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     const { user, userLogged, reset } = useUserStore();
     const t = useTranslations("Auth");
     const pathname = usePathname();
+    const router = useRouter();
 
     useEffect(() => {
-        const requiredAuthRoutes = pathname.includes("/library") || pathname.includes("/watchlist") || pathname.includes("/profile") || pathname.includes("/watch");
-        const initAuth = async () => {
-            if (!user) {
-                try {
-                    const user = (await AuthService.whois()).data?.user;
-                    console.debug("User info fetched successfully:", user);
-                    userLogged({
-                        username: user.username,
-                        language: user.preferredLanguage,
-                        avatar: user.profilePicture,
-                        isPublic: user.isPublic,
-                    });
-                } catch (err) {
-                    reset();
-                    setIsReady(true);
+        const requiredAuthRoutes =
+            pathname.includes("/library") ||
+            pathname.includes("/watchlist") ||
+            pathname.includes("/profile") ||
+            pathname.includes("/watch");
 
-                    console.debug(
-                        "Error fetching user info:",
-                        (err as AxiosError).message,
-                    );
-                    if ((err as AxiosError).response?.status === 401 && requiredAuthRoutes) {
-                        console.debug(
-                            "Unauthorized, redirecting to login page...",
-                        );
-                        redirect("/login");
-                    } else {
-                        console.debug(`Error fetching user info: ${(err as AxiosError).message}, error code: ${(err as AxiosError).response?.status}, redirecting to login page...`);
-                        redirect("/login");
-                    }
-                } finally {
-                    setIsReady(true);
+        const initAuth = async () => {
+            if (user) {
+                setIsReady(true);
+                return;
+            }
+
+            try {
+                const fetchedUser = (await AuthService.whois()).data?.user;
+                console.debug("User info fetched successfully:", fetchedUser);
+
+                userLogged({
+                    username: fetchedUser.username,
+                    language: fetchedUser.preferredLanguage,
+                    avatar: fetchedUser.profilePicture,
+                    isPublic: fetchedUser.isPublic,
+                });
+                setIsReady(true);
+            } catch (err) {
+                reset();
+                setIsReady(true);
+
+                const axiosError = err as AxiosError;
+                console.debug("Error fetching user info:", axiosError.message);
+
+                if (requiredAuthRoutes) {
+                    console.debug("Unauthorized route accessed, redirecting to login...");
+                    router.push("/login");
                 }
             }
         };
+
         initAuth();
-    }, [user, userLogged, reset]);
+    }, [pathname, user, userLogged, reset, router]);
+
     if (!isReady) return <LoadingPage message={t("waiting")} />;
+
     return <>{children}</>;
 }
