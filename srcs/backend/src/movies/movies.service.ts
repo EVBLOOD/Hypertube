@@ -1437,6 +1437,7 @@ export class MoviesService {
         interaction: number
     ) {
         const movie = await this.ensureMovie(imdbId);
+        console.log(movie);
 
         let progress = await this.progressRepo.findOne({
             where: { user: { id: userId }, movie: { id: movie.id } },
@@ -1446,6 +1447,7 @@ export class MoviesService {
             progress = this.progressRepo.create({
                 user: { id: userId },
                 movie,
+                likedOrDisliked: interaction,
             });
         } else {
             if (progress.likedOrDisliked === interaction) {
@@ -1460,11 +1462,12 @@ export class MoviesService {
 
         const result = await this.progressRepo.save(progress);
 
-        await this.addToHistory(
-            userId,
-            movie.id,
-            interaction === 1 ? "liked" : "disliked",
-        );
+        if (result) 
+            await this.addToHistory(
+                userId,
+                movie.id,
+                interaction === 1 ? "liked" : "disliked",
+            );
 
         return result;
     }
