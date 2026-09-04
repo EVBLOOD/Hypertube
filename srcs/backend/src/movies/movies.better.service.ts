@@ -685,7 +685,7 @@ export class MoviesService {
             liked: progress?.likedOrDisliked === 1,
             disliked: progress?.likedOrDisliked === 2,
             lastWatchedTime: progress?.lastMinute || 0,
-            totalMinutes: progress?.totalMinutes || 0,
+            totalMinutes: progress?.movie?.totalMinutes || 0,
         };
     }
 

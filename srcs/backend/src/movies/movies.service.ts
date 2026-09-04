@@ -143,6 +143,7 @@ export class MoviesService {
             standard_audio_format: "N/A",
             poster: `${process.env.TMDB_PICS}${movie.poster_path}`,
             isWatched: false,
+            time: movie.runtime || 0,
         };
     }
 
@@ -211,7 +212,7 @@ export class MoviesService {
                 movie.quality = best.quality;
                 if (moreinfos) {
                     movie.size = best.size;
-                    movie.time = ytsMovie.runtime;
+                    movie.time = movie?.time || ytsMovie.runtime;
                 }
             }
         } catch (err) {
@@ -1009,6 +1010,7 @@ export class MoviesService {
     async extractUserMovieDetails(imdbId: string, userId?: number) {
         const progress = await this.progressRepo.findOne({
             where: { user: { id: userId }, movie: { imdbId: imdbId } },
+            relations: ["movie"]
         });
 
         return {
@@ -1017,7 +1019,7 @@ export class MoviesService {
             liked: progress?.likedOrDisliked === 1,
             disliked: progress?.likedOrDisliked === 2,
             lastWatchedTime: progress?.lastMinute || 0,
-            totalMinutes: progress?.totalMinutes || 0,
+            totalMinutes: progress?.movie?.totalMinutes || 0,
         };
     }
 
@@ -1063,6 +1065,17 @@ export class MoviesService {
             } else return movie;
 
             const tmdbId = res.id;
+            const movieDetailsRes = await axios.get(
+                `${process.env.TMDB_API}movie/${tmdbId}`,
+                {
+                    params: {
+                        api_key: process.env.TMDB_KEY,
+                        language: this.LANGS[lang || "en"] || "en-US",
+                    },
+                },
+            );
+            movie.time = movieDetailsRes.data.runtime || 0;
+
             const creditsRes = await axios.get(
                 `${process.env.TMDB_API}movie/${tmdbId}/credits`,
                 {
@@ -1072,7 +1085,6 @@ export class MoviesService {
                     },
                 },
             );
-
             const director =
                 creditsRes.data.crew.find(
                     (member: any) => member.job === "Director",
@@ -2060,6 +2072,8 @@ export class MoviesService {
             return existingMovie;
         }
         const movieDetails = await this.getMovieDetails(imdbId);
+        console.log(`Creating movie entry for IMDb ID: ${imdbId}`, movieDetails);
+
         if (!movieDetails) {
             return await this.movieRepo.save({
                 imdbId,
@@ -2072,6 +2086,7 @@ export class MoviesService {
 
         if (typeof movieDetails === "object" && "movie" in movieDetails) {
             const { movie: movieInfo } = movieDetails;
+            console.log(`Movie second array`, movieInfo)
             return await this.movieRepo.save({
                 imdbId: movieInfo.id,
                 title: movieInfo.title,
@@ -2081,7 +2096,8 @@ export class MoviesService {
                 totalMinutes: movieInfo.time || 0,
             });
         }
-
+        
+        console.log(`Movie third array`, movieDetails)
         return await this.movieRepo.save({
             imdbId: movieDetails.id,
             title: movieDetails.title,
@@ -2111,6 +2127,7 @@ export class MoviesService {
         const progress = await this.progressRepo.findOne({
             where: { user: { id: numericUserId }, movie: { id: movie.id } },
         });
+        console.log(`Start progress`, progress)
 
         if (!progress) {
             try {

@@ -20,6 +20,10 @@ export class Movie {
     @Column()
     title!: string;
 
+
+    @Column({ default: 0.0, type: "float" })
+    totalMinutes!: number;
+
     @Column({ nullable: true })
     filePath!: string;
 

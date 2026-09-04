@@ -246,6 +246,24 @@ export class MovieGateway {
         );
     }
 
+    @SubscribeMessage("seeking")
+    async handleSeeking(
+        @ConnectedSocket() client: Socket,
+        @MessageBody() data: { currentTime: number; imdbId: string },
+    ) {
+        const userId = client.handshake.headers.userId;
+        if (!userId || typeof userId !== "string") {
+            console.error("User ID not found in socket handshake headers.");
+            return;
+        }
+
+        await this.moviesService.markMovieCurrentTime(
+            userId,
+            data.currentTime,
+            data.imdbId,
+        );
+    }
+
     @SubscribeMessage("abort_stream")
     handleAbortStream(
         @ConnectedSocket() client: Socket,

@@ -19,8 +19,8 @@ export default function CommentInput({
     const handleSubmit = async () => {
         const trimmed = content.trim();
         if (!trimmed || disabled) return;
-        await onSubmit?.(trimmed);
         setContent("");
+        await onSubmit?.(trimmed);
     };
 
     return (

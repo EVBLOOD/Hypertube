@@ -40,8 +40,8 @@ export class UserMovieProgress {
     @Column({ default: 0.0, type: "float" })
     lastMinute!: number;
 
-    @Column({ default: 0.0, type: "float" })
-    totalMinutes!: number;
+    // @Column({ default: 0.0, type: "float" })
+    // totalMinutes!: number;
 
     @Column({ default: false })
     isWatched!: boolean;
