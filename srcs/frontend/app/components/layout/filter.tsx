@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import DescriptionComponent from "../ui/descriptionComponent";
 import styles from "./filter.module.css";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import genreMessages from "@/messages/en.json";
 import { useSearchParams } from "next/navigation";
 
@@ -39,7 +39,8 @@ export default function Filter({
     const [rating, setRating] = useState(8);
     const [sortBy, setSortBy] = useState("title");
     const [order, setOrder] = useState("asc");
-    const [searchValue, setSearchValue] = useState(query);
+    const searchRef = useRef<HTMLInputElement>(null);
+    // const [searchValue, setSearchValue] = useState(query);
 
     const handleChange = (
         props: {
@@ -59,14 +60,17 @@ export default function Filter({
             minRating: props.minRating ?? rating,
             sortBy: props.sortBy ?? sortBy,
             order: props.order ?? order,
-            query: props.query ?? searchValue,
+            query: props.query ?? searchRef.current?.value ?? query,
         };
 
         onChange(newFilters);
     };
 
     useEffect(() => {
-        setSearchValue(query);
+        // setSearchValue(query);
+        if (searchRef.current)
+            searchRef.current.value = query;
+        handleChange({ query: query });
     }, [query]);
 
     return (
@@ -81,9 +85,13 @@ export default function Filter({
                     id="searchMovie"
                     placeholder={Library("filter_search_placeholder")}
                     type="text"
-                    value={searchValue}
+                    ref={searchRef}
+                    // value={searchValue}
                     onChange={(e) => {
-                        setSearchValue(e.target.value);
+                        // setSearchValue(e.target.value);
+                        if (searchRef.current) {
+                            searchRef.current.value = e.target.value;
+                        }
                         handleChange({ query: e.target.value });
                     }}
                 />
