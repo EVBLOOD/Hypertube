@@ -23,11 +23,12 @@ import { PaginationCommentDto } from "../comments/dto/pagination-comments.dto ";
 import { PaginationMovieDto } from "./dto/pagination-movie.dto ";
 import { StreamsService } from "src/streams/streams.service";
 import { OptionalJwtAuthGuard } from "src/auth/guards/optional-jwt-auth.guard";
-import { OptionalVerifiedGuard } from "src/auth/guards/optional-verified.guard";
+// import { OptionalVerifiedGuard } from "src/auth/guards/optional-verified.guard";
 import fsPromises from "fs/promises";
 import type { DefaultLanguage } from "src/common/decorators/language.decorator";
 import { Language } from "src/common/decorators/language.decorator";
 import { ApiDoc } from "../docs/decorators/api-doc.decorator";
+import { WhitelistGuard } from "src/auth/guards/whitelist.guard";
 
 @Controller("movies")
 export class MoviesController {
@@ -75,6 +76,11 @@ export class MoviesController {
 
         return this.moviesService.getLibrary(filters, req.user?.id, lang);
     }
+    
+    @Get("popular_one")
+    async heroPage(@Language() lang: DefaultLanguage) {
+        return await this.moviesService.getHeroMovie(lang);
+    }
 
     @Get("curated")
     async getCuratedTrending(@Language() lang: DefaultLanguage) {
@@ -82,7 +88,7 @@ export class MoviesController {
     }
 
     // @UseGuards(OptionalJwtAuthGuard, OptionalVerifiedGuard)
-    @UseGuards(JwtAuthGuard, VerifiedGuard)
+    @UseGuards(JwtAuthGuard, WhitelistGuard)
     @Get("trending")
     async trendingPage(
         @Query() paging: PaginationMovieDto,
@@ -92,12 +98,8 @@ export class MoviesController {
         return await this.moviesService.getTrending(paging, lang, req.user?.id);
     }
 
-    @Get("popular_one")
-    async heroPage(@Language() lang: DefaultLanguage) {
-        return await this.moviesService.getHeroMovie(lang);
-    }
 
-    @UseGuards(JwtAuthGuard, VerifiedGuard)
+    @UseGuards(JwtAuthGuard, WhitelistGuard)
     @Get("wishlist")
     async wishlistPage(
         @Query() paging: PaginationMovieDto,
@@ -107,7 +109,7 @@ export class MoviesController {
         return await this.moviesService.getWishlist(paging, req.user.id, lang);
     }
 
-    @UseGuards(JwtAuthGuard, VerifiedGuard)
+    @UseGuards(JwtAuthGuard, WhitelistGuard)
     @Post("interaction/:imdbId")
     async interaction(
         @Param("imdbId") imdbId: string,
@@ -121,19 +123,19 @@ export class MoviesController {
         );
     }
 
-    @UseGuards(JwtAuthGuard, VerifiedGuard)
+    @UseGuards(JwtAuthGuard, WhitelistGuard)
     @Post("wishlist/:imdbId")
     async wishlistToggle(@Param("imdbId") imdbId: string, @Req() req) {
         return this.moviesService.toggleWishlist(req.user.id, imdbId);
     }
 
-    @UseGuards(JwtAuthGuard, VerifiedGuard)
+    @UseGuards(JwtAuthGuard, WhitelistGuard)
     @Get("subtitles/:imdbId")
     getSubtitle(@Param("imdbId") imdbId: string) {
         return this.moviesService.searchSubtitles(imdbId);
     }
 
-    @UseGuards(JwtAuthGuard, VerifiedGuard)
+    @UseGuards(JwtAuthGuard, WhitelistGuard)
     @Get("subtitle_file/:imdbId")
     async getSubtitleFile(
         @Param("imdbId") imdbId: string,
@@ -168,7 +170,7 @@ export class MoviesController {
         });
     }
 
-    @UseGuards(JwtAuthGuard, VerifiedGuard)
+    @UseGuards(JwtAuthGuard, WhitelistGuard)
     @Get("qualities/:imdbId")
     getQualities(@Param("imdbId") imdbId: string) {
         return this.moviesService.getQualitiesAvailable(imdbId);
@@ -192,7 +194,7 @@ export class MoviesController {
     //         });
     // }
 
-    @UseGuards(JwtAuthGuard, VerifiedGuard)
+    @UseGuards(JwtAuthGuard, WhitelistGuard)
     @Get("watch/:id")
     startStream1(
         @Param("id") imdbId: string,
@@ -212,7 +214,7 @@ export class MoviesController {
             });
     }
 
-    @UseGuards(JwtAuthGuard, VerifiedGuard)
+    @UseGuards(JwtAuthGuard, WhitelistGuard)
     @Post(":imdbId/progress")
     async saveProgress(
         @Param("imdbId") imdbId: string,
@@ -250,7 +252,7 @@ export class MoviesController {
         return movie;
     }
 
-    @UseGuards(JwtAuthGuard, VerifiedGuard)
+    @UseGuards(JwtAuthGuard, WhitelistGuard)
     @Post("invite/:imdbId")
     async invite(
         @Param("imdbId") imdbId: string,
@@ -266,7 +268,7 @@ export class MoviesController {
         );
     }
 
-    @UseGuards(JwtAuthGuard, VerifiedGuard)
+    @UseGuards(JwtAuthGuard, WhitelistGuard)
     @Get("invite/:uuid")
     async handelInvite(
         @Param("uuid") uuid: string,
@@ -298,7 +300,7 @@ export class MoviesController {
         return this.commentService.findByMovie(imdbId, paging, userId);
     }
 
-    @UseGuards(JwtAuthGuard, VerifiedGuard)
+    @UseGuards(JwtAuthGuard, WhitelistGuard)
     @Post(":imdbId/comments")
     async createMovieComment(
         @Param("imdbId") imdbId: string,
