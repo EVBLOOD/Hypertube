@@ -63,7 +63,7 @@ export default function WatchPageMoviePage({
     };
 
     useEffect(() => {
-        if (!socket || !isConnected) return;
+        if (!socket || !isConnected || isPending || currentTime <= 1) return;
 
         if (socket && isConnected) {
             socket.emit("heartbeat", {
@@ -71,7 +71,7 @@ export default function WatchPageMoviePage({
                 imdbId: id,
             });
         }
-    }, [currentTime, socket, isConnected, id]);
+    }, [currentTime, socket, isConnected, id, isPending]);
 
     if (isPending || isQualitiesPending || isSubtitlesPending)
         return <LoadingPage />;

@@ -50,7 +50,7 @@
     [x] Download English subtitles automatically when available.
     [x] Automatically download and enable subtitles matching user's preferred language if video language differs.
 
-[ ] Video Details & Storage Maintenance
+[x] Video Details & Storage Maintenance
     [x] Build video page showing summary, cast (director, producer, main actors), duration, rating, cover, player, and user comments.
     [x] Allow authenticated users to write comments on video pages.
     [x] Set up automated background cleanup script to erase movie files unwatched for over 1 month.
@@ -71,5 +71,5 @@
 
 [x] Additional OAuth2 strategies (e.g., Twitch, Spotify, GitLab).
 [x] Multi-resolution video streaming selection (1080p, 720p, 480p).
-[ ] Client-side video streaming via MediaStream API. | replaced with watching with someone.
+[x] Client-side video streaming via MediaStream API. | replaced with watching with someone.
 [x] Extended REST API routes (e.g., admin controls, custom movie management).
