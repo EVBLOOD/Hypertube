@@ -12,6 +12,7 @@ export class MailsService {
             email: user.email,
             username: user.username,
             token,
+            language: user.preferredLanguage || "en"
         });
     }
 
@@ -20,6 +21,7 @@ export class MailsService {
             email: user.email,
             username: user.username,
             token,
+            language: user.preferredLanguage || "en"
         });
     }
 
@@ -28,6 +30,7 @@ export class MailsService {
             email: user.email,
             username: user.username,
             token: token,
+            language: user.preferredLanguage || "en"
         });
     }
 
@@ -36,6 +39,7 @@ export class MailsService {
             email: user.email,
             username: user.username,
             token: token,
+            language: user.preferredLanguage || "en"
         });
     }
     async sendInviteEmail(user: User, title: string, inviteLink: string) {
@@ -44,6 +48,7 @@ export class MailsService {
             username: user.username,
             title,
             inviteLink,
+            language: user.preferredLanguage || "en"
         });
     }
 }

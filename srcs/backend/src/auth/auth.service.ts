@@ -8,6 +8,7 @@ import { Repository } from "typeorm";
 import { v4 as uuidv4 } from "uuid";
 import { RegisterDto, RegisterWithOauthDto } from "./dto/register.dto";
 import { verify } from "argon2";
+import { DefaultLanguage } from "src/common/decorators/language.decorator";
 
 @Injectable()
 export class AuthService {
@@ -17,8 +18,7 @@ export class AuthService {
         private redisService: RedisService,
         private mailService: MailsService,
     ) {}
-
-    async register(dto: RegisterDto) {
+    async register(dto: RegisterDto, language: DefaultLanguage) {
         const exists = await this.userRepo.findOne({
             where: [{ email: dto.email }, { username: dto.username }],
         });
@@ -29,6 +29,7 @@ export class AuthService {
         const user = this.userRepo.create({
             ...dto,
             emailVerificationToken: verificationToken,
+            preferredLanguage: language == "df" ? "en" : language,
         });
 
         await this.userRepo.save(user);

@@ -71,5 +71,5 @@
 
 [x] Additional OAuth2 strategies (e.g., Twitch, Spotify, GitLab).
 [x] Multi-resolution video streaming selection (1080p, 720p, 480p).
-[ ] Client-side video streaming via MediaStream API.
+[ ] Client-side video streaming via MediaStream API. | replaced with watching with someone.
 [x] Extended REST API routes (e.g., admin controls, custom movie management).

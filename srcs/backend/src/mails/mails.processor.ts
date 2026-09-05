@@ -11,12 +11,16 @@ export class MailProcessor {
 
     @Process("send-verification")
     async handleVerificationEmail(job: Job) {
-        this.logger.debug(`Sending verification email to ${job.data.email}...`);
+        const mapSubject = {
+            "en": "🎬 Action! Verify your Hypertube account",
+            "fr": "🎬 Action! Vérifiez votre compte pour Hypertube",
+            "ar": "🎬 إجراء! تحقق من حسابك لـ Hypertube",
+        }
         try {
             await this.mailerService.sendMail({
                 to: job.data.email,
-                subject: "🎬 Action! Verify your Hypertube account",
-                template: "./verification",
+                subject: mapSubject[job.data.language] || "🎬 Action! Verify your Hypertube account",
+                template: `./${job.data.language}/verification`,
                 context: {
                     name: job.data.username,
                     url: `${process.env.PUBLIC_API_URL}/auth/verify/${job.data.token}`,
@@ -29,12 +33,16 @@ export class MailProcessor {
 
     @Process("reset-password")
     async handleResetPassword(job: Job) {
-        this.logger.log(`Sending reset password email to ${job.data.email}...`);
+        const mapSubject = {
+            "en": "🎬 Action! Reset your Hypertube password",
+            "fr": "🎬 Action! Réinitialisez votre mot de passe pour Hypertube",
+            "ar": "🎬 إجراء! إعادة تعيين كلمة المرور الخاصة بك لـ Hypertube",
+        }
         try {
             await this.mailerService.sendMail({
                 to: job.data.email,
-                subject: "🎬 Action! Reset your Hypertube password",
-                template: "./reset-password",
+                subject: mapSubject[job.data.language] || "🎬 Action! Reset your Hypertube password",
+                template: `./${job.data.language}/reset-password`,
                 context: {
                     name: job.data.username,
                     url: `${process.env.FRONTEND_URL}/reset-password?token=${job.data.token}`,
@@ -47,14 +55,16 @@ export class MailProcessor {
 
     @Process("email-change-verification")
     async handleEmailChangeVerification(job: Job) {
-        this.logger.log(
-            `Sending email change verification to ${job.data.email}...`,
-        );
+        const mapSubject = {
+            "en": "🎬 Action! Verify your new email for Hypertube",
+            "fr": "🎬 Action! Vérifiez votre nouvel e-mail pour Hypertube",
+            "ar": "🎬 إجراء! تحقق من بريدك الإلكتروني الجديد لـ Hypertube",
+        }
         try {
             await this.mailerService.sendMail({
                 to: job.data.email,
-                subject: "🎬 Action! Verify your new email for Hypertube",
-                template: "./email-change-verification",
+                subject: mapSubject[job.data.language] || "🎬 Action! Verify your new email for Hypertube",
+                template: `./${job.data.language}/email-change-verification`,
                 context: {
                     name: job.data.username,
                     url: `${process.env.PUBLIC_API_URL}/auth/verify-email-change/${job.data.token}`,
@@ -67,14 +77,16 @@ export class MailProcessor {
 
     @Process("password-change-verification")
     async handlePasswordChangeVerification(job: Job) {
-        this.logger.log(
-            `Sending password change verification to ${job.data.email}...`,
-        );
+        const mapSubject = {
+            "en": "🎬 action! Verify your new password for Hypertube",
+            "fr": "🎬 action! Vérifiez votre nouveau mot de passe pour Hypertube",
+            "ar": "🎬 إجراء! تحقق من كلمة المرور الجديدة لـ Hypertube",
+        }
         try {
             await this.mailerService.sendMail({
                 to: job.data.email,
-                subject: "🎬 Action! Verify your new password for Hypertube",
-                template: "./password-change-verification",
+                subject: mapSubject[job.data.language] || "🎬 Action! Verify your new password for Hypertube",
+                template: `./${job.data.language}/password-change-verification`,
                 context: {
                     name: job.data.username,
                     url: `${process.env.PUBLIC_API_URL}/auth/change-password/${job.data.token}`,
@@ -86,12 +98,16 @@ export class MailProcessor {
     }
     @Process("send-invite")
     async handleSendInvite(job: Job) {
-        this.logger.log(`Sending movie invite email to ${job.data.email}...`);
+        const mapSubject = {
+            "en": `🎬 Action! ${job.data.username} invited you to watch a movie on Hypertube`,
+            "fr": `🎬 Action! ${job.data.username} vous a invité à regarder un film sur Hypertube`,
+            "ar": `🎬 إجراء! ${job.data.username} دعاك لمشاهدة فيلم على Hypertube`,
+        }
         try {
             await this.mailerService.sendMail({
                 to: job.data.email,
-                subject: `🎬 Action! ${job.data.username} invited you to watch a movie on Hypertube`,
-                template: "./invite",
+                subject: mapSubject[job.data.language] || `🎬 Action! ${job.data.username} invited you to watch a movie on Hypertube`,
+                template: `./${job.data.language}/invite`,
                 context: {
                     name: job.data.username,
                     title: job.data.title,

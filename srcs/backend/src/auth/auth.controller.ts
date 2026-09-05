@@ -18,14 +18,16 @@ import { WhitelistGuard } from "./guards/whitelist.guard";
 import type { Response } from "express";
 import { VerifiedGuard } from "./guards/verified.guard";
 import { ResetPasswordDto } from "./dto/reset-password.dto";
+import type { DefaultLanguage } from "src/common/decorators/language.decorator";
+import { Language } from "src/common/decorators/language.decorator";
 
 @Controller("auth")
 export class AuthController {
     constructor(private authService: AuthService) {}
 
     @Post("register")
-    register(@Body() dto: RegisterDto) {
-        return this.authService.register(dto);
+    register(@Body() dto: RegisterDto, @Language() language: DefaultLanguage) {
+        return this.authService.register(dto, language);
     }
 
     @Post("login")
