@@ -297,7 +297,14 @@
         "title": "السجل",
         "empty_state": "لا توجد أنشطة حديثة للعرض.",
         "total_interactions": "إجمالي التفاعلات",
-        "no_interactions": "لا توجد تفاعلات"
+        "no_interactions": "لا توجد تفاعلات",
+        "stats": {
+            "watched": "تمت المشاهدة",
+            "addedToWishlist": "تمت الإضافة إلى قائمة المشاهدة",
+            "removedFromWishlist": "تمت الإزالة من قائمة المشاهدة",
+            "liked": "أعجبني",
+            "disliked": "لم يعجبني"
+        }
     },
     "NotFound": {
         "errorMessage": "الصفحة التي تبحث عنها غير موجودة."

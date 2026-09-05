@@ -297,7 +297,15 @@
         "title": "Historique",
         "empty_state": "Aucune activité récente à afficher.",
         "total_interactions": "Interactions totales",
-        "no_interactions": "Aucune interaction"
+        "no_interactions": "Aucune interaction",
+        "stats": {
+            "watched": "Regardé",
+            "addedToWishlist": "Ajouté à la liste de suivi",
+            "removedFromWishlist": "Retiré de la liste de suivi",
+            "liked": "Aimé",
+            "disliked": "Non aimé",
+            "unknownAction": "Action inconnue"
+        }
     },
     "NotFound": {
         "errorMessage": "La page que vous recherchez n'existe pas."

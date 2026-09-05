@@ -15,7 +15,7 @@ export default function InteractionProfileCard({
     movie?: ProfileHistoryItem;
 }) {
     const t = useTranslations("Profile");
-    console.debug("movie", movie);
+    const History = useTranslations("History.stats");
     const router = useRouter();
 
     const getInteractionTime = (actionDate: string | Date) => {
@@ -28,17 +28,36 @@ export default function InteractionProfileCard({
     const mapActionsToIcons = (action: string) => {
         switch (action) {
             case "watched":
-                return "/costumIcons/play.svg";
-            case "wishlisted":
-                return "/costumIcons/watchLater.svg";
+                return "/costumIcons/movie-film.svg";
+            case "added_to_wishlist":
+                return "/costumIcons/bookmark.svg";
+            case "removed_from_wishlist":
+                return "/costumIcons/bookmark.svg";
             case "liked":
-                return "/costumIcons/likeMovie.svg";
+                return "/costumIcons/like.svg";
             case "disliked":
-                return "/costumIcons/dislikeMovie.svg";
+                return "/costumIcons/dislike.svg";
             default:
                 return "/costumIcons/recent.svg";
         }
     };
+
+    const getActionDescription = (action: string) => {
+        switch (action) {
+            case "watched":
+                return History("watched");
+            case "added_to_wishlist":
+                return History("addedToWishlist");
+            case "removed_from_wishlist":
+                return History("removedFromWishlist");
+            case "liked":
+                return History("liked");
+            case "disliked":
+                return History("disliked");
+            default:
+                return History("unknownAction");
+        }
+    }
 
     const interactionIcon = movie?.action
         ? mapActionsToIcons(movie.action)
@@ -48,10 +67,6 @@ export default function InteractionProfileCard({
         : t("stats.unknownTime");
 
     const moviePoster = movie?.poster || "/default-poster.png";
-
-    useEffect(() => {
-        console.log(movie);
-    }, [movie]);
 
     const handleCardClick = () => {
         const movieId = movie ? (movie as { id?: string | number }).id : undefined;
@@ -77,6 +92,10 @@ export default function InteractionProfileCard({
                                 (movie?.title?.length && movie?.title?.length > 20
                                     ? "..."
                                     : "") || t("stats.unknownTitle")}
+                            {' '}
+                            <span className={styles.status}>
+                                {getActionDescription(movie?.action || "")}
+                            </span>
                         </h3>
                         <div className={styles.interactionInfos}>
                             <Image height={15} width={15} src={interactionIcon} alt={t("stats.interactionIcon")}/>
