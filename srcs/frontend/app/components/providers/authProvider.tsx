@@ -16,11 +16,11 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     const router = useRouter();
 
     useEffect(() => {
-        const requiredAuthRoutes =
-            pathname.includes("/library") ||
-            pathname.includes("/watchlist") ||
-            pathname.includes("/profile") ||
-            pathname.includes("/watch");
+        // const requiredAuthRoutes =
+        //     pathname.includes("/library") ||
+        //     pathname.includes("/watchlist") ||
+        //     pathname.includes("/profile") ||
+        //     pathname.includes("/watch");
 
         const initAuth = async () => {
             if (user) {
@@ -46,10 +46,10 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
                 const axiosError = err as AxiosError;
                 console.debug("Error fetching user info:", axiosError.message);
 
-                if (requiredAuthRoutes) {
-                    console.debug("Unauthorized route accessed, redirecting to login...");
-                    router.push("/login");
-                }
+                // if (requiredAuthRoutes) {
+                //     console.debug("Unauthorized route accessed, redirecting to login...");
+                //     router.push("/login");
+                // }
             }
         };
 

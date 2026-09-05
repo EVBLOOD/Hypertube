@@ -37,7 +37,8 @@ export class MoviesController {
         private readonly commentService: CommentsService,
     ) {}
     @ApiDoc({ target: "movies.findAll" })
-    @UseGuards(OptionalJwtAuthGuard, OptionalVerifiedGuard)
+    // @UseGuards(OptionalJwtAuthGuard, OptionalVerifiedGuard)
+    @UseGuards(JwtAuthGuard, VerifiedGuard)
     @Get()
     async findAll(
         @Query() filters: FilterMovieDto,
@@ -80,7 +81,8 @@ export class MoviesController {
         return await this.moviesService.getCuratedTrending(lang);
     }
 
-    @UseGuards(OptionalJwtAuthGuard, OptionalVerifiedGuard)
+    // @UseGuards(OptionalJwtAuthGuard, OptionalVerifiedGuard)
+    @UseGuards(JwtAuthGuard, VerifiedGuard)
     @Get("trending")
     async trendingPage(
         @Query() paging: PaginationMovieDto,
@@ -172,24 +174,25 @@ export class MoviesController {
         return this.moviesService.getQualitiesAvailable(imdbId);
     }
 
-    @Post("watch")
-    startStream(
-        @Body("imdbId") imdbId: string,
-        @Headers("range") range: string,
-        @Res() res,
-    ) {
-        void this.streamService
-            .stream(imdbId, "1080p", range, res)
-            .catch((error: any) => {
-                if (!res.headersSent) {
-                    res.status(500).json({
-                        message: "Failed to start stream",
-                        error: error?.message || "Unknown error",
-                    });
-                }
-            });
-    }
+    // @Post("watch")
+    // startStream(
+    //     @Body("imdbId") imdbId: string,
+    //     @Headers("range") range: string,
+    //     @Res() res,
+    // ) {
+    //     void this.streamService
+    //         .stream(imdbId, "1080p", range, res)
+    //         .catch((error: any) => {
+    //             if (!res.headersSent) {
+    //                 res.status(500).json({
+    //                     message: "Failed to start stream",
+    //                     error: error?.message || "Unknown error",
+    //                 });
+    //             }
+    //         });
+    // }
 
+    @UseGuards(JwtAuthGuard, VerifiedGuard)
     @Get("watch/:id")
     startStream1(
         @Param("id") imdbId: string,
@@ -209,6 +212,7 @@ export class MoviesController {
             });
     }
 
+    @UseGuards(JwtAuthGuard, VerifiedGuard)
     @Post(":imdbId/progress")
     async saveProgress(
         @Param("imdbId") imdbId: string,
@@ -217,7 +221,7 @@ export class MoviesController {
         @Req() req,
     ) {
         return this.moviesService.updateProgress(
-            req.user?.id || 1,
+            req.user?.id,
             imdbId,
             seconds,
             isLive,
@@ -225,7 +229,8 @@ export class MoviesController {
     }
 
     @ApiDoc({ target: "movies.findOne" })
-    @UseGuards(OptionalJwtAuthGuard, OptionalVerifiedGuard)
+    // @UseGuards(OptionalJwtAuthGuard, OptionalVerifiedGuard)
+    @UseGuards(JwtAuthGuard, VerifiedGuard)
     @Get(":imdbId")
     async findOne(
         @Param("imdbId") imdbId: string,

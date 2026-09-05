@@ -10,6 +10,7 @@ import Footer from "../components/layout/footer";
 import LanguageSwitcher from "../components/ui/languageSwitcher";
 import { SocketProvider } from "../context/SocketContext";
 import Toast from "../components/ui/toast";
+import { AxiosProvider } from "../components/providers/axiosProvider";
 
 const spaceGrotesk = Space_Grotesk({
     subsets: ["latin"],
@@ -51,17 +52,20 @@ export default async function RootLayout({
                 <NextIntlClientProvider messages={messages}>
                     <UseQueryProvider>
                         <AuthProvider>
-                            <SocketProvider>
-                                <LanguageSwitcher local={locale} />
-                                <Header />
-                                {children}
-                                {modal}
-                                <Toast locale={locale} />
-                                <Footer />
-                            </SocketProvider>
+                            <AxiosProvider>
+                                <SocketProvider>
+                                    <LanguageSwitcher local={locale} />
+                                    <Header />
+                                    {children}
+                                    {modal}
+                                    <Toast locale={locale} />
+                                    <Footer />
+                                </SocketProvider>
+                            </AxiosProvider>
                         </AuthProvider>
                     </UseQueryProvider>
                 </NextIntlClientProvider>
+
             </body>
         </html>
     );

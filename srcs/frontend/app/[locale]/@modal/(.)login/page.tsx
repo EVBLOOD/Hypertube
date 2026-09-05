@@ -74,6 +74,8 @@ export default function Login() {
         const authChannel = new BroadcastChannel("auth_channel");
 
         authChannel.onmessage = (event) => {
+            const userStore = useUserStore.getState();
+
             if (event.data?.type === "login_success") {
                 const user = event.data.user?.user;
 
@@ -89,7 +91,7 @@ export default function Login() {
                 if (childWindowRef.current && !childWindowRef.current.closed) {
                     childWindowRef.current.close();
                 }
-            } else if (event.data?.type === "login_failure") {
+            } else if (event.data?.type === "login_failure" && !userStore.user) {
                 toast.error("Login failed.");
             }
         };

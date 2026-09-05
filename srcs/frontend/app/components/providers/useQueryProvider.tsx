@@ -15,49 +15,51 @@ export default function UseQueryProvider({
 }: {
     children: ReactNode;
 }) {
-    const router = useRouter();
+    // const router = useRouter();
     const [queryClient] = useState(
         () =>
-            new QueryClient({
-                queryCache: new QueryCache({
-                    onError: (error: Error) => {
-                        console.debug("Query error:", error);
-                        if (axios.isAxiosError(error)) {
-                            const status = error.response?.status;
-                            if (status === 401) {
-                                router.push("/login");
-                            }
-                        }
-                    },
-                }),
+            new QueryClient(
+            //     {
+            //     queryCache: new QueryCache({
+            //         onError: (error: Error) => {
+            //             console.debug("Query error:", error);
+            //             if (axios.isAxiosError(error)) {
+            //                 const status = error.response?.status;
+            //                 if (status === 401) {
+            //                     router.push("/login");
+            //                 }
+            //             }
+            //         },
+            //     }),
 
-                mutationCache: new MutationCache({
-                    onError: (error: Error) => {
-                        console.debug("Mutation error:", error);
-                        if (axios.isAxiosError(error)) {
-                            const status = error.response?.status;
-                            if (status === 401) {
-                                router.push("/login");
-                            }
-                        }
-                    },
-                }),
+            //     mutationCache: new MutationCache({
+            //         onError: (error: Error) => {
+            //             console.debug("Mutation error:", error);
+            //             if (axios.isAxiosError(error)) {
+            //                 const status = error.response?.status;
+            //                 if (status === 401) {
+            //                     router.push("/login");
+            //                 }
+            //             }
+            //         },
+            //     }),
 
-                defaultOptions: {
-                    queries: {
-                        retry: (failureCount, error: Error) => {
-                            console.debug("Query error:", error);
-                            if (axios.isAxiosError(error)) {
-                                const status = error.response?.status;
-                                if (status === 401) {
-                                    return false;
-                                }
-                            }
-                            return failureCount < 3;
-                        },
-                    },
-                },
-            }),
+            //     defaultOptions: {
+            //         queries: {
+            //             retry: (failureCount, error: Error) => {
+            //                 console.debug("Query error:", error);
+            //                 if (axios.isAxiosError(error)) {
+            //                     const status = error.response?.status;
+            //                     if (status === 401) {
+            //                         return false;
+            //                     }
+            //                 }
+            //                 return failureCount < 3;
+            //             },
+            //         },
+            //     },
+            // }
+        ),
     );
 
     return (
