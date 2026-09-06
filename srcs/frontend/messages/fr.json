@@ -239,6 +239,32 @@
     "Profile": {
         "title": "Bureau du réalisateur",
         "description": "Votre profil et vos statistiques d'interaction",
+        "privateSettings": "Paramètres privés",
+        "recentIntersections": "Intersections récentes",
+        "fields": {
+            "username": "Alias du réalisateur",
+            "firstName": "Prénom du réalisateur",
+            "lastName": "Nom du réalisateur",
+            "email": "E-mail sécurisé",
+            "password": "Mot de passe sécurisé"
+        },
+        "placeholders": {
+            "username": "foo",
+            "firstName": "Jean",
+            "lastName": "Dupont",
+            "email": "email@exemple.com",
+            "password": "********"
+        },
+        "settings": {
+            "privacyTitle": "Aperçu public",
+            "privacyDescription": "Masquer votre compte aux membres de la communauté",
+            "languageTitle": "Langue du système",
+            "languageDescription": "Langue par défaut de l'interface et des métadonnées"
+        },
+        "actions": {
+            "save": "ENREGISTRER LES MODIFICATIONS",
+            "viewAllLogs": "Voir tous les journaux"
+        },
         "stats": {
             "approvedTitles": "Titres approuvés",
             "accumulatedExposure": "Exposition cumulée",
@@ -251,6 +277,39 @@
             "unknownOverview": "Synopsis inconnu",
             "moviesWatched": "Films regardés",
             "moviesWishlisted": "Films sur la liste de souhaits",
+            "moviesLiked": "Films aimés",
+            "moviesDisliked": "Films non aimés"
+        }
+    },
+    "ProfileOther": {
+        "title": "Bureau du directeur",
+        "publicInfo": "Informations publiques",
+        "recentIntersections": "Intersections récentes",
+        "description": "Profil utilisateur et statistiques d'interaction",
+        "fields": {
+            "username": "Alias du réalisateur",
+            "firstName": "Prénom du réalisateur",
+            "lastName": "Nom du réalisateur"
+        },
+        "settings": {
+            "languageTitle": "Langue du système",
+            "languageDescription": "Langue par défaut de l'interface et des métadonnées"
+        },
+        "actions": {
+            "viewAllLogs": "Voir tous les journaux"
+        },
+        "stats": {
+            "approvedTitles": "Titres approuvés",
+            "accumulatedExposure": "Exposition accumulée",
+            "hours": "Heures",
+            "exposureDescription": "La consommation de métadonnées sur le réseau HyperTube dépasse celle de 84 % des directeurs actifs de ce secteur.",
+            "unknownTime": "Temps inconnu",
+            "moviePoster": "Affiche de film",
+            "interactionIcon": "Icône d'interaction",
+            "unknownTitle": "Titre inconnu",
+            "unknownOverview": "Aperçu inconnu",
+            "moviesWatched": "Films visionnés",
+            "moviesWishlisted": "Films dans la liste de souhaits",
             "moviesLiked": "Films aimés",
             "moviesDisliked": "Films non aimés"
         }

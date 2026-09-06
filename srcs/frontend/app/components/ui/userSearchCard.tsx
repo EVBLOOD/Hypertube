@@ -15,7 +15,7 @@ export default function UserSearchCard({
 
     return (
         <div
-            onClick={() => router.push(`/user/${user.id}`)}
+            onClick={() => router.push(`/profile/${user.id}`)}
             className={styles.bodyCard}
         >
             <div

@@ -26,7 +26,7 @@ export default function InputCustom({
                 placeholder={placeHolder}
                 className={styles.inputElem}
                 type={typeInput}
-                onKeyPress={onKeyPress}
+                onKeyUp={onKeyPress}
             />
         </div>
     );

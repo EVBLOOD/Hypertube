@@ -1,0 +1,166 @@
+.mainBrowseContentHead {
+    margin-top: 100px;
+    padding-bottom: 32px;
+    display: flex;
+    justify-content: space-between;
+    border-color: #1c1b1b;
+    border-width: 0px 0px 1px 0px;
+    border-style: solid;
+}
+
+.browseContent {
+    margin-top: 70px;
+}
+
+.firstPartHolder {
+    display: flex;
+    flex-direction: column;
+    width: 58%;
+    gap: 40px;
+}
+
+.profileField {
+    display: flex;
+    gap: 30px;
+    /* width: 100%; */
+}
+
+.privateProfileSection {
+    /* width: 100%; */
+    background-color: #1c1b1b;
+    padding: 32px 32px 32px 32px;
+    gap: 30px;
+    display: flex;
+    flex-direction: column;
+}
+
+.history{
+    background-color: #1c1b1b;
+    padding: 30px;
+
+}
+
+.titleAndLink{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.personalInfosField {
+    display: flex;
+    align-items: start;
+    gap: 40px;
+}
+
+.avatarProfile {
+    border-color: #d0c6ab;
+    border-style: dashed;
+    border-width: 2px;
+    width: 128px;
+    height: 128px;
+
+    display: block;
+    background-position: center;
+    background-size: cover;
+
+    cursor: pointer;
+}
+
+.inputsholder {
+    width: -webkit-fill-available;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.inputsholder input {
+    border-color: #d0c6ab;
+}
+
+.inputsholder label {
+    color: #d0c6ab;
+}
+
+.submitChangesButton {
+    padding: 0;
+    height: 50px;
+}
+
+.secondPartHolder {
+    width: 39%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.statisticCards {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.cards {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.interactionTitleSection {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.interactionsOpenMore {
+    text-decoration: none;
+    color: #999077;
+}
+
+.interactionsSection {
+    gap: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.logsContainer {
+    background-color: #1c1b1b;
+    padding: 32px 32px 32px 32px;
+}
+
+.SecurityLogs {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.discreptionRemoveMargin {
+    margin: 0;
+}
+
+@media screen and (max-width: 768px) {
+    .profileField {
+        flex-direction: column;
+    }
+
+    .firstPartHolder {
+        width: auto;
+    }
+
+    .secondPartHolder {
+        width: auto;
+    }
+
+    .personalInfosField {
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .browseContent {
+        margin-top: 0px;
+        margin-bottom: 70px;
+    }
+}

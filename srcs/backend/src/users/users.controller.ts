@@ -58,7 +58,13 @@ export class UsersController {
     @UseGuards(JwtAuthGuard, WhitelistGuard)
     @Get("me/summary")
     async getMySummary(@Req() req) {
-        return this.userService.getProfileSummary(req.user.id);
+        return this.userService.getProfileSummary(req.user.id, req.user.id);
+    }
+
+    @UseGuards(JwtAuthGuard, WhitelistGuard)
+    @Get(":id/summary")
+    async getSummaryById (@Param("id", ParseIntPipe) id: number, @Req() req) {
+        return this.userService.getProfileSummary(id, req.user?.id);
     }
 
     @UseGuards(JwtAuthGuard, WhitelistGuard)

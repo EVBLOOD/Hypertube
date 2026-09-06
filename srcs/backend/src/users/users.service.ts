@@ -30,7 +30,7 @@ export class UsersService {
             .where("user.id = :id", { id });
 
         if (id === requestorId) {
-            query.addSelect("user.email");
+            query.addSelect(["user.email", "user.isVerified", "user.privacy"]);
         } else {
             query.andWhere("user.privacy = :privacy", { privacy: "public" });
         }
@@ -41,7 +41,10 @@ export class UsersService {
     }
 
     findbyEmail(email: string): Promise<User | null> {
-        return this.userRepo.findOne({ where: { email } });
+        return this.userRepo.findOne({
+            where: { email },
+            select: ["id", "username", "email"],
+        });
     }
     private hasChanged<T extends Record<string, any>>(
         patch: Partial<T>,
@@ -56,7 +59,19 @@ export class UsersService {
         let tmpDto: UpdateUserDto = { ...dto };
         const actions: string[] = [];
 
-        let user = await this.userRepo.findOne({ where: { id } });
+        let user = await this.userRepo.findOne({
+            where: { id },
+            select: [
+                "id",
+                "username",
+                "email",
+                "password",
+                "firstName",
+                "lastName",
+                "profilePicture",
+                "preferredLanguage",
+            ],
+        });
         if (!user) throw new NotFoundException("User not found");
         if (dto.email && dto.email !== user.email) {
             const existingUser = await this.userRepo.findOne({
@@ -123,8 +138,9 @@ export class UsersService {
         return this.userRepo.find();
     }
 
-    async getProfileSummary(userId: number) {
-        const user = await this.findById(userId, userId);
+    async getProfileSummary(userId: number, requestorId: number) {
+        const user = await this.findById(userId, requestorId);
+        if (!user) throw new NotFoundException("User not found");
 
         const progress = await this.progressRepo.find({
             where: { user: { id: userId } },
