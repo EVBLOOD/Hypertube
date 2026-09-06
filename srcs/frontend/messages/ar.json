@@ -55,6 +55,8 @@
         "bitrate": "معدل البت",
         "tranding": "الرائج",
         "selection": "اختيارات تقنية منسقة",
+        "continue_watching": "متابعة المشاهدة",
+        "continue_watching_subtitle": "تابع من حيث توقفت",
         "see_all": "عرض جميع الإدخالات",
         "minutes": "دقيقة",
         "volt_type": "الخزنة المميزة",
@@ -357,7 +359,14 @@
         "title": "السجل",
         "empty_state": "لا توجد أنشطة حديثة للعرض.",
         "total_interactions": "إجمالي التفاعلات",
-        "no_interactions": "لا توجد تفاعلات"
+        "no_interactions": "لا توجد تفاعلات",
+        "stats": {
+            "watched": "تمت المشاهدة",
+            "addedToWishlist": "تمت الإضافة إلى قائمة المشاهدة",
+            "removedFromWishlist": "تمت الإزالة من قائمة المشاهدة",
+            "liked": "أعجبني",
+            "disliked": "لم يعجبني"
+        }
     },
     "NotFound": {
         "errorMessage": "الصفحة التي تبحث عنها غير موجودة."

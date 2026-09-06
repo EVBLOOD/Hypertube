@@ -171,6 +171,50 @@ export class UsersService {
         };
     }
 
+    async getContinueWatching(userId: number) {
+        const progress = await this.progressRepo.find({
+            where: {
+                user: { id: userId },
+                isWatched: false,
+            },
+            relations: ["movie"],
+            order: { updatedAt: "DESC" },
+            take: 10,
+        });
+
+        const movies = await Promise.all(
+            progress
+                .filter((item) => item.lastMinute > 0)
+                .map(async (item) => {
+                    const details = await this.moviesService.getMovieDetails(
+                        item.movie.imdbId,
+                        "en",
+                        userId,
+                    );
+
+                    if (!details || !("movie" in details) || !details.movie) {
+                        return null;
+                    }
+
+                    const personnel =
+                        "personnel" in details ? details.personnel : undefined;
+
+                    return {
+                        ...details.movie,
+                        totalMinutes:
+                            details.movie.time || item.movie.totalMinutes,
+                        lastWatchedTime: item.lastMinute,
+                        isWatched: false,
+                        isWishlisted: personnel?.isWishlisted || false,
+                        liked: personnel?.liked || false,
+                        disliked: personnel?.disliked || false,
+                    };
+                }),
+        );
+
+        return movies.filter(Boolean);
+    }
+
     async findUsers(paging: PaginationFindUserDto, requestorId: number) {
         console.log(
             "findUsers called with paging:",

@@ -55,6 +55,8 @@
         "bitrate": "BITRATE",
         "tranding": "Tranding",
         "selection": "Curated Technical Selection",
+        "continue_watching": "Continue Watching",
+        "continue_watching_subtitle": "Pick up where you left off",
         "see_all": "SEE ALL ENTRIES",
         "minutes": "MIN",
         "volt_type": "PREMIUM VAULT",
@@ -356,7 +358,14 @@
         "title": "History",
         "empty_state": "No recent activity to display.",
         "total_interactions": "total interactions",
-        "no_interactions": "No interaction logs yet."
+        "no_interactions": "No interaction logs yet.",
+        "stats": {
+            "watched": "Watched",
+            "addedToWishlist": "Added to Watchlist",
+            "removedFromWishlist": "Removed from Watchlist",
+            "liked": "Liked",
+            "disliked": "Disliked"
+        }
     },
     "NotFound": {
         "errorMessage": "The page you are looking for does not exist."

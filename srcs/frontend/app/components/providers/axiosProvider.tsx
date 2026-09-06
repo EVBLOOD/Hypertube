@@ -1,5 +1,6 @@
 "use client";
 import api from "@/lib/api";
+import { useUserStore } from "@/stores/user";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
@@ -10,6 +11,7 @@ export function AxiosProvider({ children }: { children: React.ReactNode }) {
             (response) => response,
             (error) => {
                 if (error.response && error.response.status === 401) {
+                    useUserStore.getState().reset();
                     if (typeof window !== "undefined") {
                         if (
                             error?.config?.url !== "/auth/whois" &&
