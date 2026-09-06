@@ -132,6 +132,13 @@ export class MoviesService {
         return !!process.env.FORTY_TWO_MODE;
     }
 
+    private hasWatchedEnough(movie: Movie, seconds: number): boolean {
+        return (
+            movie.totalMinutes > 0 &&
+            seconds >= movie.totalMinutes * 60 * 0.8
+        );
+    }
+
     normalizeMovie(movie: any): MovieInfos {
         return {
             id: movie.id,
@@ -1547,7 +1554,8 @@ export class MoviesService {
         }
 
         progress.lastMinute = seconds;
-        progress.isWatched = true;
+        progress.isWatched =
+            progress.isWatched || this.hasWatchedEnough(movie, seconds);
         progress.wasWatchedLive = isLive || progress.wasWatchedLive;
 
         return this.progressRepo.save(progress);
@@ -2136,16 +2144,23 @@ export class MoviesService {
                     user: { id: numericUserId },
                     movie: { id: movie.id },
                     lastMinute: currentTime,
+                    isWatched: this.hasWatchedEnough(movie, currentTime),
                 });
             } catch {
                 await this.progressRepo.update(
                     { user: { id: numericUserId }, movie: { id: movie.id } },
-                    { lastMinute: currentTime }
+                    {
+                        lastMinute: currentTime,
+                        isWatched: this.hasWatchedEnough(movie, currentTime),
+                    }
                 );
             }
         } else {
             await this.progressRepo.update(progress.id, {
                 lastMinute: currentTime,
+                isWatched:
+                    progress.isWatched ||
+                    this.hasWatchedEnough(movie, currentTime),
             });
         }
     }

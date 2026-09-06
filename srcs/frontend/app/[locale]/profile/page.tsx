@@ -48,6 +48,7 @@ export default function ProfilePage() {
                     liked: 0,
                     disliked: 0,
                     totalInteractions: 0,
+                    watchedMinutes: 0,
                 }
             }
             history={data?.history?.data || []}
@@ -288,7 +289,9 @@ function ProfileSectionPage({
                 </div>
                 {/* second part */}
                 <div className={styles.secondPartHolder}>
-                    <CardInfosProfile hours="0" />
+                    <CardInfosProfile
+                        hours={(stats.watchedMinutes / 60).toFixed(1)}
+                    />
                     <div className={styles.statisticCards}>
                         <CardStatsProfile title={t('moviesWatched')} icon="/costumIcons/movie-film.svg" count={stats.watched} />
                         <CardStatsProfile title={t('moviesWishlisted')} href="/watchlist" icon="/costumIcons/bookmark.svg" count={stats.wishlisted} />

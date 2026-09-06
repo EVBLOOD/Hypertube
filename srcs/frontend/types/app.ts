@@ -219,6 +219,7 @@ export interface ProfileSummaryStats {
     liked: number;
     disliked: number;
     totalInteractions: number;
+    watchedMinutes: number;
 }
 
 export interface ProfileHistoryItem {

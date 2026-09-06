@@ -50,6 +50,7 @@ export default function ProfilePage({
                     liked: 0,
                     disliked: 0,
                     totalInteractions: 0,
+                    watchedMinutes: 0,
                 }
             }
             history={data?.history?.data || []}

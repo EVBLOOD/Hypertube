@@ -145,8 +145,6 @@ export class UsersService {
         const progress = await this.progressRepo.find({
             where: { user: { id: userId } },
             relations: ["movie"],
-            order: { updatedAt: "DESC" },
-            take: 8,
         });
 
 
@@ -160,6 +158,14 @@ export class UsersService {
                 (item) => item.likedOrDisliked === UserInteraction.DISLIKED,
             ).length,
             totalInteractions: progress.length,
+            watchedMinutes: progress.reduce(
+                (total, item) =>
+                    total +
+                    (item.isWatched
+                        ? item.movie.totalMinutes
+                        : item.lastMinute / 60),
+                0,
+            ),
         };
 
         const history = await this.moviesService.getHistory(userId);
