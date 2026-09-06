@@ -364,7 +364,10 @@
             "addedToWishlist": "Added to Watchlist",
             "removedFromWishlist": "Removed from Watchlist",
             "liked": "Liked",
-            "disliked": "Disliked"
+            "disliked": "Disliked",
+            "commentCreated": "Comment Created",
+            "commentDeleted": "Comment Deleted",
+            "commentUpdated": "Comment Updated"
         }
     },
     "NotFound": {

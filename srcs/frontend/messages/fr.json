@@ -365,7 +365,10 @@
             "removedFromWishlist": "Retiré de la liste de suivi",
             "liked": "Aimé",
             "disliked": "Non aimé",
-            "unknownAction": "Action inconnue"
+            "unknownAction": "Action inconnue",
+            "commentCreated": "Commentaire créé",
+            "commentDeleted": "Commentaire supprimé",
+            "commentUpdated": "Commentaire mis à jour"
         }
     },
     "NotFound": {

@@ -47,6 +47,13 @@ export class CommentsService {
         });
 
         const saved = await this.commentRepo.save(comment);
+        if (userId) {
+            await this.movieService.addToHistory(
+                userId,
+                movie.id,
+                "comment_created",
+            );
+        }
 
         return this.commentRepo.findOne({
             where: { id: saved.id },
@@ -244,6 +251,13 @@ export class CommentsService {
 
         comment.content = sanitizedContent;
         await this.commentRepo.save(comment);
+        if (userId) {
+            await this.movieService.addToHistory(
+                userId,
+                comment.movie.id,
+                "comment_updated",
+            );
+        }
 
         return {
             id: comment.id,
@@ -262,7 +276,7 @@ export class CommentsService {
     async deleteComment(id: number, userId?: number) {
         const comment = await this.commentRepo.findOne({
             where: { id },
-            relations: ["user"],
+            relations: ["user", "movie"],
         });
 
         if (!comment) {
@@ -275,6 +289,13 @@ export class CommentsService {
         }
 
         await this.commentRepo.remove(comment);
+        if (userId) {
+            await this.movieService.addToHistory(
+                userId,
+                comment.movie.id,
+                "comment_deleted",
+            );
+        }
 
         return {
             message: "Comment deleted successfully",

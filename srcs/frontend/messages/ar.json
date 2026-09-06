@@ -365,7 +365,10 @@
             "addedToWishlist": "تمت الإضافة إلى قائمة المشاهدة",
             "removedFromWishlist": "تمت الإزالة من قائمة المشاهدة",
             "liked": "أعجبني",
-            "disliked": "لم يعجبني"
+            "disliked": "لم يعجبني",
+            "commentCreated": "تم إنشاء تعليق",
+            "commentDeleted": "تم حذف تعليق",
+            "commentUpdated": "تم تحديث تعليق"
         }
     },
     "NotFound": {

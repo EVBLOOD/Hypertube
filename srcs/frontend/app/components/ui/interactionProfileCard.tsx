@@ -37,6 +37,12 @@ export default function InteractionProfileCard({
                 return "/costumIcons/like.svg";
             case "disliked":
                 return "/costumIcons/dislike.svg";
+            case "comment_created":
+                return "/costumIcons/comment.svg";
+            case "comment_deleted":
+                return "/costumIcons/comment.svg";
+            case "comment_updated":
+                return "/costumIcons/comment.svg";
             default:
                 return "/costumIcons/recent.svg";
         }
@@ -54,6 +60,12 @@ export default function InteractionProfileCard({
                 return History("liked");
             case "disliked":
                 return History("disliked");
+            case "comment_created":
+                return History("commentCreated");
+            case "comment_deleted":
+                return History("commentDeleted");
+            case "comment_updated":
+                return History("commentUpdated");
             default:
                 return History("unknownAction");
         }
