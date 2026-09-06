@@ -11,6 +11,10 @@ const userService = {
         return (await api.get<ProfileSummary>("/users/me/summary")).data;
     },
 
+    async getContinueWatching() {
+        return (await api.get("/users/me/continue-watching")).data;
+    },
+
     async updateMe(payload: UpdateUserPayload) {
         return (await api.patch<ProfileUpdateResponse>("/users/me", payload))
             .data;

@@ -68,6 +68,12 @@ export class UsersController {
     }
 
     @UseGuards(JwtAuthGuard, WhitelistGuard)
+    @Get("me/continue-watching")
+    async getContinueWatching(@Req() req) {
+        return this.userService.getContinueWatching(req.user.id);
+    }
+
+    @UseGuards(JwtAuthGuard, WhitelistGuard)
     @Get("find/users")
     async findUsers(@Query() paging: PaginationFindUserDto, @Req() req) {
         return this.userService.findUsers(paging, req.user.id);

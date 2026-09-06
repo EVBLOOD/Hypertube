@@ -55,6 +55,8 @@
         "bitrate": "BITRATE",
         "tranding": "Tranding",
         "selection": "Curated Technical Selection",
+        "continue_watching": "Continue Watching",
+        "continue_watching_subtitle": "Pick up where you left off",
         "see_all": "SEE ALL ENTRIES",
         "minutes": "MIN",
         "volt_type": "PREMIUM VAULT",
