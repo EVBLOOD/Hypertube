@@ -10,6 +10,7 @@ export default function ProfileSelectionInputs({
     type,
     init,
     setter,
+    disable = false,
 }: {
     title: string;
     description: string;
@@ -18,6 +19,7 @@ export default function ProfileSelectionInputs({
     setter?:
         | React.Dispatch<React.SetStateAction<"en" | "ar" | "fr">>
         | React.Dispatch<React.SetStateAction<"public" | "private">>;
+    disable?: boolean;
 }) {
     const refrenceOn = useRef<HTMLInputElement>(null);
     const refrenceOff = useRef<HTMLInputElement>(null);
@@ -34,6 +36,7 @@ export default function ProfileSelectionInputs({
     }
 
     const handleNonLanguageChange = (id: string) => {
+        if (disable) return;
         if (id === "public") {
             if (isVisibilitySetter(setter)) {
                 setter("public");
@@ -53,6 +56,8 @@ export default function ProfileSelectionInputs({
     const refrenceEn = useRef<HTMLInputElement>(null);
     const refrenceFr = useRef<HTMLInputElement>(null);
     const handleLanguageChange = (id: string) => {
+        if (disable) return;
+
         if (id === "en") {
             if (isLanguageSetter(setter)) {
                 setter("en");
@@ -104,7 +109,7 @@ export default function ProfileSelectionInputs({
     }, [type, init]);
 
     return (
-        <div className={styles.selectionsSections}>
+        <div className={styles.selectionsSections} style={{ pointerEvents: disable ? "none" : "auto", borderWidth: !disable ? "0px 0px 1px 0px" : "0px" }}>
             <div>
                 <h3 style={{ margin: 0 }}>{title}</h3>
                 <DescriptionComponent text={description} />

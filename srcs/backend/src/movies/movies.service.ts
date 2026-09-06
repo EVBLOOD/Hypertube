@@ -1723,6 +1723,7 @@ export class MoviesService {
     ) {
         const findUser = await this.userRepo.findOne({
             where: [{ email: userInput }, { username: userInput }],
+            select: ["id", "username", "email"],
         });
         if (!findUser) {
             throw new NotFoundException("user Not Found");

@@ -93,6 +93,7 @@ export class AuthService {
     async verifyEmail(token: string) {
         const user = await this.userRepo.findOne({
             where: { emailVerificationToken: token },
+            select: ["id", "emailVerificationToken", "isVerified"],
         });
         if (!user) throw new BadRequestException("Invalid or expired token");
 
@@ -154,7 +155,10 @@ export class AuthService {
     }
 
     async requestResetPassword(email: string) {
-        const user = await this.userRepo.findOne({ where: { email } });
+        const user = await this.userRepo.findOne({
+            where: { email },
+            select: ["id", "email", "preferredLanguage"],
+        });
         if (!user) throw new BadRequestException("User not found");
 
         const resetToken = uuidv4();

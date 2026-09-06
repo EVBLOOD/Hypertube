@@ -10,3 +10,10 @@ export const useProfileSummary = () => {
         queryFn: UserService.getProfileSummary,
     });
 };
+
+export const useProfileSummaryById = (id: string) => {
+    return useQuery<ProfileSummary>({
+        queryKey: ["profile", "summary", id],
+        queryFn: () => UserService.getProfileSummaryById(id),
+    });
+}

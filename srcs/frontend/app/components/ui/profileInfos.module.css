@@ -1,0 +1,13 @@
+.inputSection {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    color: color-mix(in srgb, var(--primary-color), transparent 40%);
+    width: 100%;
+}
+
+.inputElem {
+    background-color: var(--popup-background-second);
+    color: var(--primary-color);
+    padding: 10px 5px 10px 5px;
+}

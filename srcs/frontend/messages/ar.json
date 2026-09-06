@@ -239,6 +239,32 @@
     "Profile": {
         "title": "مكتب المخرج",
         "description": "ملفك الشخصي وإحصائيات التفاعل",
+        "privateSettings": "الإعدادات الخاصة",
+        "recentIntersections": "التفاعلات الأخيرة",
+        "fields": {
+            "username": "اسم المخرج المستعار",
+            "firstName": "الاسم الأول للمخرج",
+            "lastName": "اسم عائلة المخرج",
+            "email": "البريد الإلكتروني الآمن",
+            "password": "كلمة المرور الآمنة"
+        },
+        "placeholders": {
+            "username": "foo",
+            "firstName": "جون",
+            "lastName": "دو",
+            "email": "email@example.com",
+            "password": "********"
+        },
+        "settings": {
+            "privacyTitle": "المعاينة العامة",
+            "privacyDescription": "إخفاء حسابك عن أعضاء المجتمع",
+            "languageTitle": "لغة النظام",
+            "languageDescription": "اللغة الافتراضية للواجهة والبيانات الوصفية"
+        },
+        "actions": {
+            "save": "حفظ التغييرات",
+            "viewAllLogs": "عرض جميع السجلات"
+        },
         "stats": {
             "approvedTitles": "العناوين المعتمدة",
             "accumulatedExposure": "التعرّض المتراكم",
@@ -253,6 +279,40 @@
             "moviesWishlisted": "الأفلام في قائمة الرغبات",
             "moviesLiked": "الأفلام التي أعجبتك",
             "moviesDisliked": "الأفلام التي لم تعجبك"
+        }
+    },
+    "ProfileOther": {
+        "title": "مكتب المدير",
+        "description": "ملف المستخدم وإحصائيات التفاعل",
+        "publicInfo": "المعلومات العامة",
+        "recentIntersections": "التفاعلات الأخيرة",
+
+        "fields": {
+            "username": "اسم المخرج المستعار",
+            "firstName": "الاسم الأول للمخرج",
+            "lastName": "اسم عائلة المخرج"
+        },
+        "settings": {
+            "languageTitle": "لغة النظام",
+            "languageDescription": "اللغة الافتراضية للواجهة والبيانات الوصفية"
+        },
+        "actions": {
+            "viewAllLogs": "عرض جميع السجلات"
+        },
+        "stats": {
+            "approvedTitles": "العناوين المعتمدة",
+            "accumulatedExposure": "التفاعل التراكمي",
+            "hours": "ساعات",
+            "exposureDescription": "يتجاوز استهلاك البيانات الوصفية عبر شبكة HyperTube نسبة 84% من المديرين النشطين في هذا القطاع.",
+            "unknownTime": "وقت غير معروف",
+            "moviePoster": "ملصق الفيلم",
+            "interactionIcon": "أيقونة التفاعل",
+            "unknownTitle": "عنوان غير معروف",
+            "unknownOverview": "نظرة عامة غير معروفة",
+            "moviesWatched": "أفلام تمت مشاهدتها",
+            "moviesWishlisted": "أفلام في قائمة الرغبات",
+            "moviesLiked": "أفلام أعجبت المستخدم",
+            "moviesDisliked": "أفلام لم تعجب المستخدم"
         }
     },
     "Watch": {

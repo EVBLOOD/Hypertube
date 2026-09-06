@@ -239,11 +239,70 @@
     "Profile": {
         "title": "Director’s Office",
         "description": "Your Profile and Interaction Statistics",
+        "privateSettings": "Private Settings",
+        "recentIntersections": "Recent Intersections",
+        "fields": {
+            "username": "Director Alias",
+            "firstName": "Director first name",
+            "lastName": "Director last name",
+            "email": "Secure Email",
+            "password": "Secure Password"
+        },
+        "placeholders": {
+            "username": "foo",
+            "firstName": "John",
+            "lastName": "Doe",
+            "email": "email@example.com",
+            "password": "********"
+        },
+        "settings": {
+            "privacyTitle": "Public Preview",
+            "privacyDescription": "Hide your account from community members",
+            "languageTitle": "System Language",
+            "languageDescription": "Default interface and metadata localization"
+        },
+        "actions": {
+            "save": "COMMIT CHANGES",
+            "viewAllLogs": "View All Logs"
+        },
         "stats": {
             "approvedTitles": "Approved Titles",
             "accumulatedExposure": "Accumulated Exposure",
             "hours": "Hours",
             "exposureDescription": "Your consumption of metadata across the HyperTube network exceeds 84% of active directors in this sector.",
+            "unknownTime": "Unknown time",
+            "moviePoster": "Movie poster",
+            "interactionIcon": "Interaction icon",
+            "unknownTitle": "Unknown Title",
+            "unknownOverview": "Unknown Overview",
+            "moviesWatched": "Movies Watched",
+            "moviesWishlisted": "Movies Wishlisted",
+            "moviesLiked": "Movies Liked",
+            "moviesDisliked": "Movies Disliked"
+        }
+    },
+    "ProfileOther": {
+        "title": "Director’s Office",
+        "publicInfo": "Public Information",
+        "description": "User Profile and Interaction Statistics",
+        "recentIntersections": "Recent Intersections",
+        "fields": {
+            "username": "Director Alias",
+            "firstName": "Director first name",
+            "lastName": "Director last name"
+        },
+        "settings": {
+            "languageTitle": "System Language",
+            "languageDescription": "Default interface and metadata localization"
+        },
+        "actions": {
+            "viewAllLogs": "View All Logs"
+        },
+        "stats": {
+            "approvedTitles": "Approved Titles",
+            "accumulatedExposure": "Accumulated Exposure",
+            "hours": "Hours",
+            "exposureDescription": "Metadata consumption across the HyperTube network exceeds 84% of active directors in this sector.",
             "unknownTime": "Unknown time",
             "moviePoster": "Movie poster",
             "interactionIcon": "Interaction icon",

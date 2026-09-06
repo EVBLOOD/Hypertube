@@ -86,7 +86,7 @@ function ProfileSectionPage({
             return path.includes("/")
                 ? path
                 : process.env.NEXT_PUBLIC_BACK_API_URL +
-                      `/users/avatar/${path}`;
+                `/users/avatar/${path}`;
         }
         return "/hero.png";
     };
@@ -108,17 +108,23 @@ function ProfileSectionPage({
             profilePicture: profilePicture || null,
         };
 
-        const updated = await UserService.updateMe(form);
-        const updatedUser = updated?.user;
-        const actions = updated?.actions || [];
+        try {
+            const updated = await UserService.updateMe(form);
+            const updatedUser = updated?.user;
+            const actions = updated?.actions || [];
 
-        actions.forEach((action) => {
-            toast.error(`Action: ${action}`);
-        });
-        console.debug("Updated user:", updatedUser);
-        if (updatedUser?.preferredLanguage) {
-            userLanguageUpdate(updatedUser.preferredLanguage);
-            changeLanguage(updatedUser.preferredLanguage);
+            actions.forEach((action) => {
+                toast.error(`Action: ${action}`);
+            });
+            console.debug("Updated user:", updatedUser);
+            if (updatedUser?.preferredLanguage) {
+                userLanguageUpdate(updatedUser.preferredLanguage);
+                changeLanguage(updatedUser.preferredLanguage);
+            }
+            toast.success("Profile updated successfully!");
+        } catch (error) {
+            const errorMessage = getErrorMessage(error);
+            toast.error(`Error updating profile: ${errorMessage}`);
         }
     };
 
@@ -180,7 +186,7 @@ function ProfileSectionPage({
                     <div className={styles.privateProfileSection}>
                         <div>
                             <TitleSectionProfile
-                                title="Private Settings"
+                                title={Profile("privateSettings")}
                                 icon="/costumIcons/private_settings.svg"
                             />
                         </div>
@@ -205,49 +211,49 @@ function ProfileSectionPage({
                             <div className={styles.inputsholder}>
                                 <InputCustom
                                     ref={userNameRef}
-                                    placeHolder={"foo"}
-                                    lableName="Director Alias"
+                                    placeHolder={Profile("placeholders.username")}
+                                    lableName={Profile("fields.username")}
                                 ></InputCustom>
                                 <InputCustom
                                     ref={userFirstNameRef}
-                                    placeHolder={"John"}
-                                    lableName="Director first name"
+                                    placeHolder={Profile("placeholders.firstName")}
+                                    lableName={Profile("fields.firstName")}
                                 ></InputCustom>
                                 <InputCustom
                                     ref={userLastNameRef}
-                                    placeHolder={"Doe"}
-                                    lableName="Director last name"
+                                    placeHolder={Profile("placeholders.lastName")}
+                                    lableName={Profile("fields.lastName")}
                                 ></InputCustom>
                                 <InputCustom
                                     ref={userEmailRef}
-                                    placeHolder={"email@example.com"}
-                                    lableName="Secure Email"
+                                    placeHolder={Profile("placeholders.email")}
+                                    lableName={Profile("fields.email")}
                                 ></InputCustom>
                                 <InputCustom
                                     ref={userPasswordRef}
                                     typeInput="password"
-                                    placeHolder={"********"}
-                                    lableName="Secure Password"
+                                    placeHolder={Profile("placeholders.password")}
+                                    lableName={Profile("fields.password")}
                                 ></InputCustom>
                             </div>
                         </div>
                         <ProfileSelectionInputs
                             init={userData.privacy === "public" ? "public" : "private"}
                             setter={setUserPrivacy}
-                            title="Public Preview"
-                            description="Hide your account from community members"
+                            title={Profile("settings.privacyTitle")}
+                            description={Profile("settings.privacyDescription")}
                         />
                         <ProfileSelectionInputs
                             init={userData.preferredLanguage || "en"}
                             setter={setUserLanguage}
-                            title="System Language"
-                            description="Default interface and metadata localization"
+                            title={Profile("settings.languageTitle")}
+                            description={Profile("settings.languageDescription")}
                             type="language"
                         />
 
                         <ButtonCustom
                             className={styles.submitChangesButton}
-                            textButton="COMMIT CHANGES"
+                            textButton={Profile("actions.save")}
                             buttonImage={undefined}
                             color="primary"
                             onClick={handleSave}
@@ -257,14 +263,14 @@ function ProfileSectionPage({
                     <div className={styles.privateProfileSection}>
                         <div className={styles.interactionTitleSection}>
                             <TitleSectionProfile
-                                title="Recent Intersections"
+                                title={Profile("recentIntersections")}
                                 icon="/costumIcons/recent.svg"
                             />
                             <Link
                                 href="/history"
                                 className={styles.interactionsOpenMore}
                             >
-                                View All Logs
+                                {Profile("actions.viewAllLogs")}
                             </Link>
                         </div>
                         <div className={styles.interactionsSection}>

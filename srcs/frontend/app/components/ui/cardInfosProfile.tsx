@@ -5,7 +5,7 @@ import styles from "./cardInfosProfile.module.css";
 import DescriptionComponent from "./descriptionComponent";
 
 export default function CardInfosProfile(
-    {hours}: { hours: string}
+    {hours, description}: { hours: string, description?: string }
 ) {
     const t = useTranslations("Profile");
 
@@ -18,7 +18,7 @@ export default function CardInfosProfile(
                 <h1>{hours}</h1>
                 <h2>{t("stats.hours")}</h2>
             </div>
-            <DescriptionComponent text={t("stats.exposureDescription")} />
+            <DescriptionComponent text={description || t("stats.exposureDescription")} />
         </div>
     );
 }

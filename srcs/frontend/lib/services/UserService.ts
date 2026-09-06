@@ -42,6 +42,9 @@ const userService = {
             })
         ).data;
     },
+    async getProfileSummaryById(id: string) {
+        return (await api.get<ProfileSummary>(`/users/${id}/summary`)).data;
+    }
 };
 
 export default userService;

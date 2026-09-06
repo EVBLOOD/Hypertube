@@ -8,11 +8,8 @@ import {
 } from "typeorm";
 import { Comment } from "src/comments/entities/comment.entity";
 import { UserMovieProgress } from "src/movies/entities/user-movie-progress.entity";
-
 import * as argon2 from "argon2";
 import { IsEmail, IsNotEmpty } from "class-validator";
-
-import { v4 as uuidv4 } from "uuid";
 import { UserMovieHistory } from "src/movies/entities/user-movie-history.entity";
 import { CommentCommentInteraction } from "src/comments/entities/user-comment.entity";
 
@@ -28,7 +25,7 @@ export class User {
     @Column({ select: false })
     password!: string;
 
-    @Column({ unique: true })
+    @Column({ unique: true, select: false })
     @IsEmail({}, { message: "Invalid email format" })
     email!: string;
 
@@ -43,13 +40,13 @@ export class User {
     @Column({ nullable: true })
     profilePicture!: string;
 
-    @Column({ default: false })
+    @Column({ default: false, select: false })
     isVerified!: boolean;
 
-    @Column({ default: "public" })
+    @Column({ default: "public", select: false })
     privacy!: "public" | "private";
 
-    @Column({ nullable: true, select: false })
+    @Column({ nullable: true, select: false  })
     emailVerificationToken!: string;
 
     @Column({ nullable: true, select: false })
@@ -58,10 +55,10 @@ export class User {
     @Column({ default: "en" })
     preferredLanguage!: "en" | "fr" | "ar";
 
-    @Column({ nullable: true })
+    @Column({ nullable: true, select: false })
     fortyTwoId!: string;
 
-    @Column({ nullable: true })
+    @Column({ nullable: true, select: false })
     externalStrategyId!: string;
 
     @OneToMany(() => Comment, (comment) => comment.user)
