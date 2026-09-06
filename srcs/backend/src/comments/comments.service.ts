@@ -18,7 +18,7 @@ export class CommentsService {
         @InjectRepository(CommentCommentInteraction)
         private interactionRepo: Repository<CommentCommentInteraction>,
         private readonly movieService: MoviesService,
-    ) {}
+    ) { }
 
     async create(userId: number, imdbId: string, content: string) {
         let movie = await this.movieService.findByImdbId(imdbId);
@@ -227,6 +227,12 @@ export class CommentsService {
             throw new NotFoundException(`Comment with ID ${id} not found.`);
         }
 
+        if (userId && comment.user.id !== userId) {
+            throw new BadRequestException(
+                `User with ID ${userId} is not authorized to update this comment.`,
+            );
+        }
+
         const sanitizedContent = sanitizeHtml(content || "", {
             allowedTags: [],
             allowedAttributes: {},
@@ -261,6 +267,11 @@ export class CommentsService {
 
         if (!comment) {
             throw new NotFoundException(`Comment with ID ${id} not found.`);
+        }
+        if (userId && comment.user.id !== userId) {
+            throw new BadRequestException(
+                `User with ID ${userId} is not authorized to delete this comment.`,
+            );
         }
 
         await this.commentRepo.remove(comment);
