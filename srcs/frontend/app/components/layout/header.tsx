@@ -26,6 +26,7 @@ export default function Header() {
         try {
             await AuthService.logout();
             useUserStore.getState().reset();
+            router.push("/");
         } catch (err) {
             console.debug(err);
         } finally {
