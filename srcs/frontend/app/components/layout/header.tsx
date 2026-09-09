@@ -76,7 +76,7 @@ export default function Header() {
                             width={20}
                             onClick={handleSearch}
                             style={{ cursor: "pointer" }}
-                            src="/costumIcons/icon.svg"
+                            src="/costumIcons/Icon.svg"
                             alt={header("actions.search")}
                             className={styles.searchButton}
                         />

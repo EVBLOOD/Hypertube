@@ -47,7 +47,7 @@ export default function Search() {
                 ></InputCustom>
                 <ButtonCustom
                     onClick={handleSearch}
-                    buttonImage="/costumIcons/icon.svg"
+                    buttonImage="/costumIcons/Icon.svg"
                     textButton="Search"
                     color="var(--primary-color)"
                 />

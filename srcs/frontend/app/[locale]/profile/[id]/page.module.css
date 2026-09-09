@@ -32,6 +32,16 @@
     gap: 30px;
     display: flex;
     flex-direction: column;
+    height: -webkit-fill-available;
+}
+
+.recentInteractionsSection {
+    margin-top: 20px;
+    background-color: #1c1b1b;
+    padding: 32px 32px 32px 32px;
+    gap: 30px;
+    display: flex;
+    flex-direction: column;
 }
 
 .history{
@@ -81,6 +91,11 @@
     color: #d0c6ab;
 }
 
+.nameFields {
+    display: flex;
+    gap: 20px;
+}
+
 .submitChangesButton {
     padding: 0;
     height: 50px;
@@ -117,6 +132,7 @@
 .interactionsOpenMore {
     text-decoration: none;
     color: #999077;
+    cursor: pointer;
 }
 
 .interactionsSection {

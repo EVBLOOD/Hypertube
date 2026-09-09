@@ -8,10 +8,9 @@ import CardInfosProfile from "@/app/components/ui/cardInfosProfile";
 import CardStatsProfile from "@/app/components/ui/cardStatsProfile";
 import ProfileSelectionInputs from "@/app/components/ui/profileSelectionInputs";
 import InteractionProfileCard from "@/app/components/ui/interactionProfileCard";
-import Link from "next/link";
 import TitleSectionProfile from "@/app/components/ui/titleSectionProfile";
 import { useProfileSummaryById } from "@/lib/dataHooks/useProfileSummary";
-import { use } from "react";
+import { use, useState } from "react";
 import LoadingPage from "@/app/components/layout/loading";
 import { AxiosError } from "axios";
 import ErrorPage from "@/app/components/layout/error";
@@ -54,7 +53,6 @@ export default function ProfilePage({
                 }
             }
             history={data?.history?.data || []}
-            userId={id}
         />
     );
 }
@@ -63,17 +61,17 @@ function ProfileSectionPage({
     userData,
     stats,
     history,
-    userId,
 }: {
     userData: ProfileSummaryUser;
     stats: ProfileSummaryStats;
     history: ProfileHistoryItem[];
-    userId?: string;
 }) {
     const Profile = useTranslations("ProfileOther");
     const t = useTranslations("ProfileOther.stats");
     const profilePicture = userData?.profilePicture || "/hero.png"
+    const [showAllHistory, setShowAllHistory] = useState(false);
     const recentHistory = history.slice(0, 3);
+    const displayedHistory = showAllHistory ? history : recentHistory;
 
     const ifSavedInServer = (path: string) => {
         if (path) {
@@ -128,14 +126,16 @@ function ProfileSectionPage({
                                     placeHolder={userData?.username || "JohnDoe"}
                                     lableName={Profile("fields.username")}
                                 ></ProfileInfos>
-                                <ProfileInfos
-                                    placeHolder={userData?.firstName || "John"}
-                                    lableName={Profile("fields.firstName")}
-                                ></ProfileInfos>
-                                <ProfileInfos
-                                    placeHolder={userData?.lastName || "Doe"}
-                                    lableName={Profile("fields.lastName")}
-                                ></ProfileInfos>
+                                <div className={styles.nameFields}>
+                                    <ProfileInfos
+                                        placeHolder={userData?.firstName || "John"}
+                                        lableName={Profile("fields.firstName")}
+                                    ></ProfileInfos>
+                                    <ProfileInfos
+                                        placeHolder={userData?.lastName || "Doe"}
+                                        lableName={Profile("fields.lastName")}
+                                    ></ProfileInfos>
+                                </div>
                             </div>
                         </div>
                         <ProfileSelectionInputs
@@ -146,44 +146,40 @@ function ProfileSectionPage({
                             disable={true}
                         />
                     </div>
-                    {/* receent interactions */}
-                    <div className={styles.privateProfileSection}>
-                        <div className={styles.interactionTitleSection}>
-                            <TitleSectionProfile
-                                title={Profile("recentIntersections")}
-                                icon="/costumIcons/recent.svg"
-                            />
-                            <Link
-                                href={`/history/${userId}`}
-                                className={styles.interactionsOpenMore}
-                            >
-                                {Profile("actions.viewAllLogs")}
-                            </Link>
-                        </div>
-                        <div className={styles.interactionsSection}>
-                            {recentHistory.map(
-                                (item: ProfileHistoryItem, index: number) => (
-                                    <InteractionProfileCard
-                                        key={index}
-                                        movie={item}
-                                    />
-                                ),
-                            )}
-                        </div>
-                    </div>
-                    <div></div>
                 </div>
                 {/* second part */}
                 <div className={styles.secondPartHolder}>
-                    <CardInfosProfile hours="0" description={t("exposureDescription")} />
+                    <CardInfosProfile hours={(stats.watchedMinutes / 60).toFixed(1)} />
                     <div className={styles.statisticCards}>
                         <CardStatsProfile title={t('moviesWatched')} icon="/costumIcons/movie-film.svg" count={stats.watched} />
-                        <CardStatsProfile title={t('moviesWishlisted')} href="/watchlist" icon="/costumIcons/bookmark.svg" count={stats.wishlisted} />
+                        <CardStatsProfile title={t('moviesWishlisted')} icon="/costumIcons/bookmark.svg" count={stats.wishlisted} />
                     </div>
                     <div className={styles.statisticCards}>
                         <CardStatsProfile title={t('moviesLiked')} icon="/costumIcons/like.svg" count={stats.liked} />
                         <CardStatsProfile title={t('moviesDisliked')} icon="/costumIcons/dislike.svg" count={stats.disliked} />
                     </div>
+                </div>
+            </div>
+            <div className={styles.recentInteractionsSection}>
+                <div className={styles.interactionTitleSection}>
+                    <TitleSectionProfile
+                        title={Profile("recentIntersections")}
+                        icon="/costumIcons/recent.svg"
+                    />
+                    <div
+                        onClick={() => setShowAllHistory(true)}
+                        className={styles.interactionsOpenMore}
+                        hidden={showAllHistory || history.length <= 3}
+                    >
+                        {Profile("actions.viewAllLogs")}
+                    </div>
+                </div>
+                <div className={styles.interactionsSection}>
+                    {displayedHistory.map(
+                        (item: ProfileHistoryItem, index: number) => (
+                            <InteractionProfileCard key={index} movie={item} />
+                        ),
+                    )}
                 </div>
             </div>
         </div>

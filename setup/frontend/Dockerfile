@@ -1,4 +1,4 @@
-FROM node:20-bullseye-slim
+FROM node:20-bookworm-slim
 
 RUN apt update -y && apt upgrade -y && apt install git -y 
 

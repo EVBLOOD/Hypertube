@@ -83,7 +83,7 @@ export default function InteractionProfileCard({
     const handleCardClick = () => {
         const movieId = movie ? (movie as { id?: string | number }).id : undefined;
         if (movie && movieId) {
-            router.push(`movie/${movieId}`);
+            router.push(`/movie/${movieId}`);
         }
     }
 
