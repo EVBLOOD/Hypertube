@@ -19,15 +19,15 @@ services:
     volumes:
       - ${PWD}/srcs/frontend:/var/www/html
     expose:
-      - 3000
+      - 8080
     networks:
       - hypertube
     depends_on:
       - back
     environment:
       - NEXT_PUBLIC_BACK_API_URL=${PUBLIC_API_URL}
-      - PORT=${PORT}
       - NEXT_PUBLIC_SOCKET_URL=${FRONTEND_URL}
+      - PORT=8080
 
   back:
     build: setup/backend
@@ -44,14 +44,16 @@ services:
       - "20000:20000/udp"
     networks:
       - hypertube
-    depends_on:
-      - database
     env_file:
       - .env.dev
     environment:
       - FORTY_TWO_CLIENT_ID=${FORTY_TWO_CLIENT_ID}
       - FORTY_TWO_CLIENT_SECRET=${FORTY_TWO_CLIENT_SECRET}
       - FORTY_TWO_CALL_BACK=${FORTY_TWO_CALL_BACK}
+      - MIGRATION_NAME=${MIGRATION_NAME:-}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+    depends_on:
+      - database
 
   database:
     image: postgres

@@ -17,7 +17,7 @@ export class AuthService {
         private jwtService: JwtService,
         private redisService: RedisService,
         private mailService: MailsService,
-    ) {}
+    ) { }
     async register(dto: RegisterDto, language: DefaultLanguage) {
         const exists = await this.userRepo.findOne({
             where: [{ email: dto.email }, { username: dto.username }],
@@ -217,11 +217,8 @@ export class AuthService {
 
         let targetUser: User | null = null;
 
-        if (
-            (clientId === configuredClientId &&
-                clientSecret === configuredClientSecret) ||
-            (clientId === "client" && clientSecret === "secret")
-        ) {
+        if (clientId === configuredClientId &&
+            clientSecret === configuredClientSecret) {
             targetUser = await this.userRepo.findOne({ where: {} });
             if (!targetUser) {
                 targetUser = this.userRepo.create({

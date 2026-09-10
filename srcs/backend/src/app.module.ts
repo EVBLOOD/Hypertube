@@ -16,7 +16,12 @@ import { DocsModule } from "./docs/docs.module";
     imports: [
         ConfigModule.forRoot({ isGlobal: true }),
         TypeOrmModule.forRootAsync({
-            useFactory: () => dataSourceOptions,
+            useFactory: () => ({
+                ...dataSourceOptions,
+                entities: [],
+                migrations: [],
+                autoLoadEntities: true,
+            }),
         }),
         BullModule.forRoot({
             redis: {

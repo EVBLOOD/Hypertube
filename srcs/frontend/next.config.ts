@@ -13,8 +13,7 @@ const nextConfig: NextConfig = {
             },
         ],
     },
+    output: 'standalone',
 };
 
 export default withNextIntl(nextConfig);
-
-// export default nextConfig;

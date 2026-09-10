@@ -8,7 +8,6 @@ import {
     Req,
     ParseIntPipe,
     Query,
-    Put,
     Post,
     UseInterceptors,
     UploadedFile,
@@ -16,7 +15,6 @@ import {
     MaxFileSizeValidator,
     FileTypeValidator,
     NotFoundException,
-    Res,
     StreamableFile,
     BadRequestException,
 } from "@nestjs/common";
@@ -29,10 +27,8 @@ import { ApiDoc } from "../docs/decorators/api-doc.decorator";
 import { PaginationFindUserDto } from "./dto/find-user.dto";
 import { extname, join, basename, resolve } from "path";
 import { FileInterceptor } from "@nestjs/platform-express";
-import { diskStorage, memoryStorage } from "multer";
+import { memoryStorage } from "multer";
 import { createReadStream, existsSync, mkdirSync, writeFileSync } from "fs";
-import { get } from "axios";
-import fsPromises from "fs/promises";
 
 @Controller("users")
 export class UsersController {

@@ -1,0 +1,166 @@
+services:
+  front_prod:
+    build: 
+      context: .
+      dockerfile: setup_prod/frontend/Dockerfile
+      args:
+        - NEXT_PUBLIC_BACK_API_URL=${PUBLIC_API_URL}
+        - NEXT_PUBLIC_SOCKET_URL=${FRONTEND_URL}
+    image: hypertube_prod_front
+    container_name: hypertube_prod_front
+    env_file: .env.prod
+    restart: on-failure
+    expose:
+      - 8080
+    networks:
+      - hypertube_prod
+    depends_on:
+      - back_prod
+
+  back_prod:
+    build: 
+      context: .
+      dockerfile: setup_prod/backend/Dockerfile
+      args:
+        - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+        - POSTGRES_DB=${POSTGRES_DB}
+        - POSTGRES_USER=${POSTGRES_USER}
+        - POSTGRES_HOST=${POSTGRES_HOST}
+        - POSTGRES_PORT=${POSTGRES_PORT}
+        - NODE_ENV=${NODE_ENV}
+        - REDIS_HOST=${REDIS_HOST}
+        - REDIS_PORT=${REDIS_PORT}
+        - REDIS_URL=${REDIS_URL}
+        - JWT_SECRET=${JWT_SECRET}
+        - MAIL_SERVER=${MAIL_SERVER}
+        - MAIL_PORT=${MAIL_PORT}
+        - MAIL_USERNAME=${MAIL_USERNAME}
+        - MAIL_PASSWORD=${MAIL_PASSWORD}
+        - MAIL_DEFAULT_SENDER=${MAIL_DEFAULT_SENDER}
+        - LINK_API_MOVIES_LIST_YTS=${LINK_API_MOVIES_LIST_YTS}
+        - TMDB_API=${TMDB_API}
+        - TMDB_PICS=${TMDB_PICS}
+        - TMDB_KEY=${TMDB_KEY}
+        - FORTY_TWO_CLIENT_ID=${FORTY_TWO_CLIENT_ID}
+        - FORTY_TWO_CLIENT_SECRET=${FORTY_TWO_CLIENT_SECRET}
+        - FORTY_TWO_CALL_BACK=${FORTY_TWO_CALL_BACK}
+        - PUBLIC_API_URL=${PUBLIC_API_URL}
+        - FRONTEND_URL=${FRONTEND_URL}
+        - SUBDL_API_KEY=${SUBDL_API_KEY}
+        - SUBDL_API_URL=${SUBDL_API_URL}
+        - SUBDL_DWN_URL=${SUBDL_DWN_URL}
+        - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+        - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+        - GOOGLE_CALL_BACK=${GOOGLE_CALL_BACK}
+        - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
+        - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
+        - GITHUB_CALL_BACK=${GITHUB_CALL_BACK}
+        - SEPIASEARCH_API_URL=${SEPIASEARCH_API_URL}
+        - SEPIASEARCH_URL=${SEPIASEARCH_URL}
+        - ARCHIVE_URL=${ARCHIVE_URL}
+        - ARCHIVE_DEFAULT_IMG=${ARCHIVE_DEFAULT_IMG}
+        - OAUTH_CLIENT_ID=${OAUTH_CLIENT_ID}
+        - OAUTH_CLIENT_SECRET=${OAUTH_CLIENT_SECRET}
+        - FORTY_TWO_MODE=${FORTY_TWO_MODE}
+
+    image: hypertube_prod_back
+    container_name: hypertube_prod_back
+    env_file: .env.prod
+    environment:
+      - POSTGRES_HOST=$POSTGRES_HOST
+      - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+      - POSTGRES_DB=$POSTGRES_DB
+      - POSTGRES_USER=$POSTGRES_USER
+      - POSTGRES_PORT=$POSTGRES_PORT
+    restart: on-failure
+    expose:
+      - 8080
+    networks:
+      - hypertube_prod
+    depends_on:
+      database_prod:
+          condition: service_healthy
+      redis_prod:
+          condition: service_started
+
+  database_prod:
+    image: postgres
+    container_name: hypertube_prod_database
+    environment:
+      - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+      - POSTGRES_DB=$POSTGRES_DB
+      - POSTGRES_USER=$POSTGRES_USER
+    healthcheck:
+          test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+          interval: 10s
+          timeout: 5s
+          retries: 5
+          start_period: 30s
+    env_file: .env.prod
+    volumes:
+      - vol_database_prod:/var/lib/postgresql/18/data
+    restart: on-failure
+    expose:
+      - 5432
+    networks:
+      - hypertube_prod
+
+  redis_prod:
+    image: redis:latest
+    container_name: hypertube_prod_redis
+    command: redis-server --appendonly yes
+    restart: on-failure
+    volumes:
+      - redis_data_prod:/data 
+    networks:
+      - hypertube_prod
+
+  web_prod:
+    image: nginx:alpine
+    container_name: hypertube_prod_web
+    restart: always
+    volumes:
+      - ./setup_prod/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./setup_prod/nginx/ssl:/etc/nginx/ssl
+    entrypoint: [ "/bin/sh", "-c" ]
+    command:
+      - |
+        mkdir -p /etc/nginx/ssl
+        if [ ! -f /etc/nginx/ssl/cert.pem ]; then
+          apk add --no-cache openssl
+          openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+            -keyout /etc/nginx/ssl/key.pem \
+            -out /etc/nginx/ssl/cert.pem \
+            -subj "/CN=localhost"
+        fi
+        exec nginx -g "daemon off;"
+    ports:
+      - 443:443
+    networks:
+      - hypertube_prod
+    depends_on:
+      - back_prod
+      - front_prod
+
+  adminer_prod:
+    image: adminer
+    container_name: hypertube_adminer_prod
+    restart: on-failure
+    ports:
+      - 8080:8080
+    networks:
+      - hypertube_prod
+    depends_on:
+      - database_prod
+
+networks:
+  hypertube_prod:
+    driver: bridge
+
+volumes:
+  vol_database_prod:
+    driver_opts:
+      type: 'none'
+      o: bind
+      device: ${PWD}/database
+  redis_data_prod:

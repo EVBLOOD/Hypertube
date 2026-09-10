@@ -1,20 +1,31 @@
-FROM node:20-bullseye-slim AS build
-
+FROM node:20-bookworm-slim AS build
 
 WORKDIR /app
 
+RUN apt-get update -y && apt-get install -y --no-install-recommends \
+    git gcc build-essential python3 \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY srcs/backend/package*.json ./
 
-RUN npm install
+RUN npm ci
 
 COPY srcs/backend/. .
 
 RUN npm run build
 
-FROM nginx:stable-alpine AS production
+RUN npm prune --production
 
-COPY --from=build /app/dist /usr/share/nginx/html
+FROM node:20-bookworm-slim AS production
 
-COPY docker_prod/backend/nginx.conf /etc/nginx/conf.d/default.conf
+WORKDIR /app
 
-CMD ["nginx", "-g", "daemon off;"]
+ENV NODE_ENV=production
+
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/package*.json ./
+
+EXPOSE 8080
+
+CMD ["sh", "-c", "npm run migration:run && exec npm run start:prod"]

@@ -7,6 +7,10 @@
     "license": "UNLICENSED",
     "scripts": {
         "build": "nest build",
+        "migration:generate": "node -r ts-node/register -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:generate -d src/config/typeorm.ts",
+        "migration:run:dev": "node -r ts-node/register -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:run -d src/config/typeorm.ts",
+        "migration:run": "typeorm migration:run -d dist/config/typeorm.js",
+        "migration:revert": "typeorm migration:revert -d dist/config/typeorm.js",
         "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
         "start": "nest start",
         "start:dev": "nest start --watch",
