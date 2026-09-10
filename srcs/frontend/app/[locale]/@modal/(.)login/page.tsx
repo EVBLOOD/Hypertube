@@ -11,7 +11,7 @@ import Modal from "@/app/components/layout/modal";
 import PopupCard from "@/app/components/layout/popupCard";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import AuthService from "@/lib/services/AuthService";
 import { useUserStore } from "@/stores/user";
 import { useRouter } from "next/navigation";
@@ -26,10 +26,10 @@ export default function Login() {
     const passwordRef = useRef<HTMLInputElement>(null);
     const childWindowRef = useRef<Window | null>(null);
 
-    const changeLanguage = (lang: string) => {
+    const changeLanguage = useCallback((lang: string) => {
         document.cookie = `NEXT_LOCALE=${lang}; path=/; max-age=31536000`;
         router.push(`/${lang}`);
-    };
+    }, [router]);
     async function handelLogin() {
         const emailOrUserName = emailOrUserNameRef.current?.value;
         const password = passwordRef.current?.value;
@@ -99,7 +99,7 @@ export default function Login() {
         return () => {
             authChannel.close();
         };
-    }, []);
+    }, [changeLanguage]);
 
     const handleLoginOauth = (type: "github" | "google" | "42") => {
         const backendUrl = process.env.NEXT_PUBLIC_BACK_API_URL || "";

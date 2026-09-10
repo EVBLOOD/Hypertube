@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import DescriptionComponent from "../ui/descriptionComponent";
 import styles from "./filter.module.css";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import genreMessages from "@/messages/en.json";
 import { useSearchParams } from "next/navigation";
 
@@ -42,7 +42,7 @@ export default function Filter({
     const searchRef = useRef<HTMLInputElement>(null);
     // const [searchValue, setSearchValue] = useState(query);
 
-    const handleChange = (
+    const handleChange = useCallback((
         props: {
             genre?: string;
             minYear?: number;
@@ -64,14 +64,14 @@ export default function Filter({
         };
 
         onChange(newFilters);
-    };
+    }, [gender, minYear, maxYear, rating, sortBy, order, query, onChange]);
 
     useEffect(() => {
         // setSearchValue(query);
         if (searchRef.current)
             searchRef.current.value = query;
         handleChange({ query: query });
-    }, [query]);
+    }, [query, handleChange]);
 
     return (
         <div className={styles.filterWraper}>

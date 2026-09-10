@@ -35,6 +35,7 @@ export interface MovieInfos {
     quality: string;
     standard_audio_format: string;
     poster: string;
+    posterPath?: string;
     isWatched: boolean;
     overview?: string;
     size?: number;
@@ -717,8 +718,11 @@ export class MoviesService {
                 : null;
             if (movie) {
                 movie.id = imdbId;
-                ((movie.poster = `${process.env.TMDB_PICS}${data.movie_results?.[0].backdrop_path}`),
-                    (movie.overview = data.movie_results?.[0].overview));
+                movie.posterPath = data.movie_results?.[0].poster_path
+                    ? `${process.env.TMDB_PICS}${data.movie_results?.[0].poster_path}`
+                    : undefined;
+                movie.poster = `${process.env.TMDB_PICS}${data.movie_results?.[0].backdrop_path}`;
+                movie.overview = data.movie_results?.[0].overview;
             } else return movie;
 
             const tmdbId = data.movie_results?.[0].id;
@@ -1115,7 +1119,7 @@ export class MoviesService {
                         quality: movieDetails.movie.quality,
                         standard_audio_format:
                             movieDetails.movie.standard_audio_format,
-                        poster: movieDetails.movie.poster,
+                        poster: movieDetails.movie.posterPath || movieDetails.movie.poster,
                         isWatched: h.action === "watched",
                         overview: movieDetails.movie.overview,
                         size: movieDetails.movie.size,
@@ -1133,7 +1137,7 @@ export class MoviesService {
                         quality: movieDetails.quality,
                         standard_audio_format:
                             movieDetails.standard_audio_format,
-                        poster: movieDetails.poster,
+                        poster: movieDetails.posterPath || movieDetails.poster,
                         isWatched: h.action === "watched",
                         overview: movieDetails.overview,
                         size: movieDetails.size,

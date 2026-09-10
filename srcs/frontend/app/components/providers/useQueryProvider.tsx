@@ -1,13 +1,6 @@
 "use client";
 
-import {
-    MutationCache,
-    QueryCache,
-    QueryClient,
-    QueryClientProvider,
-} from "@tanstack/react-query";
-import axios from "axios";
-import { useRouter } from "next/navigation";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactNode, useState } from "react";
 
 export default function UseQueryProvider({
@@ -15,7 +8,6 @@ export default function UseQueryProvider({
 }: {
     children: ReactNode;
 }) {
-    // const router = useRouter();
     const [queryClient] = useState(
         () =>
             new QueryClient(

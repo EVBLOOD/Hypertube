@@ -6,7 +6,6 @@ import styles from "./interactionProfileCard.module.css";
 import { formatDistance } from "date-fns";
 import Image from "next/image";
 import type { ProfileHistoryItem } from "@/types/app";
-import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function InteractionProfileCard({
@@ -90,13 +89,8 @@ export default function InteractionProfileCard({
     return (
         <div className={styles.cardBody} onClick={handleCardClick}>
             <div className={styles.coverTitleInfo}>
-                {/* <Image
-                    height={64}
-                    width={48}
-                    src={moviePoster}
-                    alt={t("stats.moviePoster")}
-                /> */}
-                <img className={styles.moviePoster} src={moviePoster} alt={t("stats.moviePoster")} />
+                <Image className={styles.moviePoster} height={64} width={48} src={moviePoster} alt={t("stats.moviePoster")} />
+                {/* <img className={styles.moviePoster} src={moviePoster} alt={t("stats.moviePoster")} /> */}
                 <div className={styles.infos}>
                     <div className={styles.titleAndTime}>
                         <h3 className={styles.movieTitle}>

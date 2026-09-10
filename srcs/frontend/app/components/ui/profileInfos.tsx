@@ -1,6 +1,5 @@
 "use client";
 
-import type { Ref } from "react";
 import styles from "./profileInfos.module.css";
 
 export default function ProfileInfos({

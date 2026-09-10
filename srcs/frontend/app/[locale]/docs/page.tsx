@@ -81,7 +81,7 @@ export default function DocsPage() {
                 const hash = window.location.hash.slice(1) || "";
                 setActiveSection(hash);
             } catch (error) {
-                console.error("Error fetching documentation:", error);
+                console.debug("Error fetching documentation:", error);
             }
         };
 

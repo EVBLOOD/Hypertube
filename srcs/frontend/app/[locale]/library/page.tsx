@@ -6,7 +6,7 @@ import TitleCustom from "@/app/components/ui/titleCustom";
 import DescriptionComponent from "@/app/components/ui/descriptionComponent";
 import MovieCard from "@/app/components/ui/movieCard";
 import { useTranslations } from "next-intl";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import type { MovieType } from "@/types/app";
 import { useSuggestionsList } from "@/lib/dataHooks/moviesSuggestionsList";
 import { useInView } from "react-intersection-observer";
@@ -43,9 +43,9 @@ export default function Library() {
         isPending,
     } = useSuggestionsList(debouncedSearch);
 
-    function OnChange(newFilters: typeof filters) {
+    const OnChange = useCallback((newFilters: typeof filters) => {
         setFilters(newFilters);
-    }
+    }, []);
 
     useEffect(() => {
         if (inView && hasNextPage && !isFetchingNextPage) {
