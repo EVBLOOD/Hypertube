@@ -28,7 +28,38 @@ watch rooms, storage, caching, deployment, and the public API.
 15. [Environment variables](#15-environment-variables)
 16. [Running the application](#16-running-the-application)
 17. [Development commands and important source files](#17-development-commands-and-important-source-files)
-18. [Current operational limitations](#18-current-operational-limitations)
+18. [Troubleshooting playbook](#18-troubleshooting-playbook)
+19. [Production hardening checklist](#19-production-hardening-checklist)
+20. [Current operational limitations](#20-current-operational-limitations)
+21. [Glossary](#21-glossary)
+
+## Start here: the 60-second explanation
+
+If you only need the central idea, it is this:
+
+1. The browser talks only to nginx at `localhost:8081` in development.
+2. nginx serves Next.js pages and forwards `/api` requests to NestJS.
+3. TMDB gives the backend movie descriptions and images, but no video files.
+4. A YTS-compatible API tells the backend which torrent hashes and qualities
+   exist for a movie's IMDb ID.
+5. The backend joins the torrent swarm, downloads verified pieces, and exposes
+   them to the browser as a normal HTTP video response.
+6. PostgreSQL stores durable user activity; Redis stores short-lived sessions,
+   cached catalogs, verification tokens, and pending invites.
+7. A watch room does not transfer video between users. Each browser loads the
+   movie normally, while Socket.IO synchronizes play/pause/seek and chat.
+
+Choose a reading path:
+
+| Goal                                        | Read these sections          |
+| ------------------------------------------- | ---------------------------- |
+| Understand the complete architecture        | 1–5, then 11–12              |
+| Understand where movies and video come from | 4–6                          |
+| Understand authentication and authorization | 7 and 13                     |
+| Understand invites and synchronized rooms   | 10                           |
+| Configure or deploy the project             | 15–20                        |
+| Integrate with the REST API                 | 13 and the examples below it |
+| Debug a broken feature                      | 18                           |
 
 ## 1. What the application does
 
@@ -51,16 +82,29 @@ user can:
 The UI supports English (`en`), French (`fr`), and Arabic (`ar`) through
 `next-intl`.
 
+### Core user journeys
+
+| Journey        | Frontend                                                                 | Backend and data changes                                                               |
+| -------------- | ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- |
+| Register       | User submits the registration form and receives a “check email” message. | Creates an unverified user, hashes the password, and queues verification mail.         |
+| Log in         | Browser receives `AUTH_TOKEN` and loads the user state.                  | Signs a JWT and stores the exact active token in Redis.                                |
+| Browse         | Library requests pages as the user scrolls or filters.                   | Reads Redis first; on a miss, enriches TMDB candidates with IMDb/YTS data.             |
+| Open details   | Movie page loads metadata, credits, personal state, and comments.        | Calls TMDB/YTS and joins PostgreSQL progress/comment information.                      |
+| Watch          | Video element asks for qualities, subtitles, and an HTTP stream.         | Selects a seeded torrent, downloads prioritized pieces, and returns byte ranges.       |
+| Resume         | Player starts at the previously reported timestamp.                      | Heartbeats update `UserMovieProgress`; incomplete items appear in Continue Watching.   |
+| Invite         | Host enters a username/email and waits; guest accepts from email.        | Redis stores a 15-minute UUID, then the Socket.IO gateway authorizes two room members. |
+| Watch together | Each browser plays its own stream and sees shared controls/chat.         | Socket.IO relays state changes; chat and accepted-room state are ephemeral.            |
+
 ## 2. Technology and services
 
-| Layer/service | Technology | Main responsibility |
-|---|---|---|
-| `web` | nginx | Entry point on `http://localhost:8081`; sends `/api/*` and Socket.IO traffic to the backend and other paths to Next.js. |
-| `front` | Next.js, React, TypeScript | Pages, components, localization, Axios requests, TanStack Query hooks, Zustand user state, and Socket.IO client. |
-| `back` | NestJS, TypeScript | REST API, Passport authentication, Socket.IO room events, movie-source integration, torrent streaming, subtitles, mail jobs, and persistence. |
-| `database` | PostgreSQL + TypeORM | Users, locally referenced movies, comments, reactions, watch progress, and activity history. |
-| `redis` | Redis | Sessions, movie/search caches, temporary invitation tokens, password/email-change tokens, and Bull mail jobs. |
-| `adminer` | Adminer | Development database interface on `http://localhost:8080`. |
+| Layer/service | Technology                 | Main responsibility                                                                                                                           |
+| ------------- | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `web`         | nginx                      | Entry point on `http://localhost:8081`; sends `/api/*` and Socket.IO traffic to the backend and other paths to Next.js.                       |
+| `front`       | Next.js, React, TypeScript | Pages, components, localization, Axios requests, TanStack Query hooks, Zustand user state, and Socket.IO client.                              |
+| `back`        | NestJS, TypeScript         | REST API, Passport authentication, Socket.IO room events, movie-source integration, torrent streaming, subtitles, mail jobs, and persistence. |
+| `database`    | PostgreSQL + TypeORM       | Users, locally referenced movies, comments, reactions, watch progress, and activity history.                                                  |
+| `redis`       | Redis                      | Sessions, movie/search caches, temporary invitation tokens, password/email-change tokens, and Bull mail jobs.                                 |
+| `adminer`     | Adminer                    | Development database interface on `http://localhost:8080`.                                                                                    |
 
 Development containers share the `hypertube` Docker network. The frontend and
 backend both listen on port `8080` inside their own containers. nginx exposes
@@ -113,16 +157,16 @@ flowchart LR
 
 Understanding where state lives is important when debugging:
 
-| State | Owner | Lifetime |
-|---|---|---|
-| User, comments, progress, history, local movie rows | PostgreSQL | Persistent until explicitly removed. |
-| Login session allow-list | Redis | 24 hours or logout/replacement. |
-| Search/trending/movie-card cache | Redis | Usually 24 hours. |
-| Password and profile-change tokens | Redis | One hour. |
-| Pending watch invitation | Redis | 15 minutes or until accepted/declined. |
-| Accepted room membership and connected sockets | NestJS process memory | Until abort/disconnect/restart. |
-| Room chat messages | Browser component state | Until navigation/refresh. |
-| Partial and complete torrent data | Backend `downloads/` | Partial session or up to cleanup of completed content. |
+| State                                               | Owner                   | Lifetime                                               |
+| --------------------------------------------------- | ----------------------- | ------------------------------------------------------ |
+| User, comments, progress, history, local movie rows | PostgreSQL              | Persistent until explicitly removed.                   |
+| Login session allow-list                            | Redis                   | 24 hours or logout/replacement.                        |
+| Search/trending/movie-card cache                    | Redis                   | Usually 24 hours.                                      |
+| Password and profile-change tokens                  | Redis                   | One hour.                                              |
+| Pending watch invitation                            | Redis                   | 15 minutes or until accepted/declined.                 |
+| Accepted room membership and connected sockets      | NestJS process memory   | Until abort/disconnect/restart.                        |
+| Room chat messages                                  | Browser component state | Until navigation/refresh.                              |
+| Partial and complete torrent data                   | Backend `downloads/`    | Partial session or up to cleanup of completed content. |
 
 The frontend creates an Axios client whose base URL is
 `NEXT_PUBLIC_BACK_API_URL`. In Docker development this comes from
@@ -432,7 +476,6 @@ sequenceDiagram
     participant Redis
     participant Mail as Bull mail worker
 
-    rect rgb(235, 245, 255)
         User->>UI: Submit registration
         UI->>Auth: POST /auth/register
         Auth->>DB: Check unique email and username
@@ -443,18 +486,14 @@ sequenceDiagram
         User->>Auth: GET /auth/verify/UUID
         Auth->>DB: Set isVerified=true
         Auth-->>UI: Redirect with verify=success
-    end
 
-    rect rgb(240, 255, 240)
         User->>UI: Submit username/email and password
         UI->>Auth: POST /auth/login
         Auth->>DB: Load password hash and verify with Argon2
         Auth->>Auth: Sign session JWT
         Auth->>Redis: SET session:userId, TTL 24h
         Auth-->>UI: AUTH_TOKEN cookie + user response
-    end
 
-    rect rgb(255, 248, 235)
         UI->>Auth: Protected request with cookie
         Auth->>Auth: JwtAuthGuard verifies signature/expiry
         Auth->>DB: Load current user
@@ -463,7 +502,6 @@ sequenceDiagram
             Auth-->>UI: Protected resource
         else Missing, replaced, expired, or revoked
             Auth-->>UI: 401 Unauthorized
-        end
     end
 ```
 
@@ -673,15 +711,15 @@ The invitation itself is in Redis, but the accepted room membership is not.
 
 ### 10.3 Room events
 
-| Client emits | Other client receives | Purpose |
-|---|---|---|
-| `join_room` | `USER_JOINED` (both) | Join the accepted UUID room. |
-| `send_message` | `MESSAGE` | Relay ephemeral two-person chat. |
-| `start_stream` | `START_STREAM` | Start/play the other player's video. |
-| `pause_stream` | `PAUSE_STREAM` | Pause the other player's video. |
-| `seek_stream` | `SEEK_STREAM` | Move the other player to a timestamp. |
-| `abort_stream` | `ABORT_STREAM` | Stop and remove in-memory room state. |
-| `play`, `pause`, `heartbeat`, `seeking` | no room broadcast | Save the sender's personal progress. |
+| Client emits                            | Other client receives | Purpose                               |
+| --------------------------------------- | --------------------- | ------------------------------------- |
+| `join_room`                             | `USER_JOINED` (both)  | Join the accepted UUID room.          |
+| `send_message`                          | `MESSAGE`             | Relay ephemeral two-person chat.      |
+| `start_stream`                          | `START_STREAM`        | Start/play the other player's video.  |
+| `pause_stream`                          | `PAUSE_STREAM`        | Pause the other player's video.       |
+| `seek_stream`                           | `SEEK_STREAM`         | Move the other player to a timestamp. |
+| `abort_stream`                          | `ABORT_STREAM`        | Stop and remove in-memory room state. |
+| `play`, `pause`, `heartbeat`, `seeking` | no room broadcast     | Save the sender's personal progress.  |
 
 Room chat is ephemeral: it exists only in the two browsers and is not written
 to PostgreSQL or Redis.
@@ -711,18 +749,18 @@ catalog data, but does not delete PostgreSQL records.
 The Redis wrapper passes all durations to the Redis `EX` option, so values are
 seconds. Important current TTLs are:
 
-| Key pattern | TTL | Meaning |
-|---|---:|---|
-| `session:<userId>` | 86,400 s (24 h) | Current UI or API token allowed for that user. |
-| `movie:<id>`, search sorted sets, page counters | 86,400 s (24 h) | Normalized catalog and pagination state. |
-| `hero<language>` | 86,400 s (24 h) | Candidate hero movies. |
-| `curated_trending_top_24_<language>` | 86,400 s (24 h) | Four curated homepage movies. |
-| `subtitles:<imdbId>` | 36,000 s (10 h) | SubDL results including private download path. |
-| `invite:<guest>:<movie>:<host>` | 900 s (15 min) | One-time watch invitation UUID. |
-| `passwordReset:<userId>` | 3,600 s (1 h) | Password recovery UUID. |
-| `emailChangeToken:<userId>` | 3,600 s (1 h) | Pending email and confirmation UUID. |
-| `passwordChange:<userId>` | 3,600 s (1 h) | Pending password and confirmation UUID. |
-| `metadata:<id>` | 600,000 s (about 6.9 days) | TMDB-to-IMDb enrichment. |
+| Key pattern                                     |                        TTL | Meaning                                        |
+| ----------------------------------------------- | -------------------------: | ---------------------------------------------- |
+| `session:<userId>`                              |            86,400 s (24 h) | Current UI or API token allowed for that user. |
+| `movie:<id>`, search sorted sets, page counters |            86,400 s (24 h) | Normalized catalog and pagination state.       |
+| `hero<language>`                                |            86,400 s (24 h) | Candidate hero movies.                         |
+| `curated_trending_top_24_<language>`            |            86,400 s (24 h) | Four curated homepage movies.                  |
+| `subtitles:<imdbId>`                            |            36,000 s (10 h) | SubDL results including private download path. |
+| `invite:<guest>:<movie>:<host>`                 |             900 s (15 min) | One-time watch invitation UUID.                |
+| `passwordReset:<userId>`                        |              3,600 s (1 h) | Password recovery UUID.                        |
+| `emailChangeToken:<userId>`                     |              3,600 s (1 h) | Pending email and confirmation UUID.           |
+| `passwordChange:<userId>`                       |              3,600 s (1 h) | Pending password and confirmation UUID.        |
+| `metadata:<id>`                                 | 600,000 s (about 6.9 days) | TMDB-to-IMDb enrichment.                       |
 
 The `metadata` duration is notably much longer than the other movie caches. If
 `600000` was intended as milliseconds, it should be changed because Redis `EX`
@@ -730,15 +768,15 @@ interprets it as seconds.
 
 ## 12. PostgreSQL data model
 
-| Entity | Important stored data |
-|---|---|
-| `User` | Credentials, names, avatar, verification state, privacy, language, and OAuth provider IDs. |
-| `Movie` | IMDb ID, title, runtime, downloaded file path, last watched time, and fully-downloaded flag. |
-| `UserMovieProgress` | Per-user movie reactions, watchlist state, progress, watched state, and live-watch state. |
-| `UserMovieHistory` | Timestamped actions such as liked, disliked, watched, or watchlist changes. |
-| `Comment` | Text, author, movie, timestamp, and reaction totals. |
-| `CommentCommentInteraction` | One user's reaction to one comment. |
-| `Subtitle` | Local subtitle language/path linked to a movie. |
+| Entity                      | Important stored data                                                                        |
+| --------------------------- | -------------------------------------------------------------------------------------------- |
+| `User`                      | Credentials, names, avatar, verification state, privacy, language, and OAuth provider IDs.   |
+| `Movie`                     | IMDb ID, title, runtime, downloaded file path, last watched time, and fully-downloaded flag. |
+| `UserMovieProgress`         | Per-user movie reactions, watchlist state, progress, watched state, and live-watch state.    |
+| `UserMovieHistory`          | Timestamped actions such as liked, disliked, watched, or watchlist changes.                  |
+| `Comment`                   | Text, author, movie, timestamp, and reaction totals.                                         |
+| `CommentCommentInteraction` | One user's reaction to one comment.                                                          |
+| `Subtitle`                  | Local subtitle language/path linked to a movie.                                              |
 
 ```mermaid
 erDiagram
@@ -843,117 +881,203 @@ Guard labels:
 
 ### Authentication
 
-| Method | Route | Guard | Purpose |
-|---|---|---|---|
-| POST | `/auth/register` | Public | Create a local user and send verification mail. |
-| POST | `/auth/login` | Local credentials | Create JWT, Redis session, and cookie. |
-| POST | `/auth/request-reset-password` | Public | Email a one-hour reset token. |
-| POST | `/auth/reset-password` | Public + token | Apply a new password. |
-| GET | `/auth/login/google` | Public | Begin Google OAuth. |
-| GET | `/auth/login/google/callback` | Provider callback | Complete Google OAuth. |
-| GET | `/auth/login/github` | Public | Begin GitHub OAuth. |
-| GET | `/auth/login/github/callback` | Provider callback | Complete GitHub OAuth. |
-| GET | `/auth/login/42` | Public | Begin 42 OAuth. |
-| GET | `/auth/login/42/callback` | Provider callback | Complete 42 OAuth. |
-| GET | `/auth/verify/:token` | Public + token | Verify registration email. |
-| GET | `/auth/verify-email-change/:token` | Verified session | Confirm email change. |
-| GET | `/auth/change-password/:token` | Verified session | Confirm profile password change. |
-| GET | `/auth/whois` | Active session | Return current user. |
-| POST | `/auth/logout` | Active session | Revoke session and clear cookie. |
-| POST | `/oauth/token` | Client credentials | Create 24-hour API-scope Bearer token. |
+| Method | Route                              | Guard              | Purpose                                         |
+| ------ | ---------------------------------- | ------------------ | ----------------------------------------------- |
+| POST   | `/auth/register`                   | Public             | Create a local user and send verification mail. |
+| POST   | `/auth/login`                      | Local credentials  | Create JWT, Redis session, and cookie.          |
+| POST   | `/auth/request-reset-password`     | Public             | Email a one-hour reset token.                   |
+| POST   | `/auth/reset-password`             | Public + token     | Apply a new password.                           |
+| GET    | `/auth/login/google`               | Public             | Begin Google OAuth.                             |
+| GET    | `/auth/login/google/callback`      | Provider callback  | Complete Google OAuth.                          |
+| GET    | `/auth/login/github`               | Public             | Begin GitHub OAuth.                             |
+| GET    | `/auth/login/github/callback`      | Provider callback  | Complete GitHub OAuth.                          |
+| GET    | `/auth/login/42`                   | Public             | Begin 42 OAuth.                                 |
+| GET    | `/auth/login/42/callback`          | Provider callback  | Complete 42 OAuth.                              |
+| GET    | `/auth/verify/:token`              | Public + token     | Verify registration email.                      |
+| GET    | `/auth/verify-email-change/:token` | Verified session   | Confirm email change.                           |
+| GET    | `/auth/change-password/:token`     | Verified session   | Confirm profile password change.                |
+| GET    | `/auth/whois`                      | Active session     | Return current user.                            |
+| POST   | `/auth/logout`                     | Active session     | Revoke session and clear cookie.                |
+| POST   | `/oauth/token`                     | Client credentials | Create 24-hour API-scope Bearer token.          |
 
 ### Movies and rooms
 
-| Method | Route | Guard | Purpose |
-|---|---|---|---|
-| GET | `/movies` | Verified session | Search/filter/paginate the library; without filters returns a compact trending list. |
-| GET | `/movies/popular_one` | Public | Random hero movie from a cached trending selection. |
-| GET | `/movies/curated` | Public | Up to four curated weekly trending movies with playable quality. |
-| GET | `/movies/trending` | Active session | Paginated trending movies plus user state. |
-| GET | `/movies/wishlist` | Active session | Current user's paginated watchlist. |
-| POST | `/movies/interaction/:imdbId` | Active session | Toggle like/dislike/neutral state. |
-| POST | `/movies/wishlist/:imdbId` | Active session | Toggle watchlist state. |
-| GET | `/movies/subtitles/:imdbId` | Active session | Search available subtitles. |
-| GET | `/movies/subtitle_file/:imdbId?language=...` | Active session | Download/convert and return subtitle track. |
-| GET | `/movies/qualities/:imdbId` | Active session | Return seeded playable qualities. |
-| GET | `/movies/watch/:id?quality=...` | Active session | Return the video as HTTP range data. |
-| POST | `/movies/:imdbId/progress` | Active session | Save `seconds` and `isLive`. |
-| GET | `/movies/:imdbId` | Verified session | Return metadata, credits, comments count, and personal state. |
-| POST | `/movies/invite/:imdbId` | Active session | Email a 15-minute two-person invitation. |
-| GET | `/movies/invite/:uuid?accept=true|false` | Active session | Accept/decline an invitation and redirect. |
-| GET | `/movies/:imdbId/comments` | Optional session | Return paginated movie comments. |
-| POST | `/movies/:imdbId/comments` | Active session | Create a movie comment. |
+| Method | Route                                        | Guard            | Purpose                                                                              |
+| ------ | -------------------------------------------- | ---------------- | ------------------------------------------------------------------------------------ | ------------------------------------------ |
+| GET    | `/movies`                                    | Verified session | Search/filter/paginate the library; without filters returns a compact trending list. |
+| GET    | `/movies/popular_one`                        | Public           | Random hero movie from a cached trending selection.                                  |
+| GET    | `/movies/curated`                            | Public           | Up to four curated weekly trending movies with playable quality.                     |
+| GET    | `/movies/trending`                           | Active session   | Paginated trending movies plus user state.                                           |
+| GET    | `/movies/wishlist`                           | Active session   | Current user's paginated watchlist.                                                  |
+| POST   | `/movies/interaction/:imdbId`                | Active session   | Toggle like/dislike/neutral state.                                                   |
+| POST   | `/movies/wishlist/:imdbId`                   | Active session   | Toggle watchlist state.                                                              |
+| GET    | `/movies/subtitles/:imdbId`                  | Active session   | Search available subtitles.                                                          |
+| GET    | `/movies/subtitle_file/:imdbId?language=...` | Active session   | Download/convert and return subtitle track.                                          |
+| GET    | `/movies/qualities/:imdbId`                  | Active session   | Return seeded playable qualities.                                                    |
+| GET    | `/movies/watch/:id?quality=...`              | Active session   | Return the video as HTTP range data.                                                 |
+| POST   | `/movies/:imdbId/progress`                   | Active session   | Save `seconds` and `isLive`.                                                         |
+| GET    | `/movies/:imdbId`                            | Verified session | Return metadata, credits, comments count, and personal state.                        |
+| POST   | `/movies/invite/:imdbId`                     | Active session   | Email a 15-minute two-person invitation.                                             |
+| GET    | `/movies/invite/:uuid?accept=true            | false`           | Active session                                                                       | Accept/decline an invitation and redirect. |
+| GET    | `/movies/:imdbId/comments`                   | Optional session | Return paginated movie comments.                                                     |
+| POST   | `/movies/:imdbId/comments`                   | Active session   | Create a movie comment.                                                              |
 
 ### Comments
 
-| Method | Route | Guard | Purpose |
-|---|---|---|---|
-| GET | `/comments` | Public | Latest comments. |
-| GET | `/comments/:id` | Optional session | Numeric ID returns one comment; otherwise treats it as a movie ID. |
-| POST | `/comments` | API token | Create a comment using integration field aliases. |
-| PATCH | `/comments/:id` | API token | Update a comment. |
-| DELETE | `/comments/:id` | API token | Delete a comment. |
-| POST | `/comments/:imdbId` | Active session | Create a website movie comment. |
-| POST | `/comments/interaction/:commentId` | Active session | Like, dislike, or clear a comment reaction. |
+| Method | Route                              | Guard            | Purpose                                                            |
+| ------ | ---------------------------------- | ---------------- | ------------------------------------------------------------------ |
+| GET    | `/comments`                        | Public           | Latest comments.                                                   |
+| GET    | `/comments/:id`                    | Optional session | Numeric ID returns one comment; otherwise treats it as a movie ID. |
+| POST   | `/comments`                        | API token        | Create a comment using integration field aliases.                  |
+| PATCH  | `/comments/:id`                    | API token        | Update a comment.                                                  |
+| DELETE | `/comments/:id`                    | API token        | Delete a comment.                                                  |
+| POST   | `/comments/:imdbId`                | Active session   | Create a website movie comment.                                    |
+| POST   | `/comments/interaction/:commentId` | Active session   | Like, dislike, or clear a comment reaction.                        |
 
 ### Users and documentation
 
-| Method | Route | Guard | Purpose |
-|---|---|---|---|
-| GET | `/users` | API token | List users for an integration. |
-| PATCH | `/users/me` | Active session | Update the current profile. |
-| GET | `/users/me/summary` | Active session | Own profile stats and history. |
-| GET | `/users/:id/summary` | Active session | Another visible user's profile stats/history. |
-| GET | `/users/me/continue-watching` | Active session | Up to ten incomplete movies. |
-| GET | `/users/find/users` | Active session | Paginated user search. |
-| POST | `/users/avatar_update` | Active session | Upload JPEG/PNG avatar, maximum 5 MiB. |
-| GET | `/users/avatar/:filename` | Active session | Return an uploaded avatar. |
-| GET | `/users/:id` | API token | Get an integration-facing user profile. |
-| PATCH | `/users/:id` | API token | Update an integration-facing profile. |
-| GET | `/docs/` | Public | Return backend documentation JSON. |
+| Method | Route                         | Guard          | Purpose                                       |
+| ------ | ----------------------------- | -------------- | --------------------------------------------- |
+| GET    | `/users`                      | API token      | List users for an integration.                |
+| PATCH  | `/users/me`                   | Active session | Update the current profile.                   |
+| GET    | `/users/me/summary`           | Active session | Own profile stats and history.                |
+| GET    | `/users/:id/summary`          | Active session | Another visible user's profile stats/history. |
+| GET    | `/users/me/continue-watching` | Active session | Up to ten incomplete movies.                  |
+| GET    | `/users/find/users`           | Active session | Paginated user search.                        |
+| POST   | `/users/avatar_update`        | Active session | Upload JPEG/PNG avatar, maximum 5 MiB.        |
+| GET    | `/users/avatar/:filename`     | Active session | Return an uploaded avatar.                    |
+| GET    | `/users/:id`                  | API token      | Get an integration-facing user profile.       |
+| PATCH  | `/users/:id`                  | API token      | Update an integration-facing profile.         |
+| GET    | `/docs/`                      | Public         | Return backend documentation JSON.            |
+
+### 13.1 Practical API examples
+
+These commands assume the development stack is available at
+`http://localhost:8081`. Use a temporary cookie file to reproduce the browser's
+session behavior.
+
+Register a user:
+
+```bash
+curl -i -X POST http://localhost:8081/api/auth/register \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "username": "alice",
+    "email": "alice@example.com",
+    "password": "StrongPass1",
+    "firstName": "Alice",
+    "lastName": "Example"
+  }'
+```
+
+After following the verification email, log in. The field is named `username`,
+but the local strategy accepts either a username or an email as its value:
+
+```bash
+curl -i -c /tmp/hypertube-cookies.txt \
+  -X POST http://localhost:8081/api/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"username":"alice","password":"StrongPass1"}'
+```
+
+Use the stored session cookie for protected routes:
+
+```bash
+curl -b /tmp/hypertube-cookies.txt \
+  'http://localhost:8081/api/movies?query=matrix&page=1&limit=20'
+
+curl -b /tmp/hypertube-cookies.txt \
+  http://localhost:8081/api/movies/tt0133093
+
+curl -b /tmp/hypertube-cookies.txt \
+  http://localhost:8081/api/movies/qualities/tt0133093
+```
+
+Filter fields accepted by `/movies`:
+
+| Parameter   | Type/default            | Validation or meaning                                        |
+| ----------- | ----------------------- | ------------------------------------------------------------ |
+| `query`     | string                  | Title/search text.                                           |
+| `genre`     | string                  | Genre name used by discovery filtering.                      |
+| `minRating` | integer                 | From 0 through 10.                                           |
+| `minYear`   | integer, default 2017   | At least 1888.                                               |
+| `maxYear`   | integer, default 2026   | At least 1889.                                               |
+| `page`      | integer, default 1      | Requested application page.                                  |
+| `limit`     | integer, default 20     | Cards requested per page.                                    |
+| `sortBy`    | string, default `title` | Intended values: `title`, `year`, or `rating`.               |
+| `order`     | string, default `asc`   | Intended values: `asc` or `desc`.                            |
+| `language`  | string, default `en`    | Metadata language hint. HTTP language headers are also used. |
+
+Send a room invite to an existing user:
+
+```bash
+curl -b /tmp/hypertube-cookies.txt \
+  -X POST http://localhost:8081/api/movies/invite/tt0133093 \
+  -H 'Content-Type: application/json' \
+  -d '{"title":"The Matrix","userInput":"bob"}'
+```
+
+Obtain a separate integration token using HTTP Basic client credentials:
+
+```bash
+curl -X POST http://localhost:8081/api/oauth/token \
+  -H 'Authorization: Basic BASE64_CLIENT_ID_COLON_SECRET' \
+  -H 'Content-Type: application/json' \
+  -d '{}'
+```
+
+Then call an API-scope route:
+
+```bash
+curl http://localhost:8081/api/users \
+  -H 'Authorization: Bearer API_SCOPE_TOKEN'
+```
+
+Do not send the API-scope token to `/movies/watch`, `/users/me`, or other
+application-session routes; those routes intentionally reject it.
 
 ## 14. Frontend pages
 
 Every page is locale-prefixed, for example `/en/library`, `/fr/profile`, or
 `/ar/movie/tt1234567`.
 
-| Page | Purpose |
-|---|---|
-| `/` | Hero, curated movies, and continue-watching section. |
-| `/login`, `/register` | Local and OAuth authentication UI. |
-| `/reset-password-email`, `/reset-password` | Password recovery. |
-| `/auth/callback` | Completes frontend handling after OAuth redirect. |
-| `/library` | Searchable/filterable movie catalog. |
-| `/trending` | Paginated trending catalog. |
-| `/search` | Movie search UI; also implemented as an intercepted modal route. |
-| `/movie/:id` | Movie details, cast, reactions, comments, sharing, and invitation action. |
-| `/watch/:id` | Solo player or synchronized room when `?token=<uuid>` is present. |
-| `/watchlist` | Saved movies. |
-| `/history` | Interaction/watch activity. |
-| `/profile` | Own profile settings and statistics. |
-| `/profile/:id` | Another user's visible profile. |
-| `/search/users/:id` | User-search result/profile flow. |
-| `/docs` | UI for the backend API documentation. |
+| Page                                       | Purpose                                                                   |
+| ------------------------------------------ | ------------------------------------------------------------------------- |
+| `/`                                        | Hero, curated movies, and continue-watching section.                      |
+| `/login`, `/register`                      | Local and OAuth authentication UI.                                        |
+| `/reset-password-email`, `/reset-password` | Password recovery.                                                        |
+| `/auth/callback`                           | Completes frontend handling after OAuth redirect.                         |
+| `/library`                                 | Searchable/filterable movie catalog.                                      |
+| `/trending`                                | Paginated trending catalog.                                               |
+| `/search`                                  | Movie search UI; also implemented as an intercepted modal route.          |
+| `/movie/:id`                               | Movie details, cast, reactions, comments, sharing, and invitation action. |
+| `/watch/:id`                               | Solo player or synchronized room when `?token=<uuid>` is present.         |
+| `/watchlist`                               | Saved movies.                                                             |
+| `/history`                                 | Interaction/watch activity.                                               |
+| `/profile`                                 | Own profile settings and statistics.                                      |
+| `/profile/:id`                             | Another user's visible profile.                                           |
+| `/search/users/:id`                        | User-search result/profile flow.                                          |
+| `/docs`                                    | UI for the backend API documentation.                                     |
 
 ## 15. Environment variables
 
 Never commit real secrets. Development uses `.env.dev`; production Compose
 uses `.env.prod`.
 
-| Group | Variables |
-|---|---|
-| PostgreSQL | `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` |
-| Redis | `REDIS_HOST`, `REDIS_PORT`, `REDIS_URL` |
-| Application | `PORT`, `NODE_ENV`, `JWT_SECRET`, `PUBLIC_API_URL`, `FRONTEND_URL` |
-| Movie metadata | `TMDB_API`, `TMDB_PICS`, `TMDB_KEY` |
-| Torrent lookup | `LINK_API_MOVIES_LIST_YTS` |
-| Subtitles | `SUBDL_API_KEY`, `SUBDL_API_URL`, `SUBDL_DWN_URL` |
-| Mail | `MAIL_SERVER`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_DEFAULT_SENDER` |
-| 42 OAuth | `FORTY_TWO_CLIENT_ID`, `FORTY_TWO_CLIENT_SECRET`, `FORTY_TWO_CALL_BACK` |
-| Google OAuth | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_CALL_BACK` |
-| GitHub OAuth | `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `GITHUB_CALL_BACK` |
-| Integration API | `OAUTH_CLIENT_ID`, `OAUTH_CLIENT_SECRET` |
-| Alternate content mode | `FORTY_TWO_MODE`, `ARCHIVE_URL`, `ARCHIVE_DEFAULT_IMG`, `SEPIASEARCH_API_URL`, `SEPIASEARCH_URL` |
+| Group                  | Variables                                                                                          |
+| ---------------------- | -------------------------------------------------------------------------------------------------- |
+| PostgreSQL             | `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`              |
+| Redis                  | `REDIS_HOST`, `REDIS_PORT`, `REDIS_URL`                                                            |
+| Application            | `PORT`, `NODE_ENV`, `JWT_SECRET`, `PUBLIC_API_URL`, `FRONTEND_URL`                                 |
+| Movie metadata         | `TMDB_API`, `TMDB_PICS`, `TMDB_KEY`                                                                |
+| Torrent lookup         | `LINK_API_MOVIES_LIST_YTS`                                                                         |
+| Subtitles              | `SUBDL_API_KEY`, `SUBDL_API_URL`, `SUBDL_DWN_URL`                                                  |
+| Mail                   | `MAIL_SERVER`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_DEFAULT_SENDER`                |
+| 42 OAuth               | `FORTY_TWO_CLIENT_ID`, `FORTY_TWO_CLIENT_SECRET`, `FORTY_TWO_CALL_BACK`                            |
+| Google OAuth           | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_CALL_BACK`                                     |
+| GitHub OAuth           | `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `GITHUB_CALL_BACK`                                     |
+| Integration API        | `OAUTH_CLIENT_ID`, `OAUTH_CLIENT_SECRET`                                                           |
+| Alternate content mode | `FORTY_TWO_MODE`, `ARCHIVE_URL`, `ARCHIVE_DEFAULT_IMG`, `SEPIASEARCH_API_URL`, `SEPIASEARCH_URL`   |
 | Optional WebRTC config | `NEXT_PUBLIC_STUN_URLS`, `NEXT_PUBLIC_TURN_URLS`, `NEXT_PUBLIC_TURN_USER`, `NEXT_PUBLIC_TURN_PASS` |
 
 The current room implementation does not create an `RTCPeerConnection`, so
@@ -971,6 +1095,29 @@ LINK_API_MOVIES_LIST_YTS=https://movies-api.accel.li/api/v2/
 
 `TMDB_KEY`, OAuth secrets, SMTP credentials, `JWT_SECRET`, `SUBDL_API_KEY`, and
 integration credentials must be supplied privately.
+
+### 15.1 Configuration-to-feature map
+
+Use this table when a feature is missing even though the containers are up:
+
+| Feature                            | Required configuration/services                               | Symptom when missing                                                   |
+| ---------------------------------- | ------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| App routing                        | `PUBLIC_API_URL`, `FRONTEND_URL`, nginx                       | Frontend loads but API calls return network errors or 404.             |
+| Registration verification          | SMTP variables, Redis, mail worker                            | Registration succeeds but no verification email arrives.               |
+| Local login                        | PostgreSQL, Redis, `JWT_SECRET`                               | Credentials fail, or login succeeds but protected requests return 401. |
+| Google/GitHub/42 login             | Provider ID, secret, exact callback URL                       | Provider rejects redirect or callback returns no user.                 |
+| Catalog and details                | `TMDB_API`, `TMDB_PICS`, `TMDB_KEY`                           | Empty cards, missing images, or movie-details 404/errors.              |
+| Qualities and normal-mode playback | `LINK_API_MOVIES_LIST_YTS`, network access, torrent ports     | TMDB movie exists but no qualities/torrent is found.                   |
+| Torrent startup                    | TCP/UDP 6881, UDP 20000, trackers/DHT, seeders                | Player waits for metadata/pieces or times out.                         |
+| Non-MP4/WebM playback              | `ffmpeg` installed in backend image                           | Source resolves but transcoding returns a server error.                |
+| Subtitles                          | all `SUBDL_*` values and writable `downloads/`                | Subtitle search/download fails.                                        |
+| Watch invitations                  | SMTP, Redis, `PUBLIC_API_URL`, Socket.IO                      | Email missing, token invalid, or host never receives acceptance.       |
+| Watch synchronization              | `FRONTEND_URL`, nginx WebSocket upgrade, readable session JWT | Both users stream but controls/chat do not synchronize.                |
+| Integration endpoints              | `OAUTH_CLIENT_ID`, `OAUTH_CLIENT_SECRET`, Redis               | `/oauth/token` or API-guarded routes return 401/403.                   |
+
+Configuration values are read at process/container startup. Restart or rebuild
+the affected service after changing them; production frontend public variables
+are build arguments and therefore require a frontend rebuild.
 
 ## 16. Running the application
 
@@ -1070,7 +1217,148 @@ Important implementation locations:
 - `docker-compose.dev.yml`, `docker-compose.prod.yml`, and `Makefile` — runtime
   orchestration.
 
-## 18. Current operational limitations
+## 18. Troubleshooting playbook
+
+Start with container and backend logs:
+
+```bash
+make ps
+make history
+```
+
+For more focused output:
+
+```bash
+docker compose -f docker-compose.dev.yml --env-file .env.dev logs -f back
+docker compose -f docker-compose.dev.yml --env-file .env.dev logs -f front
+docker compose -f docker-compose.dev.yml --env-file .env.dev logs -f redis database
+```
+
+### The website does not open
+
+1. Confirm `web`, `front`, and `back` are running with `make ps`.
+2. Open `http://localhost:8081`, not the internal container port.
+3. Check whether another process already owns port `8081`.
+4. Inspect nginx logs, then frontend logs.
+5. Confirm `PUBLIC_API_URL` and `FRONTEND_URL` use a URL reachable by the
+   browser, not Docker-only names such as `back` or `front`.
+
+### The homepage loads but movies are empty
+
+1. Request `GET /api/movies/curated` directly and inspect the response.
+2. Confirm `TMDB_KEY`, `TMDB_API`, and `TMDB_PICS` inside the backend container.
+3. Look for TMDB 401, rate-limit, DNS, or timeout errors in backend logs.
+4. Test the configured YTS-compatible `list_movies.json` endpoint.
+5. Check Redis connectivity; catalog building and pagination depend heavily on
+   cache writes.
+6. Ensure `FORTY_TWO_MODE` is absent unless alternate mode is intentional.
+
+### Metadata exists but the movie will not play
+
+```mermaid
+flowchart TD
+    A["Movie details render"] --> B{"Qualities endpoint returns values?"}
+    B -->|"No"| C["Check YTS-compatible API response and IMDb ID"]
+    C --> D{"Matching torrent has seeds greater than zero?"}
+    D -->|"No"| E["Movie is currently unavailable from configured source"]
+    D -->|"Yes"| F["Inspect backend network/API errors"]
+    B -->|"Yes"| G{"Stream request starts?"}
+    G -->|"No"| H["Check session cookie and 401/403/404 response"]
+    G -->|"Yes, then stalls"| I["Check trackers, DHT ports, peer discovery, and piece timeout"]
+    I --> J{"Container is MKV/AVI/etc.?"}
+    J -->|"Yes"| K["Confirm FFmpeg exists and inspect FFmpeg errors"]
+    J -->|"No"| L["Inspect range headers and piece verification logs"]
+```
+
+TMDB success proves only that metadata exists. Playback additionally requires a
+source entry, the requested quality, at least one reported seed, reachable
+trackers/peers, valid torrent metadata, and pieces arriving before timeouts.
+
+### Login works, then protected routes return 401
+
+1. Confirm the browser sends `AUTH_TOKEN` to the same host as the API.
+2. Check that Redis contains the current `session:<userId>` value.
+3. A later login replaces the earlier session because there is one key per
+   user; retry using the newest token.
+4. Verify frontend and backend agree on host, scheme, cookie path, and
+   `JWT_SECRET`.
+5. Do not use an API-scope token as an application token.
+
+### Protected library routes return 403
+
+`VerifiedGuard` requires `isVerified=true`. Complete the registration email
+link and confirm SMTP/Bull processed the job. A `403` mentioning API scope means
+the wrong token type was used.
+
+### The invitation email does not arrive
+
+1. Confirm the recipient exists by exact username or email.
+2. Inspect the Bull mail worker and Redis connection.
+3. Verify SMTP host, port, username, password, and sender policy.
+4. Check spam/quarantine folders.
+5. Verify `PUBLIC_API_URL` points to a URL the guest can reach; `localhost` in
+   an email works only when the guest uses the same machine.
+
+### The guest accepts, but the room never starts
+
+1. The guest must be logged in as the exact invited account.
+2. The link must be used before its 15-minute Redis TTL expires.
+3. Both browsers must connect to the `/movie` namespace through
+   `/api/socket.io`.
+4. Check that nginx preserves WebSocket `Upgrade` and `Connection` headers.
+5. A backend restart after acceptance loses the in-memory room.
+6. With multiple backend replicas, both sockets and the acceptance request must
+   reach shared room state; the current implementation does not provide that.
+
+### Subtitles are listed but do not load
+
+1. Verify the session is still active because subtitle-file routes are guarded.
+2. Confirm the cached SubDL item still contains its private `url` field.
+3. Check `SUBDL_DWN_URL`, ZIP download success, and supported extensions.
+4. Ensure the backend can write to `downloads/`.
+5. Inspect conversion output for malformed SRT/VTT timestamps.
+
+### Database migration errors
+
+1. Confirm PostgreSQL is healthy and credentials match the Compose service.
+2. Do not enable TypeORM `synchronize`; migrations are the schema authority.
+3. Run `npm run migration:run:dev` in the backend environment.
+4. Inspect the migration table before generating another migration.
+5. Back up production data before applying or reverting schema changes.
+
+## 19. Production hardening checklist
+
+Before exposing this application publicly:
+
+- [ ] Use a strong unique `JWT_SECRET` and rotate any development credentials.
+- [ ] Set explicit `OAUTH_CLIENT_ID`/`OAUTH_CLIENT_SECRET`; remove fallback use.
+- [ ] Move WebSocket authentication to a design compatible with an HttpOnly,
+      Secure session cookie; enable `httpOnly` on authentication cookies.
+- [ ] Restrict CORS and Socket.IO origins instead of allowing arbitrary origins.
+- [ ] Replace the generated self-signed TLS certificate with a trusted one.
+- [ ] Put secrets in a secret manager or protected environment, not Git.
+- [ ] Add rate limiting to login, registration, reset, invite, comments, search,
+      subtitle download, and stream startup routes.
+- [ ] Use persistent volumes for database, Redis, uploads, and intended cached
+      movie files; establish backup and restore procedures.
+- [ ] Store accepted room state in Redis and configure a Socket.IO Redis adapter
+      before adding backend replicas.
+- [ ] Validate invitation acceptance redirects and provide a login-then-resume
+      flow for guests who open email links without a session.
+- [ ] Correct `FORTY_TWO_MODE` parsing to compare an explicit boolean value.
+- [ ] Review all cache TTL values, especially the 600,000-second metadata TTL.
+- [ ] Add health checks for backend, frontend, Redis, PostgreSQL, and external
+      dependencies.
+- [ ] Add structured logs, metrics, tracing, and alerts for stream failures,
+      peer timeouts, mail failures, and external API quotas.
+- [ ] Apply disk quotas and concurrency limits to torrent sessions and FFmpeg.
+- [ ] Run torrent/media traffic only where licensing and local law permit it.
+- [ ] Pin container image versions and regularly scan dependencies/images.
+- [ ] Run unit, integration, end-to-end, authorization, and load tests in CI.
+- [ ] Review privacy behavior and define retention/deletion rules for profiles,
+      watch history, comments, IP logs, downloads, and uploaded avatars.
+
+## 20. Current operational limitations
 
 - Movie availability depends on the configured third-party APIs and on active
   torrent seeders; a TMDB result is not necessarily playable.
@@ -1093,3 +1381,25 @@ Important implementation locations:
 
 These limitations describe the code as it exists today and are useful starting
 points for production hardening.
+
+## 21. Glossary
+
+| Term                     | Meaning in this project                                                                                           |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------- |
+| TMDB ID                  | Numeric identifier used by The Movie Database. It is resolved to an IMDb ID during enrichment.                    |
+| IMDb ID                  | Identifier such as `tt0133093`; it connects metadata, torrent lookup, subtitles, routes, and local movie records. |
+| Metadata                 | Descriptive data such as title, poster, rating, cast, genre, and runtime—not the video itself.                    |
+| Torrent hash / info hash | Identifier returned by the torrent source and placed in a magnet URI.                                             |
+| Magnet URI               | A link describing how to locate torrent metadata and peers without first downloading a `.torrent` file.           |
+| Tracker                  | Service that introduces peers participating in the same torrent swarm.                                            |
+| DHT                      | Distributed hash table used to discover peers without depending only on trackers.                                 |
+| Peer                     | Another torrent participant that can provide or request pieces.                                                   |
+| Piece                    | Hash-verified segment of torrent content. The player receives bytes only as required pieces become available.     |
+| Seeder                   | Peer that reports having complete content; availability still depends on reachability and responsiveness.         |
+| HTTP range               | Browser request for a byte interval, allowing seeking and progressive media delivery.                             |
+| Transcoding              | Converting an unsupported media container/codec to browser-playable fragmented MP4 using FFmpeg.                  |
+| Session JWT              | Normal login token used by the website and stored in `AUTH_TOKEN`.                                                |
+| API-scope JWT            | Separate Bearer token containing `scope=api`, used only by integration endpoints.                                 |
+| Whitelist                | The current exact session token stored in Redis; unrelated to account allow-listing.                              |
+| Room token               | UUID created for an invitation and reused as the accepted two-person Socket.IO room ID.                           |
+| Heartbeat                | Five-second frontend update used to persist playback position.                                                    |
