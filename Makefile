@@ -5,6 +5,9 @@ DATE_TIME ?= 2026-02-17 00:01:01
 COMPOSE = docker compose -f docker-compose.$(ENV).yml --env-file .env.$(ENV)
 
 all:
+	if [ "$(ENV)" = "prod" ]; then \
+		mkdir -p database; \
+	fi
 	$(COMPOSE) up --build -d
 
 up:
@@ -18,6 +21,7 @@ clean:
 
 fclean: clean
 	docker system prune --all -f --volumes
+	rm -rf database
 
 ps:
 	$(COMPOSE) ps -a
