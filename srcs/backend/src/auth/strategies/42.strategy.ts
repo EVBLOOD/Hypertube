@@ -1,6 +1,6 @@
 import { PassportStrategy } from "@nestjs/passport";
 import Strategy from "passport-42";
-import { Injectable } from "@nestjs/common";
+import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { AuthService } from "../auth.service";
 import { UsersService } from "src/users/users.service";
 
@@ -27,32 +27,32 @@ export class FortyTwoStrategy extends PassportStrategy(
         refreshToken: string,
         profile: any,
     ): Promise<any> {
-        console.log("42 Profile:", profile["_json"]);
-        console.log("42 Profile:", profile.image);
-        const {
-            id,
-            login: username,
-            email,
-            first_name,
-            last_name,
-            image: { link: photo },
-        } = profile["_json"];
+        const json = profile?._json || {};
+        const id = json.id || profile?.id;
+        let username = json.login || profile?.username;
+        const email = json.email || profile?.emails?.[0]?.value;
+        const first_name = json.first_name || "";
+        const last_name = json.last_name || "";
+        const photo = json.image?.link || profile?.photos?.[0]?.value || undefined;
+
+        if (!email) {
+            throw new UnauthorizedException("No email returned by 42 OAuth");
+        }
+
         const userByEmail = await this.userService.findbyEmail(email);
-        const userByUsername = await this.userService.findbyEmail(username);
+        let userByUsername = username ? await this.userService.findByUsername(username) : null;
         let userId = userByEmail ? userByEmail.id : null;
 
         if (!userByEmail && userByUsername) {
-            return {
-                message:
-                    "Username already exists. Please create an account with a different username.",
-            };
+            username = `${username}_42_${id || Math.floor(Math.random() * 1000)}`;
+            userByUsername = await this.userService.findByUsername(username);
         }
 
-        if (!userByEmail && !userByUsername) {
+        if (!userByEmail) {
             userId = (
                 await this.authService.registerWithOauth({
-                    fortyTwoId: id,
-                    username: username,
+                    fortyTwoId: String(id),
+                    username: username || `42_${id}`,
                     email: email,
                     firstName: first_name,
                     lastName: last_name,

@@ -9,13 +9,14 @@ export class WsJwtGuard extends AuthGuard("jwt") {
         const client: Socket = context.switchToWs().getClient();
 
         const rawToken =
-            client.handshake.auth?.token ||
-            client.handshake.headers?.authorization;
+            client.handshake?.auth?.token ||
+            client.handshake?.headers?.authorization;
 
-        const authorization = rawToken?.startsWith("Bearer ")
-            ? rawToken
-            : rawToken
-              ? `Bearer ${rawToken}`
+        const tokenStr = typeof rawToken === "string" ? rawToken.trim() : undefined;
+        const authorization = tokenStr?.startsWith("Bearer ")
+            ? tokenStr
+            : tokenStr
+              ? `Bearer ${tokenStr}`
               : undefined;
 
         return {
@@ -38,10 +39,12 @@ export class WsJwtGuard extends AuthGuard("jwt") {
         const client: Socket = context.switchToWs().getClient();
 
         if (user && typeof user === "object" && "id" in user) {
-            client.data.user = user.id;
-            client.handshake.headers.userId = (user.id as number).toString();
-        } else {
-            console.log(user);
+            client.data = client.data || {};
+            client.data.user = (user as any).id;
+            if (client.handshake) {
+                client.handshake.headers = client.handshake.headers || {};
+                client.handshake.headers.userId = String((user as any).id);
+            }
         }
 
         return user;

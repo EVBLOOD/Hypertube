@@ -43,4 +43,8 @@ async function bootstrap() {
     await app.listen(8080);
 }
 
-bootstrap();
+bootstrap().catch((err) => {
+    const logger = new Logger("Bootstrap");
+    logger.error("Failed to start application:", err?.stack || err);
+    process.exit(1);
+});

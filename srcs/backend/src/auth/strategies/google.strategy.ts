@@ -26,53 +26,57 @@ export class GoogleStrategy extends PassportStrategy(Strategy, "google") {
         profile: any,
         cb: VerifyCallback,
     ): Promise<any> {
-        console.log("Google Profile:", profile);
+        try {
+            const json = profile?._json || {};
+            const id = json.sub || profile?.id;
+            const email = json.email || profile?.emails?.[0]?.value;
+            const first_name = json.given_name || profile?.name?.givenName || "";
+            const last_name = json.family_name || profile?.name?.familyName || "";
+            const photo = json.picture || profile?.photos?.[0]?.value || undefined;
 
-        const {
-            sub: id,
-            email,
-            given_name: first_name,
-            family_name: last_name,
-            picture: photo,
-        } = profile._json;
+            if (!email) {
+                return cb(new Error("No email returned by Google OAuth"));
+            }
 
-        const username = email?.split("@")[0];
+            let username = email.split("@")[0];
 
-        const userByEmail = await this.userService.findbyEmail(email);
-        const userByUsername = await this.userService.findbyEmail(username);
-        let userId = userByEmail ? userByEmail.id : null;
+            const userByEmail = await this.userService.findbyEmail(email);
+            let userByUsername = await this.userService.findByUsername(username);
+            let userId = userByEmail ? userByEmail.id : null;
 
-        if (!userByEmail && userByUsername) {
-            return {
-                message:
-                    "Username already exists. Please create an account with a different username.",
+            if (!userByEmail && userByUsername) {
+                username = `${username}_gg_${id || Math.floor(Math.random() * 1000)}`;
+                userByUsername = await this.userService.findByUsername(username);
+            }
+
+            if (!userByEmail) {
+                userId = (
+                    await this.authService.registerWithOauth({
+                        externalStrategyId: String(id),
+                        username: username,
+                        email: email,
+                        firstName: first_name,
+                        lastName: last_name,
+                        profilePicture: photo,
+                        password: "",
+                    })
+                ).id;
+            }
+            const user = {
+                id: userId,
+                externalStrategyId: id,
+                username: username,
+                email: email,
+                firstName: first_name,
+                lastName: last_name,
+                profilePicture: photo,
             };
-        }
+            cb(null, user);
 
-        if (!userByEmail && !userByUsername) {
-            userId = (
-                await this.authService.registerWithOauth({
-                    externalStrategyId: id,
-                    username: username,
-                    email: email,
-                    firstName: first_name,
-                    lastName: last_name,
-                    profilePicture: photo,
-                    password: "",
-                })
-            ).id;
+            return user;
+        } catch (err: any) {
+            cb(err);
+            return null;
         }
-        const user = {
-            id: userId,
-            externalStrategyId: id,
-            username: username,
-            email: email,
-            firstName: first_name,
-            lastName: last_name,
-            profilePicture: photo,
-        };
-        cb(null, user);
-
-        return user;
     }
 }

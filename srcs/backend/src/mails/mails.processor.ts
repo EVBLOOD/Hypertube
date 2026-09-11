@@ -9,113 +9,123 @@ export class MailProcessor {
 
     constructor(private readonly mailerService: MailerService) {}
 
+    private getSafeLanguage(lang?: string): "en" | "fr" | "ar" {
+        return lang === "fr" || lang === "ar" ? lang : "en";
+    }
+
     @Process("send-verification")
     async handleVerificationEmail(job: Job) {
+        const lang = this.getSafeLanguage(job.data?.language);
         const mapSubject = {
             "en": "🎬 Action! Verify your Hypertube account",
             "fr": "🎬 Action! Vérifiez votre compte pour Hypertube",
             "ar": "🎬 إجراء! تحقق من حسابك لـ Hypertube",
-        }
+        };
         try {
             await this.mailerService.sendMail({
-                to: job.data.email,
-                subject: mapSubject[job.data.language] || "🎬 Action! Verify your Hypertube account",
-                template: `./${job.data.language}/verification`,
+                to: job.data?.email,
+                subject: mapSubject[lang],
+                template: `./${lang}/verification`,
                 context: {
-                    name: job.data.username,
-                    url: `${process.env.PUBLIC_API_URL}/auth/verify/${job.data.token}`,
+                    name: job.data?.username,
+                    url: `${process.env.PUBLIC_API_URL}/auth/verify/${job.data?.token}`,
                 },
             });
         } catch (error: any) {
-            this.logger.error(`Failed to send email: ${error.message}`);
+            this.logger.error(`Failed to send verification email: ${error?.message || error}`);
         }
     }
 
     @Process("reset-password")
     async handleResetPassword(job: Job) {
+        const lang = this.getSafeLanguage(job.data?.language);
         const mapSubject = {
             "en": "🎬 Action! Reset your Hypertube password",
             "fr": "🎬 Action! Réinitialisez votre mot de passe pour Hypertube",
             "ar": "🎬 إجراء! إعادة تعيين كلمة المرور الخاصة بك لـ Hypertube",
-        }
+        };
         try {
             await this.mailerService.sendMail({
-                to: job.data.email,
-                subject: mapSubject[job.data.language] || "🎬 Action! Reset your Hypertube password",
-                template: `./${job.data.language}/reset-password`,
+                to: job.data?.email,
+                subject: mapSubject[lang],
+                template: `./${lang}/reset-password`,
                 context: {
-                    name: job.data.username,
-                    url: `${process.env.FRONTEND_URL}/reset-password?token=${job.data.token}`,
+                    name: job.data?.username,
+                    url: `${process.env.FRONTEND_URL}/reset-password?token=${job.data?.token}`,
                 },
             });
         } catch (error: any) {
-            this.logger.error(`Failed to send email: ${error.message}`);
+            this.logger.error(`Failed to send reset password email: ${error?.message || error}`);
         }
     }
 
     @Process("email-change-verification")
     async handleEmailChangeVerification(job: Job) {
+        const lang = this.getSafeLanguage(job.data?.language);
         const mapSubject = {
             "en": "🎬 Action! Verify your new email for Hypertube",
             "fr": "🎬 Action! Vérifiez votre nouvel e-mail pour Hypertube",
             "ar": "🎬 إجراء! تحقق من بريدك الإلكتروني الجديد لـ Hypertube",
-        }
+        };
         try {
             await this.mailerService.sendMail({
-                to: job.data.email,
-                subject: mapSubject[job.data.language] || "🎬 Action! Verify your new email for Hypertube",
-                template: `./${job.data.language}/email-change-verification`,
+                to: job.data?.email,
+                subject: mapSubject[lang],
+                template: `./${lang}/email-change-verification`,
                 context: {
-                    name: job.data.username,
-                    url: `${process.env.PUBLIC_API_URL}/auth/verify-email-change/${job.data.token}`,
+                    name: job.data?.username,
+                    url: `${process.env.PUBLIC_API_URL}/auth/verify-email-change/${job.data?.token}`,
                 },
             });
         } catch (error: any) {
-            this.logger.error(`Failed to send email: ${error.message}`);
+            this.logger.error(`Failed to send email change verification: ${error?.message || error}`);
         }
     }
 
     @Process("password-change-verification")
     async handlePasswordChangeVerification(job: Job) {
+        const lang = this.getSafeLanguage(job.data?.language);
         const mapSubject = {
             "en": "🎬 action! Verify your new password for Hypertube",
             "fr": "🎬 action! Vérifiez votre nouveau mot de passe pour Hypertube",
             "ar": "🎬 إجراء! تحقق من كلمة المرور الجديدة لـ Hypertube",
-        }
+        };
         try {
             await this.mailerService.sendMail({
-                to: job.data.email,
-                subject: mapSubject[job.data.language] || "🎬 Action! Verify your new password for Hypertube",
-                template: `./${job.data.language}/password-change-verification`,
+                to: job.data?.email,
+                subject: mapSubject[lang],
+                template: `./${lang}/password-change-verification`,
                 context: {
-                    name: job.data.username,
-                    url: `${process.env.PUBLIC_API_URL}/auth/change-password/${job.data.token}`,
+                    name: job.data?.username,
+                    url: `${process.env.PUBLIC_API_URL}/auth/change-password/${job.data?.token}`,
                 },
             });
         } catch (error: any) {
-            this.logger.error(`Failed to send email: ${error.message}`);
+            this.logger.error(`Failed to send password change verification: ${error?.message || error}`);
         }
     }
     @Process("send-invite")
     async handleSendInvite(job: Job) {
+        const lang = this.getSafeLanguage(job.data?.language);
+        const username = job.data?.username || "A user";
         const mapSubject = {
-            "en": `🎬 Action! ${job.data.username} invited you to watch a movie on Hypertube`,
-            "fr": `🎬 Action! ${job.data.username} vous a invité à regarder un film sur Hypertube`,
-            "ar": `🎬 إجراء! ${job.data.username} دعاك لمشاهدة فيلم على Hypertube`,
-        }
+            "en": `🎬 Action! ${username} invited you to watch a movie on Hypertube`,
+            "fr": `🎬 Action! ${username} vous a invité à regarder un film sur Hypertube`,
+            "ar": `🎬 إجراء! ${username} دعاك لمشاهدة فيلم على Hypertube`,
+        };
         try {
             await this.mailerService.sendMail({
-                to: job.data.email,
-                subject: mapSubject[job.data.language] || `🎬 Action! ${job.data.username} invited you to watch a movie on Hypertube`,
-                template: `./${job.data.language}/invite`,
+                to: job.data?.email,
+                subject: mapSubject[lang],
+                template: `./${lang}/invite`,
                 context: {
-                    name: job.data.username,
-                    title: job.data.title,
-                    url: job.data.inviteLink,
+                    name: username,
+                    title: job.data?.title,
+                    url: job.data?.inviteLink,
                 },
             });
         } catch (error: any) {
-            this.logger.error(`Failed to send email: ${error.message}`);
+            this.logger.error(`Failed to send invite email: ${error?.message || error}`);
         }
     }
 }

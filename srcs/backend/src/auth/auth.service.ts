@@ -72,6 +72,9 @@ export class AuthService {
         return { access_token: token };
     }
     async validateUser(username: string, pass: string): Promise<any> {
+        if (!username || !pass) {
+            return null;
+        }
         const user = await this.userRepo.findOne({
             where: [{ username: username }, { email: username }],
             select: [
@@ -83,9 +86,16 @@ export class AuthService {
                 "profilePicture",
             ],
         });
-        if (user && (await verify(user?.password || "", pass))) {
-            const { password, ...result } = user;
-            return result;
+        if (!user || !user.password) {
+            return null;
+        }
+        try {
+            if (await verify(user.password, pass)) {
+                const { password, ...result } = user;
+                return result;
+            }
+        } catch {
+            return null;
         }
         return null;
     }
@@ -145,7 +155,7 @@ export class AuthService {
 
         await this.redisService.del(`passwordChange:${userId}`);
         const user = await this.userRepo.findOneBy({
-            id: parseInt(userId) || -1,
+            id: parseInt(userId, 10) || -1,
         });
         if (!user) throw new BadRequestException("User not found");
 
@@ -180,7 +190,7 @@ export class AuthService {
             if (storedToken === token) {
                 const userId = key.split(":")[1];
                 const user = await this.userRepo.findOneBy({
-                    id: parseInt(userId) || -1,
+                    id: parseInt(userId, 10) || -1,
                 });
                 if (!user) throw new BadRequestException("User not found");
 

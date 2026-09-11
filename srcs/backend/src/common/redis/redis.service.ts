@@ -5,7 +5,6 @@ import {
     Logger,
 } from "@nestjs/common";
 import { createClient, RedisClientType } from "redis";
-import { start } from "repl";
 
 @Injectable()
 export class RedisService implements OnModuleInit, OnModuleDestroy {
@@ -27,7 +26,13 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     }
 
     async onModuleDestroy() {
-        await this.client.destroy();
+        try {
+            if (this.client && this.client.isOpen) {
+                await this.client.quit().catch(() => this.client.disconnect());
+            }
+        } catch (err) {
+            this.logger.error("Error closing Redis connection", err);
+        }
     }
 
     async set(key: string, value: string, time: number) {
@@ -81,10 +86,18 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
         }
 
         const results = await pipeline.exec();
-        if (!results) return [];
-        return results.map((r: any) => {
-            return JSON.parse(r as string);
-        });
+        if (!results || !Array.isArray(results)) return [];
+
+        return results
+            .map((r: any) => {
+                if (typeof r !== "string") return null;
+                try {
+                    return JSON.parse(r);
+                } catch {
+                    return null;
+                }
+            })
+            .filter((m): m is NonNullable<typeof m> => m !== null);
     }
 
     async lenZSet(key: string) {

@@ -78,7 +78,7 @@ export class UsersController {
     @UseGuards(JwtAuthGuard, WhitelistGuard)
     @Post("avatar_update")
     @UseInterceptors(FileInterceptor("file", { storage: memoryStorage() }))
-    uploadImage(
+    async uploadImage(
         @UploadedFile(
             new ParseFilePipe({
                 validators: [
@@ -111,7 +111,7 @@ export class UsersController {
 
         writeFileSync(filePath, file.buffer);
 
-        this.userService.updateAvatar(req.user.id, filename);
+        await this.userService.updateAvatar(req.user.id, filename);
 
         return {
             message: "Image uploaded successfully",
@@ -139,6 +139,7 @@ export class UsersController {
 
         const contentType = mimeTypes[ext] || "application/octet-stream";
         const fileStream = createReadStream(filePath);
+        fileStream.on("error", () => {});
 
         return new StreamableFile(fileStream, {
             type: contentType,

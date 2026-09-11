@@ -46,12 +46,21 @@ export class UsersService {
             select: ["id", "username", "email"],
         });
     }
+
+    findByUsername(username: string): Promise<User | null> {
+        return this.userRepo.findOne({
+            where: { username },
+            select: ["id", "username", "email"],
+        });
+    }
+
     private hasChanged<T extends Record<string, any>>(
         patch: Partial<T>,
         original: T,
     ): boolean {
         return Object.keys(patch).some((key) => patch[key] !== original[key]);
     }
+
     async update(
         id: number,
         dto: UpdateUserDto,
@@ -78,16 +87,16 @@ export class UsersService {
                 where: { email: dto.email },
             });
             if (existingUser) {
-                throw new NotFoundException("Email already in use");
+                throw new BadRequestException("Email already in use");
             }
             const verificationToken = uuidv4();
-            this.redisService.set(
+            await this.redisService.set(
                 `emailChangeToken:${user.id}`,
                 JSON.stringify({ token: verificationToken, email: dto.email }),
                 3600,
             );
 
-            this.emailsService.sendEmailChangeVerification(
+            await this.emailsService.sendEmailChangeVerification(
                 user,
                 verificationToken,
             );
@@ -100,13 +109,13 @@ export class UsersService {
                 where: { username: dto.username },
             });
             if (existingUser) {
-                throw new NotFoundException("Username already in use");
+                throw new BadRequestException("Username already in use");
             }
         }
 
         if (dto.password && dto.password !== user.password) {
             const verificationToken = uuidv4();
-            this.redisService.set(
+            await this.redisService.set(
                 `passwordChange:${user.id}`,
                 JSON.stringify({
                     token: verificationToken,
@@ -115,7 +124,7 @@ export class UsersService {
                 3600,
             );
 
-            this.emailsService.sendPasswordChangeVerification(
+            await this.emailsService.sendPasswordChangeVerification(
                 user,
                 verificationToken,
             );
@@ -162,8 +171,8 @@ export class UsersService {
                 (total, item) =>
                     total +
                     (item.isWatched
-                        ? item.movie.totalMinutes
-                        : item.lastMinute / 60),
+                        ? item.movie?.totalMinutes || 0
+                        : (item.lastMinute || 0) / 60),
                 0,
             ),
         };
@@ -190,7 +199,7 @@ export class UsersService {
 
         const movies = await Promise.all(
             progress
-                .filter((item) => item.lastMinute > 0)
+                .filter((item) => item.movie && item.movie.imdbId && item.lastMinute > 0)
                 .map(async (item) => {
                     const details = await this.moviesService.getMovieDetails(
                         item.movie.imdbId,
@@ -208,7 +217,7 @@ export class UsersService {
                     return {
                         ...details.movie,
                         totalMinutes:
-                            details.movie.time || item.movie.totalMinutes,
+                            details.movie.time || item.movie?.totalMinutes || 0,
                         lastWatchedTime: item.lastMinute,
                         isWatched: false,
                         isWishlisted: personnel?.isWishlisted || false,
@@ -222,13 +231,10 @@ export class UsersService {
     }
 
     async findUsers(paging: PaginationFindUserDto, requestorId: number) {
-        console.log(
-            "findUsers called with paging:",
-            paging,
-            "requestorId:",
-            requestorId,
-        );
-        const { page = 1, limit = 20, username } = paging;
+        const page = Math.max(1, Number(paging?.page) || 1);
+        const limit = Math.min(100, Math.max(1, Number(paging?.limit) || 20));
+        const username = typeof paging?.username === "string" ? paging.username.trim() : "";
+
         const query = this.userRepo
             .createQueryBuilder("user")
             .select([
@@ -238,14 +244,17 @@ export class UsersService {
                 "user.lastName",
                 "user.profilePicture",
             ])
-            .where("user.username LIKE :username", {
-                username: `%${username}%`,
-            })
-            .andWhere("user.id != :requestorId", { requestorId })
+            .where("user.id != :requestorId", { requestorId })
             .andWhere("user.privacy = :privacy", { privacy: "public" })
             .orderBy("user.username", "ASC")
             .skip((page - 1) * limit)
             .take(limit);
+
+        if (username) {
+            query.andWhere("user.username ILIKE :username", {
+                username: `%${username}%`,
+            });
+        }
 
         const [users, total] = await query.getManyAndCount();
 

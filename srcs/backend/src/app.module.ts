@@ -1,5 +1,5 @@
 import { Module } from "@nestjs/common";
-import { ConfigModule } from "@nestjs/config";
+import { ConfigModule, ConfigService } from "@nestjs/config";
 import { dataSourceOptions } from "./config/typeorm";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { UsersModule } from "./users/users.module";
@@ -23,11 +23,15 @@ import { DocsModule } from "./docs/docs.module";
                 autoLoadEntities: true,
             }),
         }),
-        BullModule.forRoot({
-            redis: {
-                host: process.env.REDIS_HOST,
-                port: parseInt(process.env.REDIS_PORT || "123"),
-            },
+        BullModule.forRootAsync({
+            imports: [ConfigModule],
+            inject: [ConfigService],
+            useFactory: (configService: ConfigService) => ({
+                redis: {
+                    host: configService.get<string>("REDIS_HOST", "redis"),
+                    port: parseInt(configService.get<string>("REDIS_PORT", "6379"), 10),
+                },
+            }),
         }),
         UsersModule,
         AuthModule,
@@ -38,6 +42,5 @@ import { DocsModule } from "./docs/docs.module";
         StreamsModule,
         DocsModule,
     ],
-    // providers: [StreamsService],
 })
 export class AppModule {}

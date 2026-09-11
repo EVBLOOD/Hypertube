@@ -75,6 +75,9 @@ services:
     restart: on-failure
     expose:
       - 8080
+    volumes:
+      - vol_backend_pics_prod:/app/dist/uploads
+      - vol_movies_prod:/app/dist/movies/downloads
     networks:
       - hypertube_prod
     depends_on:
@@ -163,4 +166,14 @@ volumes:
       type: 'none'
       o: bind
       device: ${PWD}/database
+  vol_backend_pics_prod:
+    driver_opts:
+      type: 'none'
+      o: bind
+      device: ${PWD}/backend_pics
+  vol_movies_prod:
+    driver_opts:
+      type: 'none'
+      o: bind
+      device: ${PWD}/movies
   redis_data_prod:

@@ -24,63 +24,63 @@ export class GithubStrategy extends PassportStrategy(Strategy, "github") {
         profile: any,
         cb: (err: any, user?: any) => void,
     ): Promise<any> {
-        console.log("Github Profile:", profile);
+        try {
+            const email =
+                profile?.emails?.[0]?.value ||
+                profile?._json?.email;
 
-        if (!profile.emails || profile.emails.length === 0) {
-            return cb(
-                new Error("No email associated with this GitHub account"),
-            );
-        }
+            if (!email) {
+                return cb(
+                    new Error("No email associated with this GitHub account"),
+                );
+            }
 
-        let { id, login: username, name, avatar_url: photo } = profile._json;
+            const json = profile?._json || {};
+            const id = json.id || profile?.id;
+            let username = json.login || profile?.username || email.split("@")[0];
+            const name = json.name || profile?.displayName || "";
+            const photo = json.avatar_url || profile?.photos?.[0]?.value || undefined;
 
-        let {
-            emails: [{ value: email }],
-        } = profile;
+            const userByEmail = await this.userService.findbyEmail(email);
+            let userByUsername = await this.userService.findByUsername(username);
+            let userId = userByEmail ? userByEmail.id : null;
 
-        if (!username) {
-            username = email.split("@")[0];
-        }
+            if (!userByEmail && userByUsername) {
+                username = `${username}_gh_${id || Math.floor(Math.random() * 1000)}`;
+                userByUsername = await this.userService.findByUsername(username);
+            }
 
-        const userByEmail = await this.userService.findbyEmail(email);
-        const userByUsername = await this.userService.findbyEmail(username);
-        let userId = userByEmail ? userByEmail.id : null;
+            const nameParts = name ? name.split(" ") : [];
+            const first_name = nameParts.length > 0 ? nameParts[0] : "";
+            const last_name =
+                nameParts.length > 1 ? nameParts.slice(1).join(" ") : "";
 
-        if (!userByEmail && userByUsername) {
-            return {
-                message:
-                    "Username already exists. Please create an account with a different username.",
+            if (!userByEmail) {
+                userId = (
+                    await this.authService.registerWithOauth({
+                        externalStrategyId: String(id),
+                        username: username,
+                        email: email,
+                        firstName: first_name,
+                        lastName: last_name,
+                        profilePicture: photo ? photo : undefined,
+                        password: "",
+                    })
+                ).id;
+            }
+            const user = {
+                id: userId,
+                externalStrategyId: id,
+                username: username,
+                email: email,
+                firstName: first_name,
+                lastName: last_name,
+                profilePicture: photo,
             };
+
+            return cb(null, user);
+        } catch (err) {
+            return cb(err);
         }
-
-        const nameParts = name ? name.split(" ") : [];
-        const first_name = nameParts.length > 0 ? nameParts[0] : "";
-        const last_name =
-            nameParts.length > 1 ? nameParts.slice(1).join(" ") : "";
-
-        if (!userByEmail && !userByUsername) {
-            userId = (
-                await this.authService.registerWithOauth({
-                    externalStrategyId: id,
-                    username: username,
-                    email: email,
-                    firstName: first_name,
-                    lastName: last_name,
-                    profilePicture: photo ? photo : undefined,
-                    password: "",
-                })
-            ).id;
-        }
-        const user = {
-            id: userId,
-            externalStrategyId: id,
-            username: username,
-            email: email,
-            firstName: first_name,
-            lastName: last_name,
-            profilePicture: photo,
-        };
-
-        return cb(null, user);
     }
 }

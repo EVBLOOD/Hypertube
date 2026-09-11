@@ -18,6 +18,8 @@ services:
     restart: on-failure
     volumes:
       - ${PWD}/srcs/frontend:/var/www/html
+      - /var/www/html/node_modules
+      - /var/www/html/.next
     expose:
       - 8080
     networks:
@@ -36,6 +38,7 @@ services:
     restart: on-failure
     volumes:
       - ${PWD}/srcs/backend:/var/www/html
+      - /var/www/html/node_modules
     expose:
       - 8080
     ports:

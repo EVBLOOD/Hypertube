@@ -6,7 +6,7 @@ COMPOSE = docker compose -f docker-compose.$(ENV).yml --env-file .env.$(ENV)
 
 all:
 	if [ "$(ENV)" = "prod" ]; then \
-		mkdir -p database; \
+		mkdir -p database backend_pics movies; \
 	fi
 	$(COMPOSE) up --build -d
 
@@ -21,7 +21,7 @@ clean:
 
 fclean: clean
 	docker system prune --all -f --volumes
-	rm -rf database
+	rm -rf database backend_pics movies
 
 ps:
 	$(COMPOSE) ps -a
