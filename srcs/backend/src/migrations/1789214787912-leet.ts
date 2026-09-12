@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class Init1789119952995 implements MigrationInterface {
-    name = 'Init1789119952995'
+export class Leet1789214787912 implements MigrationInterface {
+    name = 'Leet1789214787912'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`CREATE TABLE "subtitle" ("id" SERIAL NOT NULL, "language" character varying NOT NULL, "filePath" character varying NOT NULL, "movieId" integer, CONSTRAINT "PK_994ad1599c74d6da447883869b5" PRIMARY KEY ("id"))`);

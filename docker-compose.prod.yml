@@ -62,7 +62,6 @@ services:
         - OAUTH_CLIENT_ID=${OAUTH_CLIENT_ID}
         - OAUTH_CLIENT_SECRET=${OAUTH_CLIENT_SECRET}
         - FORTY_TWO_MODE=${FORTY_TWO_MODE}
-
     image: hypertube_prod_back
     container_name: hypertube_prod_back
     env_file: .env.prod
@@ -76,8 +75,8 @@ services:
     expose:
       - 8080
     volumes:
-      - vol_backend_pics_prod:/app/dist/uploads
-      - vol_movies_prod:/app/dist/movies/downloads
+      - vol_backend_pics_prod:/app/uploads
+      - vol_movies_prod:/app/downloads
     networks:
       - hypertube_prod
     depends_on:
@@ -138,7 +137,7 @@ services:
         fi
         exec nginx -g "daemon off;"
     ports:
-      - 443:443
+      - 4443:443
     networks:
       - hypertube_prod
     depends_on:
