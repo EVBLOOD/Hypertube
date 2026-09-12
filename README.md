@@ -9,8 +9,39 @@ watch rooms, storage, caching, deployment, and the public API.
 > Hypertube obtains playable media from other configured sources. Only use
 > media that you are legally allowed to access and distribute.
 
+## UI examples
+
+The `UI/` folder contains a selection of early interface examples for the
+Hypertube experience. They are illustrative screens rather than a complete
+inventory of the application, and are included here as a quick visual
+introduction before the technical documentation.
+
+### Landing and authentication
+
+<p align="center">
+  <img src="UI/Landing%20Page.svg" alt="Hypertube landing page example" width="49%">
+  <img src="UI/Landing%20%26%20Auth.svg" alt="Hypertube landing and authentication example" width="49%">
+</p>
+
+### Movie discovery and details
+
+<p align="center">
+  <img src="UI/Movie%20Library.svg" alt="Hypertube movie library example" width="49%">
+  <img src="UI/Movie%20Details.svg" alt="Hypertube movie details example" width="49%">
+</p>
+
+### Mobile views and profiles
+
+<p align="center">
+  <img src="UI/Mobile%20-%20Movie%20Library.svg" alt="Hypertube mobile movie library example" width="49%">
+  <img src="UI/Mobile%20-%20Movie%20Details.svg" alt="Hypertube mobile movie details example" width="49%">
+  <img src="UI/Other%20User%20Profile.svg" alt="Hypertube user profile example" width="49%">
+  <img src="UI/404%20Lost%20in%20the%20Fog.svg" alt="Hypertube not found page example" width="49%">
+</p>
+
 ## Contents
 
+- [UI examples](#ui-examples)
 1. [What the application does](#1-what-the-application-does)
 2. [Technology and services](#2-technology-and-services)
 3. [Request flow](#3-request-flow)
