@@ -633,53 +633,66 @@ Host receives INVITE_ACCEPTED
 ```mermaid
 sequenceDiagram
     autonumber
+
     actor Host
     actor Guest
-    participant HostUI as Host browser
-    participant API as NestJS movies API
+
+    participant HostUI as Host Browser
+    participant API as NestJS Movies API
     participant Redis
-    participant Mail as Mail queue + SMTP
-    participant Socket as /movie Socket.IO gateway
-    participant GuestUI as Guest browser
+    participant Mail as Mail Queue + SMTP
+    participant Socket as Movie Socket.IO Gateway
+    participant GuestUI as Guest Browser
 
     Host->>HostUI: Click Live Invite and enter guest username/email
-    HostUI->>API: POST /movies/invite/imdbId
+    HostUI->>API: POST /movies/invite/{imdbId}
     API->>API: Find guest and reject self-invite
-    API->>Redis: Check invite:guest:movie:host
+    API->>Redis: Check invite:{guest}:{movie}:{host}
+
     alt Existing unexpired invitation
         Redis-->>API: Existing UUID
         API-->>HostUI: Return same room token
     else New invitation
         API->>Redis: Store UUID with 900-second TTL
         API->>Mail: Queue localized invite
-        Mail-->>Guest: Email Accept and Decline links
-        API-->>HostUI: Return UUID; enter waiting screen
+        Mail-->>Guest: Email with Accept / Decline links
+        API-->>HostUI: Return UUID and show waiting screen
     end
 
-    Guest->>API: GET /movies/invite/UUID?accept=true
+    Guest->>API: GET /movies/invite/{UUID}?accept=true
     API->>API: Authenticate active guest session
-    API->>Redis: Find and validate invitation owner
+    API->>Redis: Find and validate invitation
     Redis-->>API: guestId, movieId, hostId
     API->>Redis: Delete one-time invitation
-    API->>Socket: Register host + guest for UUID room
+    API->>Socket: Register host and guest in UUID room
+
     Socket-->>HostUI: INVITE_ACCEPTED with roomId
-    API-->>GuestUI: Redirect /watch/movieId?token=UUID
-    HostUI->>HostUI: Navigate /watch/movieId?token=UUID
+    API-->>GuestUI: Redirect to /watch/{movieId}?token={UUID}
+    HostUI->>HostUI: Navigate to /watch/{movieId}?token={UUID}
 
     HostUI->>Socket: join_room UUID
     GuestUI->>Socket: join_room UUID
+
     Socket-->>HostUI: USER_JOINED
     Socket-->>GuestUI: USER_JOINED
 
     par Playback synchronization
-        HostUI->>Socket: start_stream / pause_stream / seek_stream
-        Socket-->>GuestUI: START_STREAM / PAUSE_STREAM / SEEK_STREAM
+        HostUI->>Socket: start_stream
+        Socket-->>GuestUI: START_STREAM
+
+        HostUI->>Socket: pause_stream
+        Socket-->>GuestUI: PAUSE_STREAM
+
+        HostUI->>Socket: seek_stream
+        Socket-->>GuestUI: SEEK_STREAM
+
     and Ephemeral chat
         GuestUI->>Socket: send_message
         Socket-->>HostUI: MESSAGE
+
     and Independent video delivery
-        HostUI->>API: GET /movies/watch/movieId
-        GuestUI->>API: GET /movies/watch/movieId
+        HostUI->>API: GET /movies/watch/{movieId}
+        GuestUI->>API: GET /movies/watch/{movieId}
     end
 ```
 
